@@ -3,45 +3,73 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Tampilkan halaman login
      */
-    public function create(): View
+    public function create()
     {
-        return view('auth.login');
+        return view('auth.login'); // pastikan resources/views/auth/login.blade.php ada
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Proses login dengan validasi role
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->authenticate();
+        // Validasi input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'role' => 'required|in:admin,user,trainer',
+        ]);
 
-        $request->session()->regenerate();
+        $credentials = $request->only('email', 'password');
+        $role = $request->role;
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Coba login
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Cek apakah role sesuai
+            if (Auth::user()->role !== $role) {
+                Auth::logout();
+                // Berikan pesan error role
+                return back()->withErrors([
+                    'role' => 'Role yang dipilih tidak sesuai dengan akun Anda.',
+                ])->withInput($request->only('email', 'role'));
+            }
+
+            // Redirect sesuai role
+            return match (Auth::user()->role) {
+                'admin' => redirect()->route('admin.dashboard'),
+                'trainer' => redirect()->route('trainer.dashboard'),
+                'user' => redirect()->route('user.dashboard'),
+                default => redirect('/dashboard'),
+            };
+        }
+
+        // Jika gagal login
+        throw ValidationException::withMessages([
+            'email' => __('Email atau password salah.'),
+        ]);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Logout user
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }
