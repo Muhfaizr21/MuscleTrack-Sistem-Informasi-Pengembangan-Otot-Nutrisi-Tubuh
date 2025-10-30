@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-<<<<<<< Updated upstream
+
 // ==========================
 // Dashboard per Role (menggunakan middleware role yang sudah dibuat)
 // ==========================
@@ -68,7 +68,7 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 // Include Auth routes default
 // ==========================
 require __DIR__ . '/auth.php';
-=======
+
 // Rute Publik untuk Artikel
 Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
 Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
@@ -77,4 +77,4 @@ Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.i
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
 require __DIR__.'/auth.php';
->>>>>>> Stashed changes
+
