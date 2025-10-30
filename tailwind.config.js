@@ -12,8 +12,13 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // Ganti 'Figtree' (bawaan Breeze) dengan 'Inter'
+                'sans': ['Inter', ...defaultTheme.fontFamily.sans],
+                // Tambahkan font 'Playfair Display' untuk judul
+                'serif': ['"Playfair Display"', 'serif'],
             },
+            // Kita akan menggunakan warna 'amber' bawaan Tailwind,
+            // jadi tidak perlu menambahkannya di sini.
         },
     },
 

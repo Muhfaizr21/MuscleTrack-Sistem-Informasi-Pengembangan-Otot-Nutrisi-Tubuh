@@ -1,3 +1,29 @@
+/* 1. Import Font Profesional (Inter & Playfair Display) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap');
+
+/* 2. Ini adalah 'base' dari Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 3. Tambahkan CSS Kustom "Liar" di Bawah */
+
+body {
+    /* Set default font ke 'Inter' (sudah di-set di tailwind.config.js) */
+    @apply bg-black text-gray-200;
+}
+
+/* * BAGIAN "LIAR" 1: LATAR BELAKANG PARALLAX
+ * Ganti URL ini dengan foto gym/atlet yang high-res dan gelap.
+ */
+.parallax-bg {
+    background-image: url('https://images.unsplash.com/photo-1549060279-7e168f983401?q=80&w=2832&auto=format&fit=crop');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    opacity: 0.15; /* Sangat subtil */
+}

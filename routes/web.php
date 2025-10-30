@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NewsArticleController;
+use App\Http\Controllers\ContactFormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+<<<<<<< Updated upstream
 // ==========================
 // Dashboard per Role (menggunakan middleware role yang sudah dibuat)
 // ==========================
@@ -65,3 +68,13 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 // Include Auth routes default
 // ==========================
 require __DIR__ . '/auth.php';
+=======
+// Rute Publik untuk Artikel
+Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
+// Rute untuk menangani submit form kontak
+Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
+
+require __DIR__.'/auth.php';
+>>>>>>> Stashed changes
