@@ -1,35 +1,8 @@
-Tentu, ini adalah draf README.md yang rapi dan profesional berdasarkan informasi yang Anda berikan. Saya telah mengaturnya menggunakan format Markdown standar yang ideal untuk repositori GitHub.
 
-Anda bisa menyalin dan menempelkan teks di bawah ini ke dalam *file* `README.md` di proyek Anda.
-
------
 
 # 💪 MuscleTrack — Sistem Informasi Pengembangan Otot & Nutrisi Tubuh
 
 `MuscleTrack` adalah sistem informasi berbasis web yang dikembangkan sebagai bagian dari proyek seleksi magang. Sistem ini berfokus pada pemantauan perkembangan otot, kebutuhan nutrisi protein, panduan latihan, serta konsultasi dengan trainer profesional bagi pengguna.
-
-<br>
-
-\<details\>
-\<summary\>\<strong\>Table of Contents\</strong\>\</summary\>
-\<ol\>
-\<li\>\<a href="\#tentang-proyek"\>Tentang Proyek\</a\>\</li\>
-\<li\>\<a href="\#fitur-utama"\>Fitur Utama\</a\>\</li\>
-\<li\>\<a href="\#kredensial-demo"\>Kredensial Demo\</a\>\</li\>
-\<li\>\<a href="\#%EF%B8%8F-teknologi-yang-digunakan"\>Teknologi yang Digunakan\</a\>\</li\>
-\<li\>\<a href="\#-instalasi--menjalankan-proyek"\>Instalasi & Menjalankan Proyek\</a\>\</li\>
-\<li\>\<a href="\#-alur-kerja-sistem"\>Alur Kerja Sistem\</a\>\</li\>
-\<li\>\<a href="\#-struktur-halaman--fitur"\>Struktur Halaman & Fitur\</a\>
-\<ul\>
-\<li\>\<a href="\#-halaman-autentikasi"\>Halaman Autentikasi\</a\>\</li\>
-\<li\>\<a href="\#-admin-panel"\>Admin Panel\</a\>\</li\>
-\<li\>\<a href="\#-trainer-panel"\>Trainer Panel\</a\>\</li\>
-\<li\>\<a href="\#-user-panel"\>User Panel\</a\>\</li\>
-\</ul\>
-\</li\>
-\<li\>\<a href="\#-rencana-pengembangan-roadmap"\>Rencana Pengembangan (Roadmap)\</a\>\</li\>
-\</ol\>
-\</details\>
 
 ## Tentang Proyek
 
