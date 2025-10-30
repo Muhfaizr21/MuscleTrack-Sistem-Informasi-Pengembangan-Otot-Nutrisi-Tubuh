@@ -2,47 +2,77 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'role', 'age', 'gender', 'height', 'weight', 'goal_id'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function goal()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Goal::class);
+    }
+
+    public function workoutPlans()
+    {
+        return $this->hasMany(WorkoutPlan::class);
+    }
+
+    public function nutritionPlans()
+    {
+        return $this->hasMany(NutritionPlan::class);
+    }
+
+    public function bodyMetrics()
+    {
+        return $this->hasMany(BodyMetric::class);
+    }
+
+    public function progressLogs()
+    {
+        return $this->hasMany(ProgressLog::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function trainerMembershipsAsTrainer()
+    {
+        return $this->hasMany(TrainerMembership::class, 'trainer_id');
+    }
+
+    public function trainerMembershipsAsUser()
+    {
+        return $this->hasMany(TrainerMembership::class, 'user_id');
+    }
+
+    public function trainerChatsAsTrainer()
+    {
+        return $this->hasMany(TrainerChat::class, 'trainer_id');
+    }
+
+    public function trainerChatsAsUser()
+    {
+        return $this->hasMany(TrainerChat::class, 'user_id');
+    }
+
+    public function premiumAccessLogsAsUser()
+    {
+        return $this->hasMany(PremiumAccessLog::class, 'user_id');
+    }
+
+    public function premiumAccessLogsAsTrainer()
+    {
+        return $this->hasMany(PremiumAccessLog::class, 'trainer_id');
     }
 }
