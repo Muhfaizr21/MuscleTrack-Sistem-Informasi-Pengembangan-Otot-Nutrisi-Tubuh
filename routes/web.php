@@ -3,11 +3,14 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\TrainerController;
+use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
+use App\Http\Controllers\Trainer\LatihanController;
+use App\Http\Controllers\Trainer\NutrisiController;
+use App\Http\Controllers\Trainer\LaporanController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\ContactFormController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,37 +47,47 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
 // ==========================
-// Dashboard per Role (menggunakan middleware role yang sudah dibuat)
+// Dashboard per Role
 // ==========================
 
-// Admin
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+// ----- Admin -----
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    // Tambahkan route admin lainnya di sini
 });
 
-// Trainer
-Route::middleware(['auth', 'role:trainer'])->group(function () {
-    Route::get('/trainer/dashboard', [TrainerController::class, 'index'])->name('trainer.dashboard');
+// ----- Trainer -----
+Route::middleware(['auth', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
+    Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
+
+    // Data Latihan
+    Route::get('/latihan', [LatihanController::class, 'index'])->name('latihan.index');
+
+    // Data Nutrisi
+    Route::get('/nutrisi', [NutrisiController::class, 'index'])->name('nutrisi.index');
+
+    // Laporan Peserta
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 
-// User
-Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+// ----- User -----
+Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+    // Tambahkan route user lainnya di sini
 });
 
 // ==========================
-// Include Auth routes default
+// Rute Publik
 // ==========================
-require __DIR__ . '/auth.php';
 
-// Rute Publik untuk Artikel
+// Artikel
 Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
 Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
-// Rute untuk menangani submit form kontak
+
+// Kontak
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
-require __DIR__.'/auth.php';
-
+// Include default auth routes
+require __DIR__ . '/auth.php';

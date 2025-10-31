@@ -2,7 +2,6 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -23,7 +22,7 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * Route middleware groups.
+     * The application's route middleware groups.
      *
      * @var array
      */
@@ -44,7 +43,7 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * Route middleware.
+     * The application's route middleware.
      *
      * These middleware can be assigned to routes individually.
      *
@@ -61,7 +60,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
-        // ✅ Custom Role Middleware
+        // ✅ Tambahkan middleware role di sini
         'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

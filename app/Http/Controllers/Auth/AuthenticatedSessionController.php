@@ -26,7 +26,7 @@ class AuthenticatedSessionController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
-            'role' => 'required|in:admin,user,trainer',
+            'role' => 'required|in:admin,user,trainer', // sesuaikan role di DB
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -39,7 +39,8 @@ class AuthenticatedSessionController extends Controller
             // Cek apakah role sesuai
             if (Auth::user()->role !== $role) {
                 Auth::logout();
-                // Berikan pesan error role
+
+                // Kirim pesan error ke form login
                 return back()->withErrors([
                     'role' => 'Role yang dipilih tidak sesuai dengan akun Anda.',
                 ])->withInput($request->only('email', 'role'));
@@ -54,7 +55,7 @@ class AuthenticatedSessionController extends Controller
             };
         }
 
-        // Jika gagal login
+        // Jika gagal login (email/password salah)
         throw ValidationException::withMessages([
             'email' => __('Email atau password salah.'),
         ]);
