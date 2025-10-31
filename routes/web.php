@@ -103,3 +103,25 @@ Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.
 
 // Include default auth routes
 require __DIR__ . '/auth.php';
+
+
+
+//Trainer Routes
+// Dashboard Trainer
+Route::prefix('trainer')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('trainer.dashboard');
+    })->name('trainer.dashboard');
+
+    Route::get('/latihan', function () {
+        return view('trainer.latihan');
+    })->name('trainer.latihan.index');
+
+    Route::get('/nutrisi', function () {
+        return view('trainer.nutrisi');
+    })->name('trainer.nutrisi.index');
+
+    Route::get('/laporan', function () {
+        return view('trainer.laporan');
+    })->name('trainer.laporan.index');
+});
