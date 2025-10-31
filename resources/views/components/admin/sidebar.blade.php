@@ -13,21 +13,26 @@
             <nav class="flex-grow">
                 <ul class="space-y-2">
                     <li>
-                        <a href="#"
-                           class="flex items-center px-4 py-3 rounded-md font-medium text-black bg-amber-400 shadow-lg shadow-amber-500/20">
-                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></span>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
+    <a href="{{ route('admin.dashboard') }}"
+       class="flex items-center px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.dashboard')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></span>
+        <span>Dashboard</span>
+    </a>
+</li>
 
-                    <li>
-                        <a href="#"
-                           class="flex items-center px-4 py-3 rounded-md font-medium text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all">
-                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></span>
-                            <span>Manajemen User</span>
-                        </a>
-                    </li>
-
+<li>
+    <a href="{{ route('admin.users.index') }}"
+       class="flex items-center px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.users.*')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></span>
+        <span>Manajemen User</span>
+    </a>
+</li>
                     <li>
                         <a href="#"
                            class="flex items-center px-4 py-3 rounded-md font-medium text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all">

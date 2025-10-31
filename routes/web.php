@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\ContactFormController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,7 +55,7 @@ Route::middleware('auth')->group(function () {
 // ----- Admin -----
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    // Tambahkan route admin lainnya di sini
+    Route::resource('users', UserManagementController::class);
 });
 
 // ----- Trainer -----
