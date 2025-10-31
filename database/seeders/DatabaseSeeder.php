@@ -17,6 +17,11 @@ class DatabaseSeeder extends Seeder
         // Panggil seeder UserSeeder
         $this->call([
             UserSeeder::class,
+            WorkoutSeeder::class,
+            NutritionSeeder::class,
+            BodyMetricSeeder::class,
+            ArticleSeeder::class,
+            ChatSeeder::class,
         ]);
 
         // Contoh membuat user tambahan via factory
