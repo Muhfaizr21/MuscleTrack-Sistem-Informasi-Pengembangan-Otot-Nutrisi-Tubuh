@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\GoogleRegisterController;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
@@ -31,6 +34,14 @@ Route::get('/', function () {
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+Route::get('login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+Route::get('register/google', [GoogleRegisterController::class, 'redirectToGoogle'])->name('register.google');
+Route::get('register/google/callback', [GoogleRegisterController::class, 'handleGoogleCallback']);
+Route::get('register/google/role', [GoogleRegisterController::class, 'showRoleForm'])->name('register.role');
+Route::post('register/google/role', [GoogleRegisterController::class, 'storeRole'])->name('register.role.store');
 
 // ==========================
 // Dashboard umum (auth + verified)

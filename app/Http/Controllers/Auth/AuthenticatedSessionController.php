@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Proses login dengan validasi role
+     * Proses login otomatis mendeteksi role
      */
     public function store(Request $request)
     {
@@ -26,39 +26,30 @@ class AuthenticatedSessionController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
-            'role' => 'required|in:admin,user,trainer', // sesuaikan role di DB
         ]);
 
         $credentials = $request->only('email', 'password');
-        $role = $request->role;
 
         // Coba login
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            // Cek apakah role sesuai
-            if (Auth::user()->role !== $role) {
-                Auth::logout();
-
-                // Kirim pesan error ke form login
-                return back()->withErrors([
-                    'role' => 'Role yang dipilih tidak sesuai dengan akun Anda.',
-                ])->withInput($request->only('email', 'role'));
-            }
-
-            // Redirect sesuai role
-            return match (Auth::user()->role) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'trainer' => redirect()->route('trainer.dashboard'),
-                'user' => redirect()->route('user.dashboard'),
-                default => redirect('/dashboard'),
-            };
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'email' => __('Email atau password salah.'),
+            ]);
         }
 
-        // Jika gagal login (email/password salah)
-        throw ValidationException::withMessages([
-            'email' => __('Email atau password salah.'),
-        ]);
+        // Regenerate session untuk keamanan
+        $request->session()->regenerate();
+
+        // Ambil role user dari database
+        $role = Auth::user()->role;
+
+        // Redirect otomatis berdasarkan role
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'trainer' => redirect()->route('trainer.dashboard'),
+            'user' => redirect()->route('user.dashboard'),
+            default => redirect('/dashboard'),
+        };
     }
 
     /**
