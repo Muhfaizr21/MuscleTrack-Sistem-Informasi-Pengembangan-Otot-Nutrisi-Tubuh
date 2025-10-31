@@ -12,7 +12,7 @@
 
             <nav class="flex-grow">
                 <ul class="space-y-2">
-                    <li>
+                    <<li>
     <a href="{{ route('admin.dashboard') }}"
        class="flex items-center px-4 py-3 rounded-md font-medium transition-all
               {{ request()->routeIs('admin.dashboard')
