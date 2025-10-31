@@ -56,7 +56,7 @@
                                     Dashboard
                                 </a>
 
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400">
+                                <a href="{{ route('user.profile.edit') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-amber-400">
                                     Profile
                                 </a>
 
@@ -97,7 +97,7 @@
             <a href="{{ route('contact.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">Contact Us</a>
 
             @auth
-                <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">Profile</a>
+                <a href="{{ route('user.profile.edit') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700">Profile</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <a href="{{ route('logout') }}"
