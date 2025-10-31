@@ -10,28 +10,34 @@ return new class extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
-            // Informasi dasar
-            $table->string('name');                        // Nama user
-            $table->string('email')->unique();             // Email unik
-            $table->string('password');                    // Password hash
-            $table->enum('role', ['admin', 'user', 'trainer'])->default('user'); // Role
+            // 🧍 Identitas dasar
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->enum('role', ['admin', 'user', 'trainer'])->default('user');
 
-            // Informasi tambahan
-            $table->integer('age')->nullable();            // Usia
-            $table->enum('gender', ['male', 'female'])->nullable(); // Jenis kelamin
-            $table->float('height')->nullable();           // Tinggi badan
-            $table->float('weight')->nullable();           // Berat badan
-            $table->string('avatar')->nullable();          // 🆕 Foto profil (nama file / path)
-            $table->unsignedBigInteger('goal_id')->nullable(); // ID goal, hanya kolom
 
+            // 📊 Data tambahan profil
+            $table->integer('age')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->float('height')->nullable();
+            $table->float('weight')->nullable();
+            $table->string('avatar')->nullable()->comment('Foto profil user');
+
+            // 🎯 Goal ID (tanpa foreign key dulu)
+            $table->unsignedBigInteger('goal_id')->nullable()->comment('ID goal, opsional');
+            $table->enum('verification_status', ['pending', 'approved', 'rejected'])
+                ->default('pending');
             $table->timestamps();
         });
-
-        // ⚠️ Foreign key ke tabel goals dapat ditambahkan di migrasi terpisah
     }
 
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['trainer_id']);
+        });
+
         Schema::dropIfExists('users');
     }
 };

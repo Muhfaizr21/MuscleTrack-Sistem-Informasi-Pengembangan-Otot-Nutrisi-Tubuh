@@ -20,7 +20,9 @@ class User extends Authenticatable
         'gender',
         'height',
         'weight',
-        'goal_id'
+        'goal_id',
+        'trainer_id',
+        'verification_status'
     ];
 
     protected $hidden = ['password'];

@@ -15,9 +15,12 @@ use App\Http\Controllers\NewsArticleController;
 
 // ========== TRAINER ==========
 use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
-use App\Http\Controllers\Trainer\LatihanController;
-use App\Http\Controllers\Trainer\NutrisiController;
-use App\Http\Controllers\Trainer\LaporanController;
+use App\Http\Controllers\Trainer\MemberController;
+use App\Http\Controllers\Trainer\ChatController;
+use App\Http\Controllers\Trainer\NotificationController;
+use App\Http\Controllers\Trainer\ProgramController;
+use App\Http\Controllers\Trainer\SupplementController;
+use App\Http\Controllers\Trainer\QualityController;
 
 // ========== USER ==========
 use App\Http\Controllers\User\UserDashboardController;
@@ -57,7 +60,7 @@ Route::get('register/google/role', [GoogleRegisterController::class, 'showRoleFo
 Route::post('register/google/role', [GoogleRegisterController::class, 'storeRole'])->name('register.role.store');
 
 // ==========================
-// 🧭 Dashboard umum (auth + verified)
+// 🧭 Dashboard umum
 // ==========================
 Route::get('/dashboard', fn() => view('dashboard'))
     ->middleware(['auth', 'verified'])
@@ -81,10 +84,49 @@ Route::middleware(['auth', 'role:trainer'])
     ->prefix('trainer')
     ->name('trainer.')
     ->group(function () {
+        // 🏠 Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('latihan', LatihanController::class);
-        Route::resource('nutrisi', NutrisiController::class);
-        Route::resource('laporan', LaporanController::class);
+
+        // 1️⃣ MEMBER MANAGEMENT
+        Route::prefix('members')->name('members.')->group(function () {
+            Route::get('/', [MemberController::class, 'index'])->name('index');
+            Route::get('/{member}', [MemberController::class, 'show'])->name('show');
+            Route::post('/{member}/update-progress', [MemberController::class, 'updateProgress'])->name('updateProgress');
+        });
+
+        // 2️⃣ COMMUNICATION
+        Route::prefix('communication')->name('communication.')->group(function () {
+            // 💬 Chat
+            Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+            Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
+            Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
+            Route::post('/chat/read', [ChatController::class, 'markAllRead'])->name('chat.read');
+
+            // 🔔 Notifications
+            Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+            Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        });
+
+        // 3️⃣ PROGRAM & NUTRITION MANAGEMENT
+        Route::prefix('programs')->name('programs.')->group(function () {
+            Route::get('/{member}/edit', [ProgramController::class, 'edit'])->name('edit');
+            Route::patch('/{member}/update', [ProgramController::class, 'update'])->name('update');
+            Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
+            Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
+
+
+
+            // 💊 Supplements
+            Route::get('/{member}/supplements', [SupplementController::class, 'index'])->name('supplements.index');
+            Route::post('/{member}/supplements', [SupplementController::class, 'store'])->name('supplements.store');
+        });
+
+        // 4️⃣ TRAINER QUALITY & SUPPORT
+        Route::prefix('quality')->name('quality.')->group(function () {
+            Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
+            Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback.index');
+            Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
+        });
     });
 
 // ==========================
@@ -94,39 +136,24 @@ Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
     ->group(function () {
-
-        // 🏠 Dashboard utama
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-
-        // 📈 Progress & Body Metrics
         Route::resource('progress', UserProgressController::class);
-
-        // 🍗 Protein Tracker
         Route::resource('protein', UserProteinController::class);
-
-        // 🏋️ Workout Plans
         Route::resource('workouts', UserWorkoutController::class);
-
-        // 🥗 Nutrition & Meal Plans
         Route::resource('nutrition', UserNutritionController::class);
-
-        // 📅 Weekly Summary
         Route::resource('weekly-summary', UserSummaryController::class)
             ->parameters(['weekly-summary' => 'summary']);
 
-        // 💬 Chat Realtime dengan Trainer
         Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
         Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
         Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
 
-        // 👤 Profile user
         Route::get('profile', [UserProfileController::class, 'index'])->name('profile.index');
         Route::get('profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile/update', [UserProfileController::class, 'update'])->name('profile.update');
         Route::get('profile/password', [UserProfileController::class, 'editPassword'])->name('profile.password.edit');
         Route::patch('profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.password.update');
 
-        // 📰 Tips & Articles
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
     });
