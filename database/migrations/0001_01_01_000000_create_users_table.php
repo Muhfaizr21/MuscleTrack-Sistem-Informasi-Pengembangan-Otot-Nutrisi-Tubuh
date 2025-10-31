@@ -9,20 +9,25 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');                  // Nama user
-            $table->string('email')->unique();       // Email unik
-            $table->string('password');              // Password hash
+
+            // Informasi dasar
+            $table->string('name');                        // Nama user
+            $table->string('email')->unique();             // Email unik
+            $table->string('password');                    // Password hash
             $table->enum('role', ['admin', 'user', 'trainer'])->default('user'); // Role
-            $table->integer('age')->nullable();      // Usia
+
+            // Informasi tambahan
+            $table->integer('age')->nullable();            // Usia
             $table->enum('gender', ['male', 'female'])->nullable(); // Jenis kelamin
-            $table->float('height')->nullable();     // Tinggi badan
-            $table->float('weight')->nullable();     // Berat badan
-            $table->unsignedBigInteger('goal_id')->nullable(); // ID goal, kolom saja tanpa FK
+            $table->float('height')->nullable();           // Tinggi badan
+            $table->float('weight')->nullable();           // Berat badan
+            $table->string('avatar')->nullable();          // 🆕 Foto profil (nama file / path)
+            $table->unsignedBigInteger('goal_id')->nullable(); // ID goal, hanya kolom
+
             $table->timestamps();
         });
 
-        // ⚠️ Jangan langsung tambahkan foreign key di sini
-        // Jika tabel goals sudah ada, bisa ditambahkan di migrasi terpisah
+        // ⚠️ Foreign key ke tabel goals dapat ditambahkan di migrasi terpisah
     }
 
     public function down(): void
