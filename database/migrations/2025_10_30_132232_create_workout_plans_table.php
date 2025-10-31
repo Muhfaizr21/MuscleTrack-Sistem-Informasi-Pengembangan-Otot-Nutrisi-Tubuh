@@ -12,7 +12,14 @@ return new class extends Migration {
             $table->string('title');
             $table->string('level');
             $table->text('description')->nullable();
+            
+            // Kolom tambahan sesuai dokumen
+            $table->string('target_fitness')->nullable(); // contoh: fat_loss, muscle_gain
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('difficulty_level')->nullable(); // contoh: beginner, intermediate, advanced
             $table->integer('duration_weeks')->nullable();
+            $table->integer('duration_minutes')->nullable(); // opsional
+
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
