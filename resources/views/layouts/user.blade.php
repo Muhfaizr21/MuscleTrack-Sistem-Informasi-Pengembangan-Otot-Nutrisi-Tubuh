@@ -17,16 +17,71 @@
                 🏋️ <span>MuscleTrack</span>
             </a>
 
-            <!-- Menu -->
-            <div class="hidden md:flex flex-wrap gap-5 font-medium">
-                <a href="{{ route('user.progress.index') }}" class="hover:text-indigo-600 {{ request()->is('user/progress*') ? 'text-indigo-600 font-semibold' : '' }}">My Progress</a>
-                <a href="{{ route('user.protein.index') }}" class="hover:text-indigo-600 {{ request()->is('user/protein*') ? 'text-indigo-600 font-semibold' : '' }}">Protein Tracker</a>
-                <a href="{{ route('user.workouts.index') }}" class="hover:text-indigo-600 {{ request()->is('user/workouts*') ? 'text-indigo-600 font-semibold' : '' }}">Workout Plans</a>
-                <a href="{{ route('user.nutrition.index') }}" class="hover:text-indigo-600 {{ request()->is('user/nutrition*') ? 'text-indigo-600 font-semibold' : '' }}">Nutrition Plans</a>
-                <a href="{{ route('user.weekly-summary.index') }}" class="hover:text-indigo-600 {{ request()->is('user/weekly-summary*') ? 'text-indigo-600 font-semibold' : '' }}">Weekly Summary</a>
-                <a href="{{ route('user.articles.index') }}" class="hover:text-indigo-600 {{ request()->is('user/articles*') ? 'text-indigo-600 font-semibold' : '' }}">Tips & Articles</a>
-                <a href="{{ route('user.chat.index') }}" class="hover:text-indigo-600 {{ request()->is('user/chat*') ? 'text-indigo-600 font-semibold' : '' }}">Chat Trainer</a>
-                <a href="{{ route('user.profile.index') }}" class="hover:text-indigo-600 {{ request()->is('user/profile*') ? 'text-indigo-600 font-semibold' : '' }}">My Profile</a>
+            <!-- ✅ Desktop Menu -->
+            <div class="hidden md:flex flex-wrap gap-5 font-medium items-center">
+
+                <!-- My Progress -->
+                <a href="{{ route('user.progress.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/progress*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    My Progress
+                    @if($notifications['progress'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- Workout Plans -->
+                <a href="{{ route('user.workouts.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/workouts*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    Workout Plans
+                    @if($notifications['workout'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- Nutrition & Protein Tracker -->
+                <a href="{{ route('user.nutrition.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/nutrition*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    Nutrition Tracker
+                    @if($notifications['nutrition'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- Weekly Summary -->
+                <a href="{{ route('user.weekly-summary.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/weekly-summary*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    Weekly Summary
+                    @if($notifications['summary'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- Tips & Articles -->
+                <a href="{{ route('user.articles.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/articles*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    Tips & Articles
+                    @if($notifications['articles'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- Chat with Trainer -->
+                <a href="{{ route('user.chat.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/chat*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    Chat Trainer
+                    @if($notifications['chat'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-green-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
+
+                <!-- My Profile -->
+                <a href="{{ route('user.profile.index') }}" 
+                   class="relative hover:text-indigo-600 {{ request()->is('user/profile*') ? 'text-indigo-600 font-semibold' : '' }}">
+                    My Profile
+                    @if($notifications['profile'] ?? false)
+                        <span class="absolute -top-1 -right-2 bg-yellow-500 text-white text-xs rounded-full px-1.5">!</span>
+                    @endif
+                </a>
 
                 <!-- Logout -->
                 <form action="{{ route('logout') }}" method="POST" class="inline">
@@ -39,17 +94,16 @@
             <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">☰</button>
         </div>
 
-        <!-- Mobile Menu -->
+        <!-- ✅ Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
             <div class="flex flex-col p-4 space-y-3 font-medium">
-                <a href="{{ route('user.progress.index') }}" class="hover:text-indigo-600">My Progress</a>
-                <a href="{{ route('user.protein.index') }}" class="hover:text-indigo-600">Protein Tracker</a>
-                <a href="{{ route('user.workouts.index') }}" class="hover:text-indigo-600">Workout Plans</a>
-                <a href="{{ route('user.nutrition.index') }}" class="hover:text-indigo-600">Nutrition Plans</a>
-                <a href="{{ route('user.weekly-summary.index') }}" class="hover:text-indigo-600">Weekly Summary</a>
-                <a href="{{ route('user.articles.index') }}" class="hover:text-indigo-600">Tips & Articles</a>
-                <a href="{{ route('user.chat.index') }}" class="hover:text-indigo-600">Chat Trainer</a>
-                <a href="{{ route('user.profile.index') }}" class="hover:text-indigo-600">My Profile</a>
+                <a href="{{ route('user.progress.index') }}">My Progress</a>
+                <a href="{{ route('user.workouts.index') }}">Workout Plans</a>
+                <a href="{{ route('user.nutrition.index') }}">Nutrition Tracker</a>
+                <a href="{{ route('user.weekly-summary.index') }}">Weekly Summary</a>
+                <a href="{{ route('user.articles.index') }}">Tips & Articles</a>
+                <a href="{{ route('user.chat.index') }}">Chat Trainer</a>
+                <a href="{{ route('user.profile.index') }}">My Profile</a>
 
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf

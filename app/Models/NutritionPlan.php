@@ -9,20 +9,39 @@ class NutritionPlan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'calories', 'protein', 'carbs', 'fat', 'meals', 'user_id'];
+    protected $fillable = [
+        'user_id',
+        'meal_name',
+        'calories',
+        'protein',
+        'carbs',
+        'fat',
+        'day_of_week',
+        'target_fitness',
+        'type',
+    ];
 
+    /**
+     * Relasi ke user (jika user buat menu sendiri)
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function supplements()
+    /**
+     * Ambil total makronutrien dalam satu hari (untuk dashboard harian)
+     */
+    public static function dailyTotal($userId, $day)
     {
-        return $this->hasMany(Supplement::class);
-    }
-
-    public function progressLogs()
-    {
-        return $this->hasMany(ProgressLog::class);
+        return self::where('user_id', $userId)
+            ->where('day_of_week', $day)
+            ->selectRaw('
+                SUM(calories) as total_calories,
+                SUM(protein) as total_protein,
+                SUM(carbs) as total_carbs,
+                SUM(fat) as total_fat
+            ')
+            ->first();
     }
 }

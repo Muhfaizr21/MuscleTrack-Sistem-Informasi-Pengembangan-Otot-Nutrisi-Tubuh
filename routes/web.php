@@ -94,26 +94,39 @@ Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
     ->group(function () {
+
         // 🏠 Dashboard utama
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
-        // 📈 Modul user
+        // 📈 Progress & Body Metrics
         Route::resource('progress', UserProgressController::class);
+
+        // 🍗 Protein Tracker
         Route::resource('protein', UserProteinController::class);
+
+        // 🏋️ Workout Plans
         Route::resource('workouts', UserWorkoutController::class);
+
+        // 🥗 Nutrition & Meal Plans
         Route::resource('nutrition', UserNutritionController::class);
+
+        // 📅 Weekly Summary
         Route::resource('weekly-summary', UserSummaryController::class)
             ->parameters(['weekly-summary' => 'summary']);
-        Route::resource('chat', UserChatController::class);
 
-        // 👤 Profile user (semua logika di UserProfileController)
+        // 💬 Chat Realtime dengan Trainer
+        Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
+        Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
+
+        // 👤 Profile user
         Route::get('profile', [UserProfileController::class, 'index'])->name('profile.index');
         Route::get('profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile/update', [UserProfileController::class, 'update'])->name('profile.update');
         Route::get('profile/password', [UserProfileController::class, 'editPassword'])->name('profile.password.edit');
         Route::patch('profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.password.update');
 
-        // 📰 Artikel user
+        // 📰 Tips & Articles
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
     });
