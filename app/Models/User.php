@@ -11,7 +11,16 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email','avatar','password', 'role', 'age', 'gender', 'height', 'weight', 'goal_id'
+        'name',
+        'email',
+        'avatar',
+        'password',
+        'role',
+        'age',
+        'gender',
+        'height',
+        'weight',
+        'goal_id'
     ];
 
     protected $hidden = ['password'];
@@ -74,5 +83,42 @@ class User extends Authenticatable
     public function premiumAccessLogsAsTrainer()
     {
         return $this->hasMany(PremiumAccessLog::class, 'trainer_id');
+    }
+
+    // === Relasi ke fitur tambahan MuscleXpert ===
+
+    public function trainerProfile()
+    {
+        return $this->hasOne(TrainerProfile::class);
+    }
+
+    public function feedbacksGiven()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    public function feedbacksReceived()
+    {
+        return $this->hasMany(Feedback::class, 'trainer_id');
+    }
+
+    public function paymentsMade()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function paymentsReceived()
+    {
+        return $this->hasMany(Payment::class, 'trainer_id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function aiRecommendations()
+    {
+        return $this->hasMany(AiRecommendation::class);
     }
 }

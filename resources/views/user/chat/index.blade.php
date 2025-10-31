@@ -1,28 +1,25 @@
 @extends('layouts.user')
 
 @section('content')
-<div class="bg-white shadow-md rounded-2xl p-6">
-    <h2 class="text-xl font-semibold text-indigo-700 mb-4">📅 Weekly Summary</h2>
+<div class="bg-white rounded-xl shadow p-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-indigo-700">💬 Chat with Trainer</h2>
+        <a href="{{ route('user.chat.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+            + New Chat
+        </a>
+    </div>
 
-    <p>Total Minggu Ini:</p>
-    <ul class="list-disc ml-5">
-        <li>Kalori: <b>{{ $totalCalories }}</b></li>
-        <li>Protein: <b>{{ $totalProtein }} g</b></li>
-        <li>Karbo: <b>{{ $totalCarbs }} g</b></li>
-        <li>Lemak: <b>{{ $totalFat }} g</b></li>
-    </ul>
-
-    <table class="w-full border mt-4">
-        <thead class="bg-gray-100">
-            <tr><th>Tanggal</th><th>Kalori</th><th>Protein</th><th>Karbo</th><th>Lemak</th></tr>
-        </thead>
-        <tbody>
-            @forelse($weekLogs as $log)
-                <tr class="border-t"><td class="p-2">{{ $log->log_date }}</td></tr>
-            @empty
-                <tr><td colspan="5" class="text-center text-gray-500 p-3">Belum ada data minggu ini.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+    @if($chats->count())
+        <ul>
+            @foreach($chats as $chat)
+                <li class="border-b py-2 flex justify-between">
+                    <span>{{ $chat->message }}</span>
+                    <a href="{{ route('user.chat.edit', $chat->id) }}" class="text-indigo-600 hover:underline">Edit</a>
+                </li>
+            @endforeach
+        </ul>
+    @else
+        <p class="text-gray-500">Belum ada pesan.</p>
+    @endif
 </div>
 @endsection

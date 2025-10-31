@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\TrainerChat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,7 +12,7 @@ class UserChatController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $chats = []; // nanti ambil dari tabel chat_user
+        $chats = TrainerChat::where('user_id', $user->id)->get();
         return view('user.chat.index', compact('user', 'chats'));
     }
 
