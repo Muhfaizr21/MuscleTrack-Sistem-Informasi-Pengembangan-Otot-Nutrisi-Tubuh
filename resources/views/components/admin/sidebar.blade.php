@@ -63,12 +63,15 @@
                     </li>
 
                     <li>
-                        <a href="#"
-                           class="flex items-center px-4 py-3 rounded-md font-medium text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all">
-                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
-                            <span>Nutrition Plans</span>
-                        </a>
-                    </li>
+    <a href="{{ route('admin.nutrition-programs.index') }}"
+       class="flex items-center px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.nutrition-programs.*')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+        <span>Program Nutrisi</span>
+    </a>
+</li>
 
                     <li>
                         <a href="#"

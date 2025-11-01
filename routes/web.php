@@ -7,12 +7,13 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GoogleRegisterController;
 
-// ========== CORE ==========
+// ========== ADMIN ==========
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\NutritionProgramController;
 
 // ========== TRAINER ==========
 use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
@@ -77,6 +78,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::resource('users', UserManagementController::class);
         Route::resource('articles', ArticleController::class);
+        Route::resource('nutrition-programs', NutritionProgramController::class);
     });
 
 // ==========================
