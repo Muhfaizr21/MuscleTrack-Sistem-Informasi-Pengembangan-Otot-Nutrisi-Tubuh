@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             BodyMetricSeeder::class,
             ArticleSeeder::class,
             ChatSeeder::class,
+            MuscleDemoSeeder::class,
         ]);
 
         // Contoh membuat user tambahan via factory

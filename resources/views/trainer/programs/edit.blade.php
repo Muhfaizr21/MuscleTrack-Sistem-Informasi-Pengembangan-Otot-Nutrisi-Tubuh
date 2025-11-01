@@ -1,48 +1,86 @@
 @extends('layouts.trainer')
 
-@section('title', 'Edit Program Member')
+@section('title', 'Program Latihan Member')
 
 @section('content')
-<div class="bg-white shadow rounded-2xl p-6">
-    <h1 class="text-2xl font-bold mb-4">🏋️ Edit Program & Nutrition - {{ $member->name }}</h1>
+<div class="bg-white shadow rounded-lg p-8 space-y-10">
 
-    @if (session('success'))
-        <div class="bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded mb-4">
-            ✅ {{ session('success') }}
-        </div>
-    @endif
+    {{-- ============================= --}}
+    {{-- 🏋️ Workout Program Management --}}
+    {{-- ============================= --}}
+    <div>
+        <h2 class="text-2xl font-bold mb-6 text-blue-700">
+            ⚙️ Program Latihan untuk {{ $member->name }}
+        </h2>
 
-    <form action="{{ route('trainer.programs.update', $member->id) }}" method="POST" class="space-y-6">
-        @csrf
-        @method('PATCH')
+        {{-- Form Program --}}
+        <form action="{{ route('trainer.programs.update', ['memberId' => $member->id]) }}" method="POST" class="space-y-6">
+            @csrf
+            @method('PATCH')
 
-        {{-- Workout Section --}}
-        <div>
-            <h2 class="text-xl font-semibold text-blue-700 mb-3">🏋️ Workout Plan</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-input label="Nama Program" name="workout_name" value="{{ old('workout_name', $workoutPlan->name ?? '') }}" />
-                <x-input label="Intensitas" name="intensity" value="{{ old('intensity', $workoutPlan->intensity ?? '') }}" />
-                <x-input label="Durasi (menit)" type="number" name="duration" value="{{ old('duration', $workoutPlan->duration ?? '') }}" />
-                <x-input label="Repetisi" type="number" name="repetitions" value="{{ old('repetitions', $workoutPlan->repetitions ?? '') }}" />
+            {{-- Workout Plan --}}
+            <div>
+                <h3 class="text-lg font-semibold mb-2">🏋️ Rencana Latihan</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="workout_title" 
+                           value="{{ $workoutPlan->title ?? '' }}" 
+                           placeholder="Judul Program (contoh: Upper Body Strength)"
+                           class="border rounded p-2 w-full">
+
+                    <input type="text" name="level" 
+                           value="{{ $workoutPlan->level ?? '' }}" 
+                           placeholder="Tingkat (Low/Medium/High)"
+                           class="border rounded p-2 w-full">
+
+                    <input type="number" name="duration_weeks" 
+                           value="{{ $workoutPlan->duration_weeks ?? '' }}" 
+                           placeholder="Durasi (minggu)"
+                           class="border rounded p-2 w-full">
+
+                    <textarea name="description" 
+                              placeholder="Deskripsi latihan..."
+                              class="border rounded p-2 w-full">{{ $workoutPlan->description ?? '' }}</textarea>
+                </div>
             </div>
-        </div>
 
-        {{-- Nutrition Section --}}
-        <div>
-            <h2 class="text-xl font-semibold text-green-700 mb-3">🥗 Nutrition Plan</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <x-input label="Kalori (kcal)" type="number" name="calories" value="{{ old('calories', $nutritionPlan->calories ?? '') }}" />
-                <x-input label="Protein (gr)" type="number" name="protein" value="{{ old('protein', $nutritionPlan->protein ?? '') }}" />
-                <x-input label="Karbohidrat (gr)" type="number" name="carbs" value="{{ old('carbs', $nutritionPlan->carbs ?? '') }}" />
-                <x-input label="Lemak (gr)" type="number" name="fat" value="{{ old('fat', $nutritionPlan->fat ?? '') }}" />
-            </div>
-        </div>
-
-        <div class="pt-4">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                💾 Simpan Perubahan
+            <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition">
+                💾 Simpan Program
             </button>
-        </div>
-    </form>
+        </form>
+    </div>
+
+    {{-- ============================= --}}
+    {{-- 🗒️ Progress Notes --}}
+    {{-- ============================= --}}
+    <div>
+        <hr class="my-8">
+        <h3 class="text-lg font-semibold mb-3 text-indigo-700">🗒️ Catatan Progress Member</h3>
+
+        <form action="{{ route('trainer.programs.progress.note.store', ['memberId' => $member->id]) }}" method="POST" class="space-y-3">
+            @csrf
+            <textarea name="notes" rows="3" 
+                      placeholder="Tulis evaluasi atau catatan perkembangan member..." 
+                      class="border rounded p-3 w-full"></textarea>
+
+            <button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition">
+                ➕ Simpan Catatan
+            </button>
+        </form>
+
+        {{-- Daftar Catatan --}}
+        @if(isset($member->progressLogs) && $member->progressLogs->count())
+            <ul class="mt-5 space-y-3">
+                @foreach($member->progressLogs->sortByDesc('created_at') as $log)
+                    <li class="border rounded-lg p-4 bg-gray-50">
+                        <p class="text-sm text-gray-700">{{ $log->notes }}</p>
+                        <span class="text-xs text-gray-500">{{ $log->created_at->format('d M Y, H:i') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p class="text-gray-500 mt-3">Belum ada catatan progress untuk member ini.</p>
+        @endif
+    </div>
+
 </div>
 @endsection

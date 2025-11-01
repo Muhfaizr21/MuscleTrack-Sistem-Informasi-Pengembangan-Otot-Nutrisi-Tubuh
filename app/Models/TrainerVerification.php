@@ -9,7 +9,14 @@ class TrainerVerification extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['trainer_id', 'certificate', 'bio', 'status'];
+    protected $fillable = [
+        'trainer_id',
+        'certificate',
+        'bio',
+        'status',
+        'admin_feedback',
+        'verified_at',
+    ];
 
     public function trainer()
     {

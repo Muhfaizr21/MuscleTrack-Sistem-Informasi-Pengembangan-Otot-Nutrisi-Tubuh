@@ -13,6 +13,9 @@ return new class extends Migration {
             $table->string('certificate')->nullable(); // path sertifikat / dokumen
             $table->text('bio')->nullable(); // alasan / pengalaman
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('admin_feedback')->nullable(); // untuk catatan/komentar admin
+            $table->timestamp('verified_at')->nullable(); // kapan disetujui admin
+
             $table->timestamps();
 
             $table->foreign('trainer_id')->references('id')->on('users')->onDelete('cascade');

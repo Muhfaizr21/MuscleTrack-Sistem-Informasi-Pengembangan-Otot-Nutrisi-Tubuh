@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:trainer'])
     ->prefix('trainer')
     ->name('trainer.')
     ->group(function () {
+
         // 🏠 Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
@@ -98,30 +99,42 @@ Route::middleware(['auth', 'role:trainer'])
 
         // 2️⃣ COMMUNICATION
         Route::prefix('communication')->name('communication.')->group(function () {
-            // 💬 Chat
             Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
             Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
             Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
             Route::post('/chat/read', [ChatController::class, 'markAllRead'])->name('chat.read');
 
-            // 🔔 Notifications
             Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         });
 
+
         // 3️⃣ PROGRAM & NUTRITION MANAGEMENT
         Route::prefix('programs')->name('programs.')->group(function () {
-            Route::get('/{member}/edit', [ProgramController::class, 'edit'])->name('edit');
-            Route::patch('/{member}/update', [ProgramController::class, 'update'])->name('update');
+            Route::get('/', [ProgramController::class, 'index'])->name('index');
+            Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
+            Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
+
+            // 🥗 Nutrition & Supplements (gabungan)
+            Route::prefix('nutrition')->name('nutrition.')->group(function () {
+                Route::get('/{memberId}', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'index'])->name('index');
+                Route::get('/{memberId}/edit', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'edit'])->name('edit');
+                Route::post('/{memberId}/update', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'update'])->name('update');
+                Route::delete('/{memberId}/supplement/{supplementId}', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
+                Route::post('/{memberId}/supplement', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
+            });
+
+
+
+            // 🗒️ Progress Notes
+            Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])
+                ->name('progress.note.store');
+
+            // 📋 Pendaftaran & Verifikasi Trainer
             Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
-
-
-
-            // 💊 Supplements
-            Route::get('/{member}/supplements', [SupplementController::class, 'index'])->name('supplements.index');
-            Route::post('/{member}/supplements', [SupplementController::class, 'store'])->name('supplements.store');
         });
+
 
         // 4️⃣ TRAINER QUALITY & SUPPORT
         Route::prefix('quality')->name('quality.')->group(function () {
