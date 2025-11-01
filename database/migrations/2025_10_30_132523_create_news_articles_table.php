@@ -15,8 +15,6 @@ return new class extends Migration {
             $table->string('slug')->unique()->nullable(); // URL-friendly title
             $table->string('category')->nullable();       // Fitness, Nutrition, Lifestyle, dll
             $table->string('summary', 300)->nullable();   // Ringkasan singkat artikel
-
-            // 🧾 Konten & metadata
             $table->text('content')->nullable();
             $table->string('image')->nullable();          // Thumbnail artikel
             $table->string('author')->nullable();         // Nama penulis

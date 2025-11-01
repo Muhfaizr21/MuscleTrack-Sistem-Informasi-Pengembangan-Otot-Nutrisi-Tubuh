@@ -21,12 +21,10 @@
                 {!! nl2br(e($article->content)) !!}
             </div>
 
-            <div class="mt-16 border-t border-gray-700/50 pt-8">
-                <a href="{{ route('articles.index') }}"
-                   class="font-medium text-amber-400 hover:text-amber-300 transition-colors">
-                    &larr; Kembali ke Semua Artikel
-                </a>
-            </div>
+            <a href="{{ route('public.articles.index') }}"
+   class="font-medium text-amber-400 hover:text-amber-300 transition-colors">
+    &larr; Kembali ke Semua Artikel
+</a>
 
         </div>
     </div>

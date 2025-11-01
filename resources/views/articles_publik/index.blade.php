@@ -19,14 +19,14 @@
 
                     @foreach($articles as $article)
                         <div class="group">
-                            <a href="{{ route('articles.show', $article) }}" class="block">
+                            <a href="{{ route('public.articles.show', $article) }}" class="block">
                                 <img class="w-full h-auto aspect-[16/10] object-cover rounded-lg shadow-2xl group-hover:opacity-80 transition-opacity"
                                      src="{{ Storage::url($article->image_url) ?? 'https://via.placeholder.com/600x400.png?text=Article+Image' }}"
                                      alt="{{ $article->title }}">
                             </a>
                             <div class="mt-4">
                                 <span class="text-sm font-medium text-amber-400 uppercase tracking-widest">{{ $article->category }}</span>
-                                <a href="{{ route('articles.show', $article) }}" class="block mt-1">
+                                <a href="{{ route('public.articles.show', $article) }}" class="block mt-1">
                                     <h3 class="font-serif text-2xl font-bold text-white group-hover:text-gray-200 transition-colors">
                                         {{ $article->title }}
                                     </h3>

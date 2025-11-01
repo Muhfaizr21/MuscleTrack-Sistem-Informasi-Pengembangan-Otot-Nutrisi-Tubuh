@@ -15,7 +15,7 @@ class NewsArticleController extends Controller
         // Ambil semua artikel, 9 per halaman
         $articles = NewsArticle::latest()->paginate(9);
 
-        return view('articles.index', compact('articles'));
+        return view('articles_publik.index', compact('articles'));
     }
 
     /**
@@ -24,6 +24,6 @@ class NewsArticleController extends Controller
     public function show(NewsArticle $article)
     {
         // Laravel akan otomatis mencari artikel berdasarkan ID/slug
-        return view('articles.show', compact('article'));
+        return view('articles_publik.show', compact('article'));
     }
 }

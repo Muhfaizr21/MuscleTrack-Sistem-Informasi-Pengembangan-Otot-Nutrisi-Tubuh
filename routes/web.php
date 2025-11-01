@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
+use App\Http\Controllers\Admin\ArticleController;
 
 // ========== TRAINER ==========
 use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
@@ -75,6 +76,7 @@ Route::middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::resource('users', UserManagementController::class);
+        Route::resource('articles', ArticleController::class);
     });
 
 // ==========================
@@ -161,8 +163,12 @@ Route::middleware(['auth', 'role:user'])
 // ==========================
 // 🌐 Rute Publik
 // ==========================
-Route::get('/articles', [NewsArticleController::class, 'index'])->name('public.articles.index');
-Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('public.articles.show');
+Route::get('/articles_publik', [NewsArticleController::class, 'index'])
+     ->name('public.articles.index');
+
+Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])
+     ->name('public.articles.show');
+
 
 // 📬 Kontak publik
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');

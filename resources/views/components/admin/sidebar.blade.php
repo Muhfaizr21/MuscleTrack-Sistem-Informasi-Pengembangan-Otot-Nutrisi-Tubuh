@@ -41,13 +41,18 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="#"
-                           class="flex items-center px-4 py-3 rounded-md font-medium text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all">
-                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6"></path></svg></span>
-                            <span>Artikel (Journal)</span>
-                        </a>
-                    </li>
+                   </li>
+
+<li>
+    <a href="{{ route('admin.articles.index') }}"
+       class="flex items-center px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.articles.*')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6M7 8h6"></path></svg></span>
+        <span>Manajemen Artikel</span>
+    </a>
+</li>
 
                     <li>
                         <a href="#"
