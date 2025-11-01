@@ -59,7 +59,7 @@
             <div class="flex justify-between items-center">
 
                 <div class="flex items-center gap-6">
-                    <a href="#" class="font-serif text-3xl font-bold text-white">
+                    <a href="{{ 'dashboard' }}" class="font-serif text-3xl font-bold text-white">
                         Muscle<span class="text-amber-400">Xpert</span>
                     </a>
 
