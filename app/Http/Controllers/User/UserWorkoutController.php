@@ -62,13 +62,16 @@ class UserWorkoutController extends Controller
         $schedule = WorkoutSchedule::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'workout_id' => $request->workout_id,
+                // ===== PERBAIKAN 1 DI SINI =====
+                'plan_id' => $request->workout_id, // Ganti dari 'workout_id'
                 'day_of_week' => $request->day_of_week,
             ],
             ['time' => $request->time]
         );
 
         // 🔔 Buat notifikasi reminder workout
+        // Pastikan model WorkoutSchedule Anda punya relasi 'workout'
+        // yang menunjuk ke 'plan_id'
         Notification::create([
             'user_id' => $user->id,
             'title' => 'Workout Reminder 🏋️',
@@ -105,7 +108,8 @@ class UserWorkoutController extends Controller
         $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($id);
 
         $schedule->update([
-            'workout_id' => $request->workout_id,
+            // ===== PERBAIKAN 2 DI SINI =====
+            'plan_id' => $request->workout_id, // Ganti dari 'workout_id'
             'day_of_week' => $request->day_of_week,
             'time' => $request->time,
         ]);
@@ -132,6 +136,7 @@ class UserWorkoutController extends Controller
 
         return redirect()->route('user.workouts.index')->with('success', 'Jadwal workout berhasil dihapus!');
     }
+
     public function create(Request $request)
     {
         $workouts = WorkoutPlan::all();
