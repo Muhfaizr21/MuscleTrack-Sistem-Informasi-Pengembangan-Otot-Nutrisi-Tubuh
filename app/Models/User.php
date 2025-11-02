@@ -27,6 +27,7 @@ class User extends Authenticatable
 
     protected $hidden = ['password'];
 
+    // === Relasi dasar ===
     public function goal()
     {
         return $this->belongsTo(Goal::class);
@@ -57,6 +58,7 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    // === Relasi Trainer <-> Member ===
     public function trainerMembershipsAsTrainer()
     {
         return $this->hasMany(TrainerMembership::class, 'trainer_id');
@@ -67,6 +69,7 @@ class User extends Authenticatable
         return $this->hasMany(TrainerMembership::class, 'user_id');
     }
 
+    // === Chat antar Trainer & User ===
     public function trainerChatsAsTrainer()
     {
         return $this->hasMany(TrainerChat::class, 'trainer_id');
@@ -77,6 +80,18 @@ class User extends Authenticatable
         return $this->hasMany(TrainerChat::class, 'user_id');
     }
 
+    /**
+     * 🔹 Relasi umum untuk semua chat (baik user maupun trainer)
+     * -> Bisa langsung pakai $user->trainerChats() tanpa error
+     */
+    public function trainerChats()
+    {
+        return $this->hasMany(TrainerChat::class, 'user_id')
+            ->orWhere('trainer_id', $this->id);
+    }
+
+
+    // === Log Akses Premium ===
     public function premiumAccessLogsAsUser()
     {
         return $this->hasMany(PremiumAccessLog::class, 'user_id');
@@ -87,8 +102,7 @@ class User extends Authenticatable
         return $this->hasMany(PremiumAccessLog::class, 'trainer_id');
     }
 
-    // === Relasi ke fitur tambahan MuscleXpert ===
-
+    // === Relasi tambahan MuscleXpert ===
     public function trainerProfile()
     {
         return $this->hasOne(TrainerProfile::class);

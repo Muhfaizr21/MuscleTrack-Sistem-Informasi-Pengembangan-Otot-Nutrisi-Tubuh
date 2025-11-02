@@ -113,7 +113,7 @@
 
                             <a href="{{ route('user.weekly-summary.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Weekly Summary</a>
 
-                            <a href="{{ route('user.chat.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Chat Trainer</a>
+                            <a href="{{ route('user.chat.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Trainer</a>
                             <a href="{{ route('user.profile.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">My Profile</a>
 
                             <div class="border-t border-gray-700/50 my-1"></div>
@@ -146,7 +146,7 @@
                 <h3 class="text-amber-400 text-xs uppercase font-bold tracking-wider px-2 pt-2">Lainnya</h3>
                 <a href="{{ route('user.weekly-summary.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">Weekly Summary</a>
                 <a href="{{ route('user.articles.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">Tips & Articles</a>
-                <a href="{{ route('user.chat.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">Chat Trainer</a>
+                <a href="{{ route('user.chat.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">Trainer</a>
                 <a href="{{ route('user.profile.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">My Profile</a>
 
                 <form action="{{ route('logout') }}" method="POST" class="border-t border-gray-700/50 pt-3 mt-2">

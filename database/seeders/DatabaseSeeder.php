@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
         // Panggil seeder UserSeeder
         $this->call([
             UserSeeder::class,
-            WorkoutSeeder::class,
+            WorkoutPlanSeeder::class,
+            WorkoutExerciseSeeder::class,
             NutritionSeeder::class,
             BodyMetricSeeder::class,
             ArticleSeeder::class,

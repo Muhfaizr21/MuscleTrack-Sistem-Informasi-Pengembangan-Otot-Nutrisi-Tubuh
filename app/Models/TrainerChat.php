@@ -25,6 +25,11 @@ class TrainerChat extends Model
         'read_status' => 'boolean',
     ];
 
+    /**
+     * 🚫 Nonaktifkan timestamps Laravel (karena tabel tidak punya created_at & updated_at)
+     */
+    public $timestamps = false; // 🧩 Tambahkan baris ini
+
     // 🧠 Accessor agar selalu punya Carbon instance
     public function getTimestampAttribute($value)
     {

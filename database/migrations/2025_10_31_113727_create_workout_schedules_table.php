@@ -10,11 +10,28 @@ return new class extends Migration
     {
         Schema::create('workout_schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('workout_plan_id')->constrained('workout_plans')->onDelete('cascade');
+
+            // 🔗 Relasi ke user & workout plan
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            $table->foreignId('workout_plan_id')
+                ->nullable()
+                ->constrained('workout_plans')
+                ->onDelete('set null');
+
+            // 📅 Jadwal latihan
             $table->date('scheduled_date'); // tanggal latihan
             $table->time('scheduled_time')->nullable(); // waktu latihan
-            $table->enum('status', ['pending', 'completed', 'missed'])->default('pending'); // status latihan
+
+            // 📈 Status & catatan progres
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'missed'])
+                ->default('pending'); // status latihan
+
+            $table->timestamp('completed_at')->nullable(); // waktu latihan selesai (opsional)
+            $table->text('notes')->nullable(); // catatan setelah latihan (opsional, untuk evaluasi)
+
             $table->timestamps();
         });
     }

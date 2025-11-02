@@ -12,7 +12,18 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('message')->nullable();
-            $table->enum('type',['info','reminder','alert'])->default('info');
+
+            // 🔔 Jenis notifikasi (ditambah 'nutrition_tip' agar tidak error)
+            $table->enum('type', [
+                'info',          // Informasi umum
+                'reminder',      // Pengingat workout/nutrisi
+                'alert',         // Peringatan penting
+                'achievement',   // Pencapaian (workout completed, goal reached)
+                'system',        // Dikirim otomatis oleh sistem
+                'trainer',       // Notifikasi dari trainer
+                'nutrition_tip'  // 💡 Rekomendasi nutrisi harian
+            ])->default('info');
+
             $table->boolean('read_status')->default(false);
             $table->timestamps();
         });

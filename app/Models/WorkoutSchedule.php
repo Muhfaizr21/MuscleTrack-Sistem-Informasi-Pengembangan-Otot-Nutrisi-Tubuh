@@ -15,6 +15,8 @@ class WorkoutSchedule extends Model
         'scheduled_date',
         'scheduled_time',
         'status',
+        'completed_at',
+        'notes',
     ];
 
     public function user()

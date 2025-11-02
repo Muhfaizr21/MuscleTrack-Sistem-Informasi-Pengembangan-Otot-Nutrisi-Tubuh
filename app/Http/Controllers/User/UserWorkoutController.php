@@ -7,75 +7,176 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WorkoutPlan;
 use App\Models\WorkoutSchedule;
+use App\Models\WorkoutExercise;
 use App\Models\Notification;
 use Carbon\Carbon;
 
 class UserWorkoutController extends Controller
 {
     /**
-     * 📋 Tampilkan daftar workout plan untuk user
-     * Disesuaikan dengan kondisi dan target user.
+     * 📋 Tampilkan daftar workout + auto-assign pertama kali berdasarkan BMI & trainer
      */
     public function index()
     {
         $user = Auth::user();
 
-        // Ambil semua workout yang cocok dengan target user
-        $workouts = WorkoutPlan::query()
-            ->where(function ($q) use ($user) {
-                $q->whereNull('target_fitness') // general
-                    ->orWhere('target_fitness', $user->target_fitness);
+        // 🧮 Hitung BMI (hanya jika tinggi & berat tersedia)
+        $bmi = null;
+        if (!empty($user->weight) && !empty($user->height)) {
+            $heightInMeter = $user->height / 100;
+            $bmi = round($user->weight / ($heightInMeter ** 2), 1);
+        }
+
+        // 🔎 Tentukan kategori BMI
+        $bmiCategory = match (true) {
+            $bmi === null => null,
+            $bmi < 18.5   => 'underweight',
+            $bmi < 25     => 'normal',
+            $bmi < 30     => 'overweight',
+            $bmi >= 30    => 'obese',
+            default       => null,
+        };
+
+        // 💡 Ambil plan rekomendasi by BMI
+        $recommendedPlans = collect();
+        if ($bmiCategory) {
+            $recommendedPlans = WorkoutPlan::where('status', 'active')
+                ->where(function ($q) use ($bmiCategory) {
+                    $focus = match ($bmiCategory) {
+                        'underweight' => 'bulking',
+                        'normal' => 'maintain',
+                        default => 'cutting',
+                    };
+                    $q->where('bmi_category', $bmiCategory)
+                        ->orWhere('focus_area', $focus);
+                })
+                ->orderBy('difficulty_level')
+                ->get();
+        }
+
+        // 🧑‍🏫 Workout dari trainer user (jika ada)
+        $trainerWorkouts = collect();
+        if ($user->trainer_id) {
+            $trainerWorkouts = WorkoutPlan::where('status', 'active')
+                ->where('trainer_id', $user->trainer_id)
+                ->where('recommended_by', 'trainer')
+                ->get();
+        }
+
+        // 🛠️ Workout umum dari Admin/System
+        $adminWorkouts = WorkoutPlan::where('status', 'active')
+            ->where(function ($q) {
+                $q->whereIn('recommended_by', ['admin', 'system'])
+                    ->orWhereNull('recommended_by');
             })
-            ->where('status', 'active')
-            ->orderBy('difficulty_level', 'asc')
             ->get();
 
-        // Ambil jadwal user (jika sudah diatur)
-        $schedules = WorkoutSchedule::where('user_id', $user->id)->get();
+        // 🧩 Gabungkan semua sumber plan
+        $workouts = $recommendedPlans
+            ->merge($trainerWorkouts)
+            ->merge($adminWorkouts)
+            ->unique('id')
+            ->sortBy('difficulty_level')
+            ->values();
 
-        return view('user.workouts.index', compact('workouts', 'schedules'));
+        // 🗓️ Cek apakah user sudah punya jadwal aktif
+        $hasActiveSchedule = WorkoutSchedule::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+
+        // 🔁 Auto assign plan pertama kali jika belum punya
+        if (! $hasActiveSchedule) {
+            $selectedPlan = $trainerWorkouts->first()
+                ?? $recommendedPlans->first()
+                ?? $adminWorkouts->first();
+
+            if ($selectedPlan) {
+                WorkoutSchedule::create([
+                    'user_id' => $user->id,
+                    'workout_plan_id' => $selectedPlan->id,
+                    'scheduled_date' => now()->addDay()->toDateString(),
+                    'scheduled_time' => '08:00:00',
+                    'status' => 'pending',
+                ]);
+
+                Notification::create([
+                    'user_id' => $user->id,
+                    'title' => 'Workout Plan Otomatis 💪',
+                    'message' => "Sistem menyiapkan rencana '{$selectedPlan->title}' berdasarkan BMI kamu"
+                        . ($bmiCategory ? " ({$bmiCategory})" : "")
+                        . ($user->trainer_id ? " dan bimbingan trainer kamu." : "."),
+                    'type' => 'reminder',
+                    'read_status' => false,
+                ]);
+            }
+        }
+
+        $schedules = WorkoutSchedule::with('workoutPlan')
+            ->where('user_id', $user->id)
+            ->orderBy('scheduled_date')
+            ->get();
+
+        return view('user.workouts.index', compact('workouts', 'schedules', 'bmi', 'bmiCategory'));
     }
 
     /**
-     * 🧠 Detail Workout Plan
+     * ➕ Form tambah jadwal workout baru
      */
-    public function show($id)
+    public function create(Request $request)
     {
-        $workout = WorkoutPlan::findOrFail($id);
-        return view('user.workouts.show', compact('workout'));
+        $user = Auth::user();
+
+        $trainerWorkouts = collect();
+        if ($user->trainer_id) {
+            $trainerWorkouts = WorkoutPlan::where('status', 'active')
+                ->where('trainer_id', $user->trainer_id)
+                ->where('recommended_by', 'trainer')
+                ->get();
+        }
+
+        $adminWorkouts = WorkoutPlan::where('status', 'active')
+            ->where(function ($q) {
+                $q->whereIn('recommended_by', ['admin', 'system'])
+                    ->orWhereNull('recommended_by');
+            })
+            ->get();
+
+        $workouts = $trainerWorkouts->merge($adminWorkouts)->unique('id')->values();
+        $selectedWorkout = $request->workout_id ? WorkoutPlan::find($request->workout_id) : null;
+
+        return view('user.workouts.create', compact('workouts', 'selectedWorkout'));
     }
 
     /**
-     * 🕒 Atur atau ubah jadwal workout user
+     * 🕒 Simpan jadwal workout user
      */
     public function store(Request $request)
     {
         $request->validate([
             'workout_id' => 'required|exists:workout_plans,id',
-            'day_of_week' => 'required|string|max:15',
-            'time' => 'required',
+            'scheduled_date' => 'required|date',
+            'scheduled_time' => 'required',
         ]);
 
         $user = Auth::user();
 
-        // Simpan atau update jadwal latihan
         $schedule = WorkoutSchedule::updateOrCreate(
             [
                 'user_id' => $user->id,
-                // ===== PERBAIKAN 1 DI SINI =====
-                'plan_id' => $request->workout_id, // Ganti dari 'workout_id'
-                'day_of_week' => $request->day_of_week,
+                'workout_plan_id' => $request->workout_id,
+                'scheduled_date' => $request->scheduled_date,
             ],
-            ['time' => $request->time]
+            [
+                'scheduled_time' => $request->scheduled_time,
+                'status' => 'pending',
+                'notes' => $request->notes ?? null,
+            ]
         );
 
-        // 🔔 Buat notifikasi reminder workout
-        // Pastikan model WorkoutSchedule Anda punya relasi 'workout'
-        // yang menunjuk ke 'plan_id'
         Notification::create([
             'user_id' => $user->id,
             'title' => 'Workout Reminder 🏋️',
-            'message' => "Jangan lupa latihan '{$schedule->workout->title}' setiap {$schedule->day_of_week} jam {$schedule->time}!",
+            'message' => "Jangan lupa latihan '{$schedule->workoutPlan->title}' pada tanggal {$schedule->scheduled_date} jam {$schedule->scheduled_time}! 🔥",
             'type' => 'reminder',
             'read_status' => false,
         ]);
@@ -84,49 +185,41 @@ class UserWorkoutController extends Controller
     }
 
     /**
-     * ✏️ Edit jadwal workout
-     */
-    public function edit($id)
-    {
-        $schedule = WorkoutSchedule::findOrFail($id);
-        $workouts = WorkoutPlan::all();
-        return view('user.workouts.edit', compact('schedule', 'workouts'));
-    }
-
-    /**
-     * 🔄 Update jadwal workout
+     * ✅ Tandai workout selesai
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'workout_id' => 'required|exists:workout_plans,id',
-            'day_of_week' => 'required|string|max:15',
-            'time' => 'required',
-        ]);
-
         $user = Auth::user();
         $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($id);
 
         $schedule->update([
-            // ===== PERBAIKAN 2 DI SINI =====
-            'plan_id' => $request->workout_id, // Ganti dari 'workout_id'
-            'day_of_week' => $request->day_of_week,
-            'time' => $request->time,
+            'status' => 'completed',
+            'completed_at' => Carbon::now(),
         ]);
 
         Notification::create([
             'user_id' => $user->id,
-            'title' => 'Workout Reminder Updated 🔄',
-            'message' => "Jadwal latihan '{$schedule->workout->title}' diubah ke {$schedule->day_of_week} jam {$schedule->time}.",
-            'type' => 'reminder',
+            'title' => 'Workout Completed 🎉',
+            'message' => "Hebat! Kamu telah menyelesaikan latihan '{$schedule->workoutPlan->title}' pada " .
+                Carbon::now()->translatedFormat('l, d F Y H:i'),
+            'type' => 'achievement',
             'read_status' => false,
         ]);
 
-        return redirect()->route('user.workouts.index')->with('success', 'Jadwal workout berhasil diperbarui!');
+        return redirect()->route('user.workouts.index')->with('success', 'Workout berhasil diselesaikan! 💪');
     }
 
     /**
-     * ❌ Hapus jadwal workout
+     * ✏️ Edit workout schedule
+     */
+    public function edit($id)
+    {
+        $schedule = WorkoutSchedule::with('workoutPlan')->findOrFail($id);
+        return view('user.workouts.edit', compact('schedule'));
+    }
+
+    /**
+     * 🗑️ Hapus jadwal workout
      */
     public function destroy($id)
     {
@@ -137,10 +230,16 @@ class UserWorkoutController extends Controller
         return redirect()->route('user.workouts.index')->with('success', 'Jadwal workout berhasil dihapus!');
     }
 
-    public function create(Request $request)
+    /**
+     * 🔍 Lihat detail workout plan + daftar latihan (WorkoutExercise)
+     */
+    public function show($id)
     {
-        $workouts = WorkoutPlan::all();
-        $selectedWorkout = $request->workout_id ? WorkoutPlan::find($request->workout_id) : null;
-        return view('user.workouts.create', compact('workouts', 'selectedWorkout'));
+        $workout = WorkoutPlan::with(['exercises', 'trainer:id,name'])->findOrFail($id);
+
+        $trainerName = $workout->trainer?->name ?? 'Admin / Sistem';
+        $exerciseCount = $workout->exercises->count();
+
+        return view('user.workouts.show', compact('workout', 'trainerName', 'exerciseCount'));
     }
 }

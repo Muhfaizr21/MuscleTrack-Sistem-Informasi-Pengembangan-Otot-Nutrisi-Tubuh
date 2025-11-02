@@ -2,12 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-// ========== AUTH ==========
+// ==========================
+// 🔐 AUTH CONTROLLERS
+// ==========================
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GoogleRegisterController;
 
-// ========== ADMIN ==========
+// ==========================
+// 🧑‍💼 ADMIN CONTROLLERS
+// ==========================
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ContactFormController;
@@ -15,25 +19,34 @@ use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\NutritionProgramController;
 
-// ========== TRAINER ==========
-use App\Http\Controllers\Trainer\DashboardController as TrainerDashboardController;
-use App\Http\Controllers\Trainer\MemberController;
-use App\Http\Controllers\Trainer\ChatController;
-use App\Http\Controllers\Trainer\NotificationController;
-use App\Http\Controllers\Trainer\ProgramController;
-use App\Http\Controllers\Trainer\SupplementController;
-use App\Http\Controllers\Trainer\QualityController;
+// ==========================
+// 🧑‍🏫 TRAINER CONTROLLERS
+// ==========================
+use App\Http\Controllers\Trainer\{
+    DashboardController as TrainerDashboardController,
+    MemberController,
+    ChatController,
+    NotificationController,
+    ProgramController,
+    SupplementController,
+    QualityController,
+    NutritionManagementController
+};
 
-// ========== USER ==========
-use App\Http\Controllers\User\UserDashboardController;
-use App\Http\Controllers\User\UserProgressController;
-use App\Http\Controllers\User\UserProteinController;
-use App\Http\Controllers\User\UserWorkoutController;
-use App\Http\Controllers\User\UserNutritionController;
-use App\Http\Controllers\User\UserSummaryController;
-use App\Http\Controllers\User\UserChatController;
-use App\Http\Controllers\User\UserProfileController;
-use App\Http\Controllers\User\UserArticleController;
+// ==========================
+// 🧍 USER CONTROLLERS
+// ==========================
+use App\Http\Controllers\User\{
+    UserDashboardController,
+    UserProgressController,
+    UserProteinController,
+    UserWorkoutController,
+    UserNutritionController,
+    UserSummaryController,
+    UserChatController,
+    UserProfileController,
+    UserArticleController
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -49,22 +62,29 @@ Route::get('/', fn() => view('welcome'))->name('home');
 // ==========================
 // 🔐 AUTH ROUTES
 // ==========================
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+Route::controller(AuthenticatedSessionController::class)->group(function () {
+    Route::get('/login', 'create')->name('login');
+    Route::post('/login', 'store');
+    Route::post('/logout', 'destroy')->name('logout');
+});
 
 // 🔹 Google Auth
-Route::get('login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
-Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-Route::get('register/google', [GoogleRegisterController::class, 'redirectToGoogle'])->name('register.google');
-Route::get('register/google/callback', [GoogleRegisterController::class, 'handleGoogleCallback']);
-Route::get('register/google/role', [GoogleRegisterController::class, 'showRoleForm'])->name('register.role');
-Route::post('register/google/role', [GoogleRegisterController::class, 'storeRole'])->name('register.role.store');
+Route::controller(GoogleController::class)->group(function () {
+    Route::get('login/google', 'redirectToGoogle')->name('login.google');
+    Route::get('login/google/callback', 'handleGoogleCallback');
+});
+
+Route::controller(GoogleRegisterController::class)->group(function () {
+    Route::get('register/google', 'redirectToGoogle')->name('register.google');
+    Route::get('register/google/callback', 'handleGoogleCallback');
+    Route::get('register/google/role', 'showRoleForm')->name('register.role');
+    Route::post('register/google/role', 'storeRole')->name('register.role.store');
+});
 
 // ==========================
 // 🧭 Dashboard umum
 // ==========================
-Route::get('/dashboard', fn() => view('dashboard'))
+Route::view('/dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -76,9 +96,11 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-        Route::resource('users', UserManagementController::class);
-        Route::resource('articles', ArticleController::class);
-        Route::resource('nutrition-programs', NutritionProgramController::class);
+        Route::resources([
+            'users' => UserManagementController::class,
+            'articles' => ArticleController::class,
+            'nutrition-programs' => NutritionProgramController::class,
+        ]);
     });
 
 // ==========================
@@ -92,14 +114,14 @@ Route::middleware(['auth', 'role:trainer'])
         // 🏠 Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
-        // 1️⃣ MEMBER MANAGEMENT
+        // 👥 Member Management
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
             Route::get('/{member}', [MemberController::class, 'show'])->name('show');
             Route::post('/{member}/update-progress', [MemberController::class, 'updateProgress'])->name('updateProgress');
         });
 
-        // 2️⃣ COMMUNICATION
+        // 💬 Communication
         Route::prefix('communication')->name('communication.')->group(function () {
             Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
             Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
@@ -110,35 +132,30 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         });
 
-
-        // 3️⃣ PROGRAM & NUTRITION MANAGEMENT
+        // 🏋️‍♂️ Program & Nutrition Management
         Route::prefix('programs')->name('programs.')->group(function () {
             Route::get('/', [ProgramController::class, 'index'])->name('index');
             Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
             Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
 
-            // 🥗 Nutrition & Supplements (gabungan)
+            // 🥗 Nutrition & Supplements
             Route::prefix('nutrition')->name('nutrition.')->group(function () {
-                Route::get('/{memberId}', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'index'])->name('index');
-                Route::get('/{memberId}/edit', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'edit'])->name('edit');
-                Route::post('/{memberId}/update', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'update'])->name('update');
-                Route::delete('/{memberId}/supplement/{supplementId}', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
-                Route::post('/{memberId}/supplement', [App\Http\Controllers\Trainer\NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
+                Route::get('/{memberId}', [NutritionManagementController::class, 'index'])->name('index');
+                Route::get('/{memberId}/edit', [NutritionManagementController::class, 'edit'])->name('edit');
+                Route::post('/{memberId}/update', [NutritionManagementController::class, 'update'])->name('update');
+                Route::delete('/{memberId}/supplement/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
+                Route::post('/{memberId}/supplement', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
             });
 
-
-
             // 🗒️ Progress Notes
-            Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])
-                ->name('progress.note.store');
+            Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
 
             // 📋 Pendaftaran & Verifikasi Trainer
             Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
         });
 
-
-        // 4️⃣ TRAINER QUALITY & SUPPORT
+        // ⭐ Trainer Quality & Feedback
         Route::prefix('quality')->name('quality.')->group(function () {
             Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
             Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback.index');
@@ -153,24 +170,36 @@ Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
     ->group(function () {
-        Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('progress', UserProgressController::class);
-        Route::resource('protein', UserProteinController::class);
-        Route::resource('workouts', UserWorkoutController::class);
-        Route::resource('nutrition', UserNutritionController::class);
-        Route::resource('weekly-summary', UserSummaryController::class)
-            ->parameters(['weekly-summary' => 'summary']);
 
+        Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+
+        Route::resources([
+            'progress' => UserProgressController::class,
+            'protein' => UserProteinController::class,
+            'workouts' => UserWorkoutController::class,
+            'nutrition' => UserNutritionController::class,
+            'weekly-summary' => UserSummaryController::class,
+        ]);
+
+        // ✅ Pastikan show route tidak dobel
+        Route::get('/workouts/{id}/show', [UserWorkoutController::class, 'show'])->name('workouts.show');
+
+        // 💬 Chat
         Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
         Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
         Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
+        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('user.chat.destroy');
 
-        Route::get('profile', [UserProfileController::class, 'index'])->name('profile.index');
-        Route::get('profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('profile/update', [UserProfileController::class, 'update'])->name('profile.update');
-        Route::get('profile/password', [UserProfileController::class, 'editPassword'])->name('profile.password.edit');
-        Route::patch('profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.password.update');
+        // 👤 Profile
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [UserProfileController::class, 'index'])->name('index');
+            Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
+            Route::patch('/update', [UserProfileController::class, 'update'])->name('update');
+            Route::get('/password', [UserProfileController::class, 'editPassword'])->name('password.edit');
+            Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
+        });
 
+        // 📰 Articles
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
     });
@@ -178,18 +207,14 @@ Route::middleware(['auth', 'role:user'])
 // ==========================
 // 🌐 Rute Publik
 // ==========================
-Route::get('/articles_publik', [NewsArticleController::class, 'index'])
-     ->name('public.articles.index');
+Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
+Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
 
-Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])
-     ->name('public.articles.show');
-
-
-// 📬 Kontak publik
+// 📬 Kontak Publik
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
 // ==========================
-// ⚙️ Default auth routes
+// ⚙️ Default Laravel Auth Routes
 // ==========================
 require __DIR__ . '/auth.php';
