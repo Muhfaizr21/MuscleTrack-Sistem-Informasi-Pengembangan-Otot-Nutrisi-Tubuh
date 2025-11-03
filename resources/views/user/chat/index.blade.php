@@ -30,10 +30,11 @@
                         <div class="flex-1">
                             <p class="text-white font-semibold text-sm">{{ $t->name }}</p>
                             <p class="text-gray-400 text-xs truncate">
-                                {{ $t->trainerProfile->specialization ?? 'Trainer Profesional' }}</p>
+                                {{ $t->trainerProfile->specialization ?? 'Trainer Profesional' }}
+                            </p>
                         </div>
                         @if(isset($unreadCount[$t->id]) && $unreadCount[$t->id] > 0)
-                            <span class="text-xs bg-red-600 text-white rounded-full px-2 py-0.5">
+                            <span id="unread-badge-{{ $t->id }}" class="text-xs bg-red-600 text-white rounded-full px-2 py-0.5">
                                 {{ $unreadCount[$t->id] }}
                             </span>
                         @endif
@@ -75,7 +76,6 @@
                                     </div>
                                     <div class="flex justify-end items-center gap-2 mt-1">
                                         <p class="text-[10px] text-gray-500">{{ $chat->timestamp->format('H:i') }}</p>
-                                        {{-- Tombol hapus hanya untuk pesan milik user --}}
                                         <button data-id="{{ $chat->id }}"
                                             class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
                                     </div>
@@ -125,7 +125,23 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         @if(isset($trainer))
-            // Kirim pesan
+            document.addEventListener('DOMContentLoaded', async () => {
+                // 🔹 Mark all trainer messages as read saat halaman chat dibuka
+                try {
+                    await axios.post("{{ route('user.chat.markAllRead') }}", {
+                        trainer_id: {{ $trainer->id }},
+                        _token: "{{ csrf_token() }}"
+                    });
+                    // 🔹 Hapus badge notifikasi di sidebar (kalau ada)
+                    const badge = document.getElementById('unread-badge-{{ $trainer->id }}');
+                    if (badge) badge.remove();
+                } catch (err) {
+                    console.warn('Gagal menandai pesan terbaca:', err);
+                }
+            });
+
+
+            // 📨 Kirim pesan
             document.getElementById('chat-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = document.getElementById('chat-message');
@@ -136,23 +152,23 @@
                     const res = await axios.post("{{ route('user.chat.store') }}", {
                         message: message,
                         trainer_id: {{ $trainer->id }}
-                    });
+                });
 
                     const box = document.getElementById('chat-box');
                     box.insertAdjacentHTML('beforeend', `
-                        <div class="flex justify-end relative chat-message" id="chat-${res.data.chat_id}">
-                            <div class="text-right max-w-[80%]">
-                                <div class="bg-amber-400 text-black font-semibold px-4 py-2 rounded-2xl rounded-br-none inline-block shadow-md">
-                                    ${message}
-                                </div>
-                                <div class="flex justify-end items-center gap-2 mt-1">
-                                    <p class="text-[10px] text-gray-500">Baru saja</p>
-                                    <button data-id="${res.data.chat_id}" 
-                                            class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
-                                </div>
+                    <div class="flex justify-end relative chat-message" id="chat-${res.data.chat_id}">
+                        <div class="text-right max-w-[80%]">
+                            <div class="bg-amber-400 text-black font-semibold px-4 py-2 rounded-2xl rounded-br-none inline-block shadow-md">
+                                ${message}
+                            </div>
+                            <div class="flex justify-end items-center gap-2 mt-1">
+                                <p class="text-[10px] text-gray-500">Baru saja</p>
+                                <button data-id="${res.data.chat_id}" 
+                                        class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
                             </div>
                         </div>
-                    `);
+                    </div>
+                `);
                     box.scrollTop = box.scrollHeight;
                     input.value = '';
                 } catch {
@@ -160,7 +176,7 @@
                 }
             });
 
-            // Hapus pesan user
+            // ❌ Hapus pesan user
             document.addEventListener('click', async (e) => {
                 if (e.target.classList.contains('delete-chat')) {
                     const chatId = e.target.dataset.id;

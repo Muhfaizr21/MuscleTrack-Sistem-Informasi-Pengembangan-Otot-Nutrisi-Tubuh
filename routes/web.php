@@ -105,10 +105,7 @@ Route::middleware(['auth', 'role:admin'])
             'nutrition-programs' => NutritionProgramController::class,
         ]);
         Route::resource('trainer-memberships', TrainerMemberController::class)
-        ->except(['show', 'edit', 'update']);
-        Route::resource('workout-plans', WorkoutPlanController::class);
-        Route::resource('goals', GoalController::class);
-        Route::resource('body-metrics', BodyMetricController::class);
+             ->except(['show', 'edit', 'update']);
     });
 
 // ==========================
@@ -131,14 +128,17 @@ Route::middleware(['auth', 'role:trainer'])
 
         // 💬 Communication
         Route::prefix('communication')->name('communication.')->group(function () {
-            Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-            Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
-            Route::post('/chat', [ChatController::class, 'store'])->name('chat.store');
-            Route::post('/chat/read', [ChatController::class, 'markAllRead'])->name('chat.read');
+            // 🔹 Chat
+            Route::get('/chat', [ChatController::class, 'index'])->name('chat.index'); // tampil + chat area
+            Route::post('/chat', [ChatController::class, 'store'])->name('chat.store'); // kirim pesan
+            Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy'); // hapus pesan
+            Route::post('/chat/read', [ChatController::class, 'markAllRead'])->name('chat.markAllRead'); // tandai sudah dibaca
 
+            // 🔔 Notifications
             Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         });
+
 
         // 🏋️‍♂️ Program & Nutrition Management
         Route::prefix('programs')->name('programs.')->group(function () {
