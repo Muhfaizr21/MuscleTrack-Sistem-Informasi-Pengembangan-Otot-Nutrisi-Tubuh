@@ -30,8 +30,7 @@
                         <div class="flex-1">
                             <p class="text-white font-semibold text-sm">{{ $t->name }}</p>
                             <p class="text-gray-400 text-xs truncate">
-                                {{ $t->trainerProfile->specialization ?? 'Trainer Profesional' }}
-                            </p>
+                                {{ $t->trainerProfile->specialization ?? 'Trainer Profesional' }}</p>
                         </div>
                         @if(isset($unreadCount[$t->id]) && $unreadCount[$t->id] > 0)
                             <span class="text-xs bg-red-600 text-white rounded-full px-2 py-0.5">
@@ -66,7 +65,7 @@
                 <div id="chat-box"
                     class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[url('/images/chat-bg-dark.png')] bg-cover bg-center">
                     @forelse($chats as $chat)
-                        @if($chat->user_id === Auth::id())
+                        @if($chat->sender_type === 'user')
                             {{-- 💬 USER MESSAGE (KANAN) --}}
                             <div class="flex justify-end relative chat-message" id="chat-{{ $chat->id }}">
                                 <div class="text-right max-w-[80%]">
@@ -76,17 +75,19 @@
                                     </div>
                                     <div class="flex justify-end items-center gap-2 mt-1">
                                         <p class="text-[10px] text-gray-500">{{ $chat->timestamp->format('H:i') }}</p>
+                                        {{-- Tombol hapus hanya untuk pesan milik user --}}
                                         <button data-id="{{ $chat->id }}"
                                             class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
                                     </div>
                                 </div>
                             </div>
-                        @else
+                        @elseif($chat->sender_type === 'trainer')
                             {{-- 🧑‍🏫 TRAINER MESSAGE (KIRI) --}}
                             <div class="flex items-start gap-2 chat-message">
                                 <div
                                     class="w-8 h-8 bg-amber-400/20 rounded-full flex items-center justify-center text-amber-400 text-sm font-bold">
-                                    T</div>
+                                    T
+                                </div>
                                 <div>
                                     <div
                                         class="bg-gray-800 text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none inline-block max-w-[80%]">
@@ -147,7 +148,7 @@
                                 <div class="flex justify-end items-center gap-2 mt-1">
                                     <p class="text-[10px] text-gray-500">Baru saja</p>
                                     <button data-id="${res.data.chat_id}" 
-                                        class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
+                                            class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +160,7 @@
                 }
             });
 
-            // Hapus chat dengan animasi fade-out
+            // Hapus pesan user
             document.addEventListener('click', async (e) => {
                 if (e.target.classList.contains('delete-chat')) {
                     const chatId = e.target.dataset.id;
