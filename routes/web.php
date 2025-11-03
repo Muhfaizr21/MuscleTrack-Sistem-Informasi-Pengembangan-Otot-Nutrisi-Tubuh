@@ -19,7 +19,9 @@ use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\NutritionProgramController;
 use App\Http\Controllers\Admin\TrainerMemberController;
-
+use App\Http\Controllers\Admin\WorkoutPlanController;
+use App\Http\Controllers\Admin\GoalController;
+use App\Http\Controllers\Admin\BodyMetricController;
 // ==========================
 // 🧑‍🏫 TRAINER CONTROLLERS
 // ==========================
@@ -103,7 +105,10 @@ Route::middleware(['auth', 'role:admin'])
             'nutrition-programs' => NutritionProgramController::class,
         ]);
         Route::resource('trainer-memberships', TrainerMemberController::class)
-             ->except(['show', 'edit', 'update']);
+        ->except(['show', 'edit', 'update']);
+        Route::resource('workout-plans', WorkoutPlanController::class);
+        Route::resource('goals', GoalController::class);
+        Route::resource('body-metrics', BodyMetricController::class);
     });
 
 // ==========================

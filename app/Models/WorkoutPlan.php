@@ -4,11 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class WorkoutPlan extends Model
 {
     use HasFactory;
 
+    // Tentukan nama tabelnya (jika nama file model beda)
+    protected $table = 'workout_plans';
+
+    /**
+     * Kolom yang boleh diisi (sesuai migrasi BARU Anda)
+     */
     protected $fillable = [
         'title',
         'level',
@@ -20,60 +27,23 @@ class WorkoutPlan extends Model
         'difficulty_level',
         'duration_weeks',
         'duration_minutes',
-        'user_id',
+        'user_id', // pembuat (admin)
         'trainer_id',
         'recommended_by',
     ];
 
     /**
-     * 🧍 Relasi ke pembuat (admin/trainer)
+     * Boot "ciamik" untuk otomatis mengisi user_id (pembuat)
      */
-    public function user()
+    protected static function boot()
     {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * 🧑‍🏫 Relasi ke trainer (jika direkomendasikan oleh trainer)
-     */
-    public function trainer()
-    {
-        return $this->belongsTo(User::class, 'trainer_id');
-    }
-
-    /**
-     * 📊 Relasi ke log progres latihan
-     */
-    public function progressLogs()
-    {
-        return $this->hasMany(ProgressLog::class);
-    }
-
-    /**
-     * 🗓️ Relasi ke jadwal workout user
-     */
-    public function schedules()
-    {
-        return $this->hasMany(WorkoutSchedule::class, 'workout_plan_id');
-    }
-
-    /**
-     * 🔍 Scope: hanya ambil workout aktif
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    /**
-     * 🔍 Scope: filter berdasarkan focus area
-     */
-    public function scopeFocus($query, $focus)
-    {
-        return $query->where('focus_area', $focus);
-    }
-    public function exercises()
-    {
-        return $this->hasMany(WorkoutExercise::class, 'workout_plan_id');
+        parent::boot();
+        static::creating(function ($plan) {
+            // Otomatis set pembuatnya adalah admin/trainer yang sedang login
+            if (Auth::check()) {
+                $plan->user_id = Auth::id();
+                $plan->recommended_by = Auth::user()->role; // misal 'admin' atau 'trainer'
+            }
+        });
     }
 }
