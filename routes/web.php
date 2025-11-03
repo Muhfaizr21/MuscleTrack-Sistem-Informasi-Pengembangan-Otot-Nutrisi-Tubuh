@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth; // (Diperlukan untuk auth.php)
 
 // ==========================
 // 🔐 AUTH CONTROLLERS
@@ -10,25 +11,30 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GoogleRegisterController;
 
 // ==========================
-// 🧑‍💼 ADMIN CONTROLLERS
+// 🌐 PUBLIC/CORE CONTROLLERS
 // ==========================
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\AdminController; // <-- DIPINDAH KE SINI (INI PERBAIKANNYA)
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
+
+// ==========================
+// 🧑‍💼 ADMIN CONTROLLERS (Hanya yang di dalam folder Admin/)
+// ==========================
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\NutritionProgramController;
 use App\Http\Controllers\Admin\TrainerMemberController;
 use App\Http\Controllers\Admin\WorkoutPlanController;
 use App\Http\Controllers\Admin\GoalController;
 use App\Http\Controllers\Admin\BodyMetricController;
+
 // ==========================
 // 🧑‍🏫 TRAINER CONTROLLERS
 // ==========================
 use App\Http\Controllers\Trainer\{
     DashboardController as TrainerDashboardController,
     MemberController,
-    ChatController,
+    ChatController as TrainerChatController, // Beri alias agar tidak bentrok
     NotificationController,
     ProgramController,
     SupplementController,
@@ -71,7 +77,6 @@ Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::post('/logout', 'destroy')->name('logout');
 });
 
-// 🔹 Google Auth
 Route::controller(GoogleController::class)->group(function () {
     Route::get('login/google', 'redirectToGoogle')->name('login.google');
     Route::get('login/google/callback', 'handleGoogleCallback');
@@ -98,12 +103,18 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        // Rute ini sekarang akan menunjuk ke \App\Http\Controllers\AdminController (Benar)
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
             'nutrition-programs' => NutritionProgramController::class,
+            'goals' => GoalController::class,
+            'workout-plans' => WorkoutPlanController::class,
+            'body-metrics' => BodyMetricController::class,
         ]);
+
         Route::resource('trainer-memberships', TrainerMemberController::class)
              ->except(['show', 'edit', 'update']);
     });
@@ -116,37 +127,27 @@ Route::middleware(['auth', 'role:trainer'])
     ->name('trainer.')
     ->group(function () {
 
-        // 🏠 Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
-        // 👥 Member Management
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
             Route::get('/{member}', [MemberController::class, 'show'])->name('show');
             Route::post('/{member}/update-progress', [MemberController::class, 'updateProgress'])->name('updateProgress');
         });
 
-        // 💬 Communication
         Route::prefix('communication')->name('communication.')->group(function () {
-            // 🔹 Chat
-            Route::get('/chat', [ChatController::class, 'index'])->name('chat.index'); // tampil + chat area
-            Route::post('/chat', [ChatController::class, 'store'])->name('chat.store'); // kirim pesan
-            Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy'); // hapus pesan
-            Route::post('/chat/read', [ChatController::class, 'markAllRead'])->name('chat.markAllRead'); // tandai sudah dibaca
-
-            // 🔔 Notifications
+            Route::get('/chat', [TrainerChatController::class, 'index'])->name('chat.index');
+            Route::post('/chat', [TrainerChatController::class, 'store'])->name('chat.store');
+            Route::delete('/chat/{id}', [TrainerChatController::class, 'destroy'])->name('chat.destroy');
+            Route::post('/chat/read', [TrainerChatController::class, 'markAllRead'])->name('chat.markAllRead');
             Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         });
 
-
-        // 🏋️‍♂️ Program & Nutrition Management
         Route::prefix('programs')->name('programs.')->group(function () {
             Route::get('/', [ProgramController::class, 'index'])->name('index');
             Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
             Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
-
-            // 🥗 Nutrition & Supplements
             Route::prefix('nutrition')->name('nutrition.')->group(function () {
                 Route::get('/{memberId}', [NutritionManagementController::class, 'index'])->name('index');
                 Route::get('/{memberId}/edit', [NutritionManagementController::class, 'edit'])->name('edit');
@@ -154,16 +155,11 @@ Route::middleware(['auth', 'role:trainer'])
                 Route::delete('/{memberId}/supplement/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
                 Route::post('/{memberId}/supplement', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
             });
-
-            // 🗒️ Progress Notes
             Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
-
-            // 📋 Pendaftaran & Verifikasi Trainer
             Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
         });
 
-        // ⭐ Trainer Quality & Feedback
         Route::prefix('quality')->name('quality.')->group(function () {
             Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
             Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback.index');
@@ -189,16 +185,11 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
-        // ✅ Pastikan show route tidak dobel
-        Route::get('/workouts/{id}/show', [UserWorkoutController::class, 'show'])->name('workouts.show');
-
-        // 💬 Chat
         Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
         Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
         Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
-        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('user.chat.destroy');
+        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('chat.destroy');
 
-        // 👤 Profile
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');
             Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
@@ -207,7 +198,6 @@ Route::middleware(['auth', 'role:user'])
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
 
-        // 📰 Articles
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
     });
@@ -218,7 +208,6 @@ Route::middleware(['auth', 'role:user'])
 Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
 
-// 📬 Kontak Publik
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 

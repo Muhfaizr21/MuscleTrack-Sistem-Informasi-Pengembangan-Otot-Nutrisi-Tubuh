@@ -3,9 +3,8 @@
 @section('title', 'Edit Nutrisi & Suplemen')
 
 @section('content')
-<div class="bg-white shadow-md rounded-2xl p-8 space-y-10 relative">
 
-    {{-- ✅ Flash Notification --}}
+    {{-- ✅ Flash Notification (Ini sudah "ciamik" dan tidak perlu diubah) --}}
     @if(session('success') || session('error'))
         <div id="flash-message"
              class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg text-white shadow-lg
@@ -17,107 +16,157 @@
         </script>
     @endif
 
-    {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-green-700">
-            ✏️ Edit Nutrisi & Suplemen — {{ $member->name }}
-        </h1>
-        <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $member->id]) }}"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg transition">
-            ⬅️ Kembali ke Daftar
-        </a>
+    {{-- ✅ Panel Kaca "Liar" (Menggantikan bg-white) --}}
+    <div class="bg-black/70 backdrop-blur-lg border border-gray-700/50 shadow-sm sm:rounded-lg p-6 md:p-8 space-y-8">
+
+        {{-- 🏋️ Header (Style "Dark Premium") --}}
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <h1 class="font-serif text-3xl font-bold text-white">
+                ✏️ Edit Nutrisi — <span class="text-amber-400">{{ $member->name }}</span>
+            </h1>
+            {{-- Tombol (Style "Ciamik") --}}
+            <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $member->id]) }}"
+               class="text-sm text-gray-400 hover:text-white transition-all">
+                ⬅️ Kembali ke Daftar
+            </a>
+        </div>
+
+        {{-- 🍱 Edit Nutrition Form (Sub-Panel "Dark Premium") --}}
+        <div class="bg-gray-900/50 border border-gray-700/50 rounded-lg p-6">
+            <h2 class="font-serif text-2xl font-bold text-white mb-4">
+                🍱 Ubah Rencana <span class="text-amber-400">Nutrisi</span>
+            </h2>
+
+            {{-- Logika Form Anda aman --}}
+            <form action="{{ route('trainer.programs.nutrition.update', ['memberId' => $member->id]) }}"
+                  method="POST" class="space-y-4">
+                @csrf
+
+                {{-- Input "Ciamik" --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                    <div>
+                        <label for="meal_name" class="block text-sm font-medium text-gray-300">Nama Menu / Makanan</label>
+                        <input type="text" name="meal_name" id="meal_name" value="{{ old('meal_name', $nutritionPlan->meal_name ?? '') }}"
+                            placeholder="Misal: Dada Ayam & Nasi Merah"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label for="target_fitness" class="block text-sm font-medium text-gray-300">Target Fitness</label>
+                        <input type="text" name="target_fitness" id="target_fitness" value="{{ old('target_fitness', $nutritionPlan->target_fitness ?? '') }}"
+                            placeholder="Misal: bulking, cutting, maintenance"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
+                    <div>
+                        <label for="calories" class="block text-sm font-medium text-amber-400">Kalori (kcal)</label>
+                        <input type="number" step="0.1" name="calories" id="calories" value="{{ old('calories', $nutritionPlan->calories ?? '') }}"
+                            placeholder="2500"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                     <div>
+                        <label for="protein" class="block text-sm font-medium text-green-400">Protein (g)</label>
+                        <input type="number" step="0.1" name="protein" id="protein" value="{{ old('protein', $nutritionPlan->protein ?? '') }}"
+                            placeholder="150"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label for="carbs" class="block text-sm font-medium text-yellow-400">Karbohidrat (g)</label>
+                        <input type="number" step="0.1" name="carbs" id="carbs" value="{{ old('carbs', $nutritionPlan->carbs ?? '') }}"
+                            placeholder="200"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label for="fat" class="block text-sm font-medium text-red-400">Lemak (g)</label>
+                        <input type="number" step="0.1" name="fat" id="fat" value="{{ old('fat', $nutritionPlan->fat ?? '') }}"
+                            placeholder="60"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit"
+                        class="px-6 py-2.5 rounded-md text-sm font-bold text-black bg-amber-400 hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20">
+                        💾 Simpan Nutrisi
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- 💊 Tambah Suplemen Baru (Sub-Panel "Dark Premium") --}}
+        <div class="bg-gray-900/50 border border-gray-700/50 rounded-lg p-6">
+            <h2 class="font-serif text-2xl font-bold text-white mb-4">
+                💊 Tambah <span class="text-amber-400">Suplemen</span>
+            </h2>
+
+            {{-- Logika Form Anda aman --}}
+            <form action="{{ route('trainer.programs.nutrition.supplement.store', ['memberId' => $member->id]) }}"
+                  method="POST" class="space-y-4">
+                @csrf
+
+                {{-- Input "Ciamik" --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Nama Suplemen</label>
+                        <input type="text" name="name" id="name" placeholder="Misal: Whey Protein"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label for="recommended_dose" class="block text-sm font-medium text-gray-300">Dosis</label>
+                        <input type="text" name="recommended_dose" id="recommended_dose" placeholder="Misal: 1 scoop/hari"
+                            class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400">
+                    </div>
+                </div>
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-300">Deskripsi / Manfaat</label>
+                    <textarea name="description" id="description" placeholder="Deskripsi / manfaat suplemen..." rows="3"
+                        class="mt-1 block w-full bg-gray-800 border-gray-700 rounded-md shadow-sm text-white focus:border-amber-400 focus:ring-amber-400"></textarea>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit"
+                        class="px-6 py-2.5 rounded-md text-sm font-bold text-black bg-amber-400 hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20">
+                        ➕ Tambah Suplemen
+                    </button>
+                </div>
+            </form>
+
+            {{-- Daftar Suplemen (Style "Dark Premium") --}}
+            @if($supplements->count())
+                <div class="mt-6 border-t border-gray-700/50">
+                    <h3 class="font-serif text-lg font-bold text-white pt-5 mb-3">Daftar Suplemen Saat Ini</h3>
+                    <ul class="divide-y divide-gray-700/50">
+                        @foreach($supplements as $supplement)
+                            <li class="py-4 flex justify-between items-start gap-4">
+                                <div>
+                                    <strong class="text-amber-400 font-semibold text-base">{{ $supplement->name }}</strong>
+                                    <p class="text-sm text-gray-300 mt-1">{{ $supplement->description }}</p>
+                                    @if($supplement->recommended_dose)
+                                        <p class="text-xs text-gray-400 mt-1">💧 <span class="font-medium">Dosis:</span> {{ $supplement->recommended_dose }}</p>
+                                    @endif
+                                </div>
+
+                                {{-- Tombol Hapus "Ciamik" --}}
+                                <form action="{{ route('trainer.programs.nutrition.supplement.destroy', ['memberId' => $member->id, 'supplementId' => $supplement->id]) }}"
+                                      method="POST" onsubmit="return confirm('Hapus suplemen ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="text-red-500 hover:text-red-400 text-sm font-medium transition-colors whitespace-nowrap">
+                                        🗑️ Hapus
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @else
+                <p class="text-gray-400 italic text-center pt-4 border-t border-gray-700/50 mt-6">
+                    Belum ada suplemen untuk member ini.
+                </p>
+            @endif
+        </div>
+
     </div>
-
-    {{-- 🍱 Edit Nutrition Form --}}
-    <div class="border border-green-200 bg-green-50 p-6 rounded-xl shadow-sm">
-        <h2 class="text-xl font-semibold text-green-700 mb-4">🍱 Ubah Rencana Nutrisi</h2>
-
-        <form action="{{ route('trainer.programs.nutrition.update', ['memberId' => $member->id]) }}"
-              method="POST" class="space-y-5">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="meal_name" value="{{ old('meal_name', $nutritionPlan->meal_name ?? '') }}"
-                    placeholder="Nama Menu / Makanan"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-                <input type="number" name="calories" value="{{ old('calories', $nutritionPlan->calories ?? '') }}"
-                    placeholder="Kalori (kcal)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-                <input type="number" name="protein" value="{{ old('protein', $nutritionPlan->protein ?? '') }}"
-                    placeholder="Protein (g)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-                <input type="number" name="carbs" value="{{ old('carbs', $nutritionPlan->carbs ?? '') }}"
-                    placeholder="Karbohidrat (g)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-                <input type="number" name="fat" value="{{ old('fat', $nutritionPlan->fat ?? '') }}"
-                    placeholder="Lemak (g)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-                <input type="text" name="target_fitness" value="{{ old('target_fitness', $nutritionPlan->target_fitness ?? '') }}"
-                    placeholder="Target Fitness (Bulking, Cutting, dll)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400">
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit"
-                    class="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-lg transition">
-                    💾 Simpan Perubahan Nutrisi
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- 💊 Tambah Suplemen Baru --}}
-    <div class="border border-purple-200 bg-purple-50 p-6 rounded-xl shadow-sm">
-        <h2 class="text-xl font-semibold text-purple-700 mb-4">💊 Tambah / Edit Suplemen</h2>
-
-        <form action="{{ route('trainer.programs.nutrition.supplement.store', ['memberId' => $member->id]) }}"
-              method="POST" class="space-y-3">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="name" placeholder="Nama Suplemen"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-purple-400">
-                <input type="text" name="recommended_dose" placeholder="Dosis (misal: 1 scoop/hari)"
-                    class="border p-2 rounded w-full focus:ring-2 focus:ring-purple-400">
-            </div>
-            <textarea name="description" placeholder="Deskripsi / manfaat suplemen..."
-                class="border p-2 rounded w-full focus:ring-2 focus:ring-purple-400"></textarea>
-
-            <div class="flex justify-end">
-                <button type="submit"
-                    class="bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2 rounded-lg transition">
-                    ➕ Tambah Suplemen
-                </button>
-            </div>
-        </form>
-
-        {{-- Daftar Suplemen --}}
-        @if($supplements->count())
-            <ul class="mt-6 divide-y divide-gray-200">
-                @foreach($supplements as $supplement)
-                    <li class="py-3 flex justify-between items-start">
-                        <div>
-                            <strong class="text-purple-700 text-lg">{{ $supplement->name }}</strong>
-                            <p class="text-sm text-gray-600 mt-1">{{ $supplement->description }}</p>
-                            @if($supplement->recommended_dose)
-                                <p class="text-xs text-gray-500 mt-1">💧 Dosis: {{ $supplement->recommended_dose }}</p>
-                            @endif
-                        </div>
-
-                        <form action="{{ route('trainer.programs.nutrition.supplement.destroy', ['memberId' => $member->id, 'supplementId' => $supplement->id]) }}"
-                              method="POST" onsubmit="return confirm('Hapus suplemen ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm transition">
-                                🗑️ Hapus
-                            </button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-        @else
-            <p class="text-gray-500 italic">Belum ada suplemen untuk member ini.</p>
-        @endif
-    </div>
-
-</div>
 @endsection
