@@ -18,6 +18,7 @@ use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\NutritionProgramController;
+use App\Http\Controllers\Admin\TrainerMemberController;
 
 // ==========================
 // 🧑‍🏫 TRAINER CONTROLLERS
@@ -101,6 +102,8 @@ Route::middleware(['auth', 'role:admin'])
             'articles' => ArticleController::class,
             'nutrition-programs' => NutritionProgramController::class,
         ]);
+        Route::resource('trainer-memberships', TrainerMemberController::class)
+             ->except(['show', 'edit', 'update']);
     });
 
 // ==========================

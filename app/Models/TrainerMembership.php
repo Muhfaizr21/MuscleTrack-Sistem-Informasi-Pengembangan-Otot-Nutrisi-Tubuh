@@ -9,15 +9,27 @@ class TrainerMembership extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['trainer_id', 'user_id'];
+    // Tentukan nama tabelnya (karena model & tabel namanya beda)
+    protected $table = 'trainer_memberships';
 
-    public function trainer()
-    {
-        return $this->belongsTo(User::class, 'trainer_id');
-    }
+    protected $fillable = [
+        'trainer_id',
+        'user_id',
+    ];
 
+    /**
+     * Relasi untuk mengambil data USER (Member)
+     */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi untuk mengambil data TRAINER
+     */
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
     }
 }
