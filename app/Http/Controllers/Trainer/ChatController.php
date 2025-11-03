@@ -7,17 +7,18 @@ use App\Models\TrainerChat;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ChatController extends Controller
 {
     /**
-     * 💬 Tampilkan daftar member dan area chat
+     * 💬 Tampilkan daftar member dan area chat dengan filter tanggal
      */
     public function index(Request $request)
     {
         $trainer = Auth::user();
 
-        // Ambil semua member yang terhubung dengan trainer
+        // 🔹 Ambil semua member yang terhubung dengan trainer
         $members = User::where('trainer_id', $trainer->id)
             ->where('role', 'user')
             ->withCount([
@@ -29,7 +30,7 @@ class ChatController extends Controller
             ])
             ->get();
 
-        // Tentukan member aktif
+        // 🔹 Tentukan member aktif
         $user = null;
         if ($request->has('user')) {
             $user = User::find($request->user);
@@ -37,15 +38,21 @@ class ChatController extends Controller
             $user = $members->first();
         }
 
-        // Ambil riwayat chat jika ada member aktif
+        // 🔹 Filter tanggal (opsional)
+        $dateFilter = $request->input('date'); // format: YYYY-MM-DD
         $chats = collect();
-        if ($user) {
-            $chats = TrainerChat::where('trainer_id', $trainer->id)
-                ->where('user_id', $user->id)
-                ->orderBy('timestamp', 'asc')
-                ->get();
 
-            // Tandai semua pesan dari user sebagai sudah dibaca
+        if ($user) {
+            $query = TrainerChat::where('trainer_id', $trainer->id)
+                ->where('user_id', $user->id);
+
+            if ($dateFilter) {
+                $query->whereDate('timestamp', Carbon::parse($dateFilter)->toDateString());
+            }
+
+            $chats = $query->orderBy('timestamp', 'asc')->get();
+
+            // 🔹 Tandai pesan dari user sebagai sudah dibaca
             TrainerChat::where('trainer_id', $trainer->id)
                 ->where('user_id', $user->id)
                 ->where('sender_type', 'user')
@@ -53,11 +60,26 @@ class ChatController extends Controller
                 ->update(['read_status' => true]);
         }
 
-        return view('trainer.communication.chat', compact('trainer', 'members', 'user', 'chats'));
+        // 🔹 Daftar tanggal unik (untuk filter dropdown)
+        $availableDates = TrainerChat::where('trainer_id', $trainer->id)
+            ->when($user, fn($q) => $q->where('user_id', $user->id))
+            ->selectRaw('DATE(timestamp) as date')
+            ->distinct()
+            ->orderBy('date', 'desc')
+            ->pluck('date');
+
+        return view('trainer.communication.chat', compact(
+            'trainer',
+            'members',
+            'user',
+            'chats',
+            'availableDates',
+            'dateFilter'
+        ));
     }
 
     /**
-     * 📨 Kirim pesan
+     * 📨 Kirim pesan (real-time)
      */
     public function store(Request $request)
     {
@@ -69,16 +91,18 @@ class ChatController extends Controller
         $trainer = Auth::user();
         $user = User::findOrFail($request->user_id);
 
+        // 🔒 Cegah kirim pesan ke user lain
         if ($user->trainer_id !== $trainer->id) {
             return response()->json(['error' => 'Tidak dapat mengirim pesan ke user lain.'], 403);
         }
 
+        // 🔹 Simpan pesan baru
         $chat = TrainerChat::create([
             'trainer_id'  => $trainer->id,
             'user_id'     => $user->id,
             'message'     => $request->message,
             'sender_type' => 'trainer',
-            'timestamp'   => now(),
+            'timestamp'   => now(), // ⏰ Gunakan waktu real-time server
             'read_status' => false,
         ]);
 
@@ -87,7 +111,24 @@ class ChatController extends Controller
             'chat_id'   => $chat->id,
             'message'   => $chat->message,
             'timestamp' => $chat->timestamp->format('H:i'),
+            'date'      => $chat->timestamp->format('Y-m-d'),
         ]);
+    }
+
+    /**
+     * ✅ Tandai semua pesan dari user sebagai sudah dibaca
+     */
+    public function markAllRead(Request $request)
+    {
+        $trainer = Auth::user();
+        $userId = $request->input('user_id');
+
+        TrainerChat::where('trainer_id', $trainer->id)
+            ->where('user_id', $userId)
+            ->where('sender_type', 'user')
+            ->update(['read_status' => true]);
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -103,22 +144,6 @@ class ChatController extends Controller
         }
 
         $chat->delete();
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * ✅ Tandai semua pesan dari user sebagai sudah dibaca
-     */
-    public function markAllRead(Request $request)
-    {
-        $trainer = Auth::user();
-        $userId = $request->input('user_id');
-
-        TrainerChat::where('trainer_id', $trainer->id)
-            ->where('user_id', $userId)
-            ->where('sender_type', 'user')
-            ->update(['read_status' => true]);
 
         return response()->json(['success' => true]);
     }

@@ -1,5 +1,9 @@
 @extends('layouts.user')
 
+@php
+    use Carbon\Carbon;
+@endphp
+
 @section('content')
     <div
         class="flex h-[80vh] max-w-6xl mx-auto bg-gray-950/80 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
@@ -65,40 +69,52 @@
                 {{-- CHAT BOX --}}
                 <div id="chat-box"
                     class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[url('/images/chat-bg-dark.png')] bg-cover bg-center">
-                    @forelse($chats as $chat)
-                        @if($chat->sender_type === 'user')
-                            {{-- 💬 USER MESSAGE (KANAN) --}}
-                            <div class="flex justify-end relative chat-message" id="chat-{{ $chat->id }}">
-                                <div class="text-right max-w-[80%]">
+
+                    @forelse($groupedChats as $dateLabel => $chats)
+                        {{-- 🔹 Label tanggal grup --}}
+                        <div class="text-center text-gray-400 text-xs font-semibold my-2">{{ $dateLabel }}</div>
+
+                        @foreach($chats as $chat)
+                            @if($chat->sender_type === 'user')
+                                {{-- 💬 Pesan dari user --}}
+                                <div class="flex justify-end relative chat-message" id="chat-{{ $chat->id }}">
+                                    <div class="text-right max-w-[80%]">
+                                        <div
+                                            class="bg-amber-400 text-black font-semibold px-4 py-2 rounded-2xl rounded-br-none inline-block shadow-md">
+                                            {{ $chat->message }}
+                                        </div>
+                                        <div class="flex justify-end items-center gap-2 mt-1">
+                                            <p class="text-[10px] text-gray-500">
+                                                {{ Carbon::parse($chat->timestamp)->timezone('Asia/Jakarta')->format('H:i') }}
+                                            </p>
+                                            <button data-id="{{ $chat->id }}"
+                                                class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- 🧑‍🏫 Pesan dari trainer --}}
+                                <div class="flex items-start gap-2 chat-message">
                                     <div
-                                        class="bg-amber-400 text-black font-semibold px-4 py-2 rounded-2xl rounded-br-none inline-block shadow-md">
-                                        {{ $chat->message }}
+                                        class="w-8 h-8 bg-amber-400/20 rounded-full flex items-center justify-center text-amber-400 text-sm font-bold">
+                                        T
                                     </div>
-                                    <div class="flex justify-end items-center gap-2 mt-1">
-                                        <p class="text-[10px] text-gray-500">{{ $chat->timestamp->format('H:i') }}</p>
-                                        <button data-id="{{ $chat->id }}"
-                                            class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
+                                    <div>
+                                        <div
+                                            class="bg-gray-800 text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none inline-block max-w-[80%]">
+                                            {{ $chat->message }}
+                                        </div>
+                                        <p class="text-[10px] text-gray-500 mt-1">
+                                            {{ Carbon::parse($chat->timestamp)->timezone('Asia/Jakarta')->format('H:i') }}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        @elseif($chat->sender_type === 'trainer')
-                            {{-- 🧑‍🏫 TRAINER MESSAGE (KIRI) --}}
-                            <div class="flex items-start gap-2 chat-message">
-                                <div
-                                    class="w-8 h-8 bg-amber-400/20 rounded-full flex items-center justify-center text-amber-400 text-sm font-bold">
-                                    T
-                                </div>
-                                <div>
-                                    <div
-                                        class="bg-gray-800 text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none inline-block max-w-[80%]">
-                                        {{ $chat->message }}
-                                    </div>
-                                    <p class="text-[10px] text-gray-500 mt-1">{{ $chat->timestamp->format('H:i') }}</p>
-                                </div>
-                            </div>
-                        @endif
+                            @endif
+                        @endforeach
                     @empty
-                        <p class="text-gray-400 italic text-center mt-10">Belum ada percakapan dengan {{ $trainer->name }}.</p>
+                        <p class="text-gray-400 italic text-center mt-10">
+                            Belum ada percakapan dengan {{ $trainer->name ?? 'trainer ini' }}.
+                        </p>
                     @endforelse
                 </div>
 
@@ -126,13 +142,12 @@
     <script>
         @if(isset($trainer))
             document.addEventListener('DOMContentLoaded', async () => {
-                // 🔹 Mark all trainer messages as read saat halaman chat dibuka
+                // 🔹 Tandai semua pesan dari trainer sebagai "dibaca"
                 try {
                     await axios.post("{{ route('user.chat.markAllRead') }}", {
                         trainer_id: {{ $trainer->id }},
                         _token: "{{ csrf_token() }}"
                     });
-                    // 🔹 Hapus badge notifikasi di sidebar (kalau ada)
                     const badge = document.getElementById('unread-badge-{{ $trainer->id }}');
                     if (badge) badge.remove();
                 } catch (err) {
@@ -140,8 +155,7 @@
                 }
             });
 
-
-            // 📨 Kirim pesan
+            // 📨 Kirim pesan user
             document.getElementById('chat-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = document.getElementById('chat-message');
@@ -162,9 +176,9 @@
                                 ${message}
                             </div>
                             <div class="flex justify-end items-center gap-2 mt-1">
-                                <p class="text-[10px] text-gray-500">Baru saja</p>
-                                <button data-id="${res.data.chat_id}" 
-                                        class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
+                                <p class="text-[10px] text-gray-500">${res.data.local_time}</p>
+                                <button data-id="${res.data.chat_id}"
+                                    class="delete-chat text-xs text-gray-500 hover:text-red-500 transition">🗑️</button>
                             </div>
                         </div>
                     </div>

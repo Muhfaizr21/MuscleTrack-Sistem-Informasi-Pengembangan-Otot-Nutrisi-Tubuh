@@ -116,7 +116,7 @@ Route::middleware(['auth', 'role:admin'])
         ]);
 
         Route::resource('trainer-memberships', TrainerMemberController::class)
-             ->except(['show', 'edit', 'update']);
+            ->except(['show', 'edit', 'update']);
     });
 
 // ==========================
@@ -188,7 +188,11 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
         Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
         Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
-        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('chat.destroy');
+        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('user.chat.destroy');
+        Route::get('/chat/refresh', [UserChatController::class, 'refresh'])->name('chat.refresh');
+        Route::post('/chat/typing', [UserChatController::class, 'typing'])->name('chat.typing');
+
+
 
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');

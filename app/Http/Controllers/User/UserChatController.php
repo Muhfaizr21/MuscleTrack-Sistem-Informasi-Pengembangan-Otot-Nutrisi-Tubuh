@@ -7,6 +7,8 @@ use App\Models\TrainerChat;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class UserChatController extends Controller
 {
@@ -37,12 +39,29 @@ class UserChatController extends Controller
         }
 
         // 🔹 Ambil chat antara user & trainer aktif
-        $chats = collect();
+        $groupedChats = collect();
         if ($trainer) {
             $chats = TrainerChat::where('trainer_id', $trainer->id)
                 ->where('user_id', $user->id)
                 ->orderBy('timestamp', 'asc')
                 ->get();
+
+            // 🔹 Group chat berdasarkan hari (hari ini, kemarin, minggu lalu, lainnya)
+            $groupedChats = $chats->groupBy(function ($chat) {
+                $date = Carbon::parse($chat->timestamp)->startOfDay();
+                $today = Carbon::now('Asia/Jakarta')->startOfDay();
+                $yesterday = Carbon::yesterday('Asia/Jakarta')->startOfDay();
+
+                if ($date->equalTo($today)) {
+                    return 'Hari Ini (' . Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y') . ')';
+                } elseif ($date->equalTo($yesterday)) {
+                    return 'Kemarin (' . Carbon::yesterday('Asia/Jakarta')->translatedFormat('l, d F Y') . ')';
+                } elseif ($date->greaterThanOrEqualTo(Carbon::now('Asia/Jakarta')->subDays(7)->startOfDay())) {
+                    return 'Minggu Ini (' . $date->translatedFormat('l, d F Y') . ')';
+                } else {
+                    return $date->translatedFormat('l, d F Y');
+                }
+            });
         }
 
         // 🔹 Hitung jumlah pesan belum dibaca per trainer
@@ -51,7 +70,7 @@ class UserChatController extends Controller
             $unreadCount[$t->id] = TrainerChat::where('trainer_id', $t->id)
                 ->where('user_id', $user->id)
                 ->where('read_status', false)
-                ->where('sender_type', 'trainer') // hanya pesan dari trainer
+                ->where('sender_type', 'trainer')
                 ->count();
         }
 
@@ -65,18 +84,25 @@ class UserChatController extends Controller
                 ->get();
         }
 
+        // 🔹 Cek apakah trainer sedang mengetik (cache)
+        $isTrainerTyping = false;
+        if ($trainer) {
+            $isTrainerTyping = Cache::has("typing_trainer_{$trainer->id}_to_user_{$user->id}");
+        }
+
         return view('user.chat.index', compact(
             'user',
             'trainers',
             'trainer',
-            'chats',
+            'groupedChats',
             'unreadCount',
-            'recommendedTrainers'
+            'recommendedTrainers',
+            'isTrainerTyping'
         ));
     }
 
     /**
-     * 💬 Kirim pesan ke trainer
+     * 💬 Kirim pesan ke trainer (real-time local time)
      */
     public function store(Request $request)
     {
@@ -101,22 +127,49 @@ class UserChatController extends Controller
             return response()->json(['error' => 'Anda belum terhubung dengan trainer ini.'], 403);
         }
 
-        // 🔹 Simpan pesan baru dengan sender_type = 'user'
+        // 🔹 Simpan pesan baru di database
         $chat = TrainerChat::create([
             'user_id'     => $user->id,
             'trainer_id'  => $request->trainer_id,
             'message'     => $request->message,
-            'timestamp'   => now(),
+            'timestamp'   => now('Asia/Jakarta'),
             'read_status' => false,
             'sender_type' => 'user',
         ]);
 
+        // 🔹 Ambil waktu real-time (Asia/Jakarta)
+        $nowLocal = Carbon::now('Asia/Jakarta')->format('H:i:s');
+
         return response()->json([
-            'success'   => true,
-            'chat_id'   => $chat->id,
-            'message'   => $chat->message,
-            'timestamp' => $chat->timestamp->format('H:i'),
+            'success'     => true,
+            'chat_id'     => $chat->id,
+            'message'     => $chat->message,
+            'local_time'  => $nowLocal,
         ]);
+    }
+
+    /**
+     * ✍️ Simpan status "user sedang mengetik"
+     */
+    public function typing(Request $request)
+    {
+        $user = Auth::user();
+        $trainerId = $request->input('trainer_id');
+        $isTyping = filter_var($request->input('typing'), FILTER_VALIDATE_BOOLEAN);
+
+        if (!$trainerId) {
+            return response()->json(['error' => 'Trainer ID tidak ditemukan'], 400);
+        }
+
+        // Simpan status typing di cache selama 5 detik
+        $key = "typing_user_{$user->id}_to_trainer_{$trainerId}";
+        if ($isTyping) {
+            Cache::put($key, true, now()->addSeconds(5));
+        } else {
+            Cache::forget($key);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -142,7 +195,6 @@ class UserChatController extends Controller
     {
         $chat = TrainerChat::findOrFail($id);
 
-        // 🔒 Hanya pesan milik user itu sendiri yang boleh dihapus
         if ($chat->user_id !== Auth::id() || $chat->sender_type !== 'user') {
             abort(403, 'Anda hanya dapat menghapus pesan yang Anda kirim.');
         }
@@ -150,5 +202,13 @@ class UserChatController extends Controller
         $chat->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * 🧠 Helper: cek apakah user sedang mengetik (dipakai di sisi trainer)
+     */
+    public static function isUserTyping($userId, $trainerId)
+    {
+        return Cache::has("typing_user_{$userId}_to_trainer_{$trainerId}");
     }
 }
