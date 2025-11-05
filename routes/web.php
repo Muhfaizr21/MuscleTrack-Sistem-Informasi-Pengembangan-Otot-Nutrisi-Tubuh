@@ -57,6 +57,7 @@ use App\Http\Controllers\User\{
     UserProfileController,
     UserArticleController
 };
+use App\Http\Controllers\User\NotificationController as UserNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -210,7 +211,10 @@ Route::middleware(['auth', 'role:user'])
 
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
+        Route::get('/notifications', [UserNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('notifications.read');
     });
+
 
 // ==========================
 // 🌐 Rute Publik

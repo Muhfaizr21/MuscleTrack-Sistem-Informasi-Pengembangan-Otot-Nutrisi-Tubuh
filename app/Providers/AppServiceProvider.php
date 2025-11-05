@@ -45,6 +45,7 @@ public function boot(): void
 
         // Kirim variabel $unreadCount ke view
         $view->with('unreadNotificationsCount', $unreadCount);
+        
     });
 
     // ======================================

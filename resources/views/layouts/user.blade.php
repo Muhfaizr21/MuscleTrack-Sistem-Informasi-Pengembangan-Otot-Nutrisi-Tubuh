@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MuscleXpert - User Dashboard</title>
+    <title>MuscleXpert - @yield('title', 'User Dashboard')</title> {{-- (FIX "Ciamik") --}}
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -46,6 +46,8 @@
         }
         [x-cloak] { display: none !important; }
     </style>
+
+    @yield('styles')
 </head>
 
 <body class="bg-black text-gray-200 min-h-screen flex flex-col">
@@ -59,44 +61,58 @@
             <div class="flex justify-between items-center">
 
                 <div class="flex items-center gap-6">
-                    <a href="{{ 'dashboard' }}" class="font-serif text-3xl font-bold text-white">
+                    <a href="{{ route('user.dashboard') }}" class="font-serif text-3xl font-bold text-white"> {{-- (FIX "Ciamik") --}}
                         Muscle<span class="text-amber-400">Xpert</span>
                     </a>
 
+                    {{--
+                      ==================================
+                      ===== PERBAIKAN MENU DESKTOP =====
+                      ==================================
+                    --}}
                     <div class="hidden md:flex flex-wrap gap-5 font-medium items-center">
                         <a href="{{ route('user.progress.index') }}"
                            class="relative text-gray-300 hover:text-white transition {{ request()->is('user/progress*') ? 'text-amber-400 font-semibold' : '' }}">
                             My Progress
-                            @if($notifications['progress'] ?? false)
-                                <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 leading-tight">!</span>
-                            @endif
+                            {{-- (Notif '!' lama 100% dihapus) --}}
                         </a>
                         <a href="{{ route('user.workouts.index') }}"
                            class="relative text-gray-300 hover:text-white transition {{ request()->is('user/workouts*') ? 'text-amber-400 font-semibold' : '' }}">
                             Workout Plans
-                            @if($notifications['workout'] ?? false)
-                                <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 leading-tight">!</span>
-                            @endif
                         </a>
                         <a href="{{ route('user.nutrition.index') }}"
                            class="relative text-gray-300 hover:text-white transition {{ request()->is('user/nutrition*') ? 'text-amber-400 font-semibold' : '' }}">
                             Nutrition Tracker
-                            @if($notifications['nutrition'] ?? false)
-                                <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 leading-tight">!</span>
-                            @endif
                         </a>
                         <a href="{{ route('user.articles.index') }}"
                            class="relative text-gray-300 hover:text-white transition {{ request()->is('user/articles*') ? 'text-amber-400 font-semibold' : '' }}">
                             Tips & Articles
-                            @if($notifications['articles'] ?? false)
-                                <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 leading-tight">!</span>
-                            @endif
                         </a>
-
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4">
+
+                    {{--
+                      ==================================
+                      ===== 🔔 ICON NOTIF "CIAMIK" 🔔 =====
+                      ==================================
+                    --}}
+                    <a href="{{ route('user.notifications.index') }}"
+                       class="relative text-gray-400 hover:text-white transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+
+                        {{-- INI ADALAH BADGE "CIAMIK" DARI VIEW COMPOSER --}}
+                        @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                        <span class="absolute -top-2 -right-2 flex h-5 w-5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs font-bold items-center justify-center">
+                                {{ $unreadNotificationsCount }}
+                            </span>
+                        </span>
+                        @endif
+                    </a>
+
 
                     <div class="hidden md:block relative">
                         <button @click="isProfileOpen = !isProfileOpen"
@@ -112,12 +128,9 @@
                              class="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-lg border border-gray-700/50 rounded-lg shadow-lg py-1 z-50">
 
                             <a href="{{ route('user.weekly-summary.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Weekly Summary</a>
-
                             <a href="{{ route('user.chat.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Trainer</a>
                             <a href="{{ route('user.profile.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">My Profile</a>
-
                             <div class="border-t border-gray-700/50 my-1"></div>
-
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 hover:text-red-300">
@@ -136,6 +149,11 @@
             </div>
         </div>
 
+        {{--
+          ==================================
+          ===== PERBAIKAN MENU MOBILE =====
+          ==================================
+        --}}
         <div x-show="isMobileMenuOpen" class="md:hidden bg-black/90 backdrop-blur-lg border-t border-gray-700/50" x-cloak>
             <div class="flex flex-col p-4 space-y-3 font-medium">
                 <h3 class="text-amber-400 text-xs uppercase font-bold tracking-wider px-2 pt-2">Menu Utama</h3>
@@ -149,6 +167,18 @@
                 <a href="{{ route('user.chat.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">Trainer</a>
                 <a href="{{ route('user.profile.index') }}" class="block p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">My Profile</a>
 
+                {{-- 🔔 LINK NOTIF "CIAMIK" (MOBILE) 🔔 --}}
+                <a href="{{ route('user.notifications.index') }}"
+                   class="flex justify-between items-center p-2 text-gray-300 rounded-md hover:bg-gray-800 hover:text-white">
+                   <span>Notifikasi</span>
+                   @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                    <span class="text-xs bg-red-600 text-white font-bold rounded-full px-2 py-0.5">
+                        {{ $unreadNotificationsCount }}
+                    </span>
+                    @endif
+                </a>
+
+
                 <form action="{{ route('logout') }}" method="POST" class="border-t border-gray-700/50 pt-3 mt-2">
                     @csrf
                     <button type="submit" class="w-full text-left p-2 text-red-500 rounded-md hover:bg-red-900/50 hover:text-red-400">Logout</button>
@@ -158,7 +188,9 @@
     </nav>
 
     <main class="w-full flex-grow py-6 px-4">
-        @yield('content')
+        <div class="container mx-auto"> {{-- (FIX "Ciamik") --}}
+            @yield('content')
+        </div>
     </main>
 
     <footer class="bg-black border-t border-gray-700/50 mt-auto py-4">
