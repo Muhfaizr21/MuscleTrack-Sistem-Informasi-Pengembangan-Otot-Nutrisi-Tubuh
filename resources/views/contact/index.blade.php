@@ -1,6 +1,6 @@
 <x-layouts.landing>
 
-    <<div class="pt-32 pb-16 bg-black z-10 relative">
+    <div class="pt-32 pb-16 bg-black z-10 relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="font-serif text-5xl sm:text-7xl font-bold text-white">
             Hubungi <span class="text-amber-400">Kami</span>
