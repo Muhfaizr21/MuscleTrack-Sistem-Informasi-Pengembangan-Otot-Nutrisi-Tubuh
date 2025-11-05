@@ -100,6 +100,16 @@
         <span>Manajemen Goals</span>
     </a>
 </li>
+<li>
+    <a href="{{ route('admin.broadcast.index') }}"
+       class="flex items-center px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.broadcast.*')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.042 21.672L13.684 16.6m0 0l-2.51-2.22m5.724 0l-3.007-5.49c-.6-1.1-1.8-1.8-3.1-1.8H6.5a2 2 0 00-2 2v10a2 2 0 002 2h3.18l3.34 5.922zM12 9v-2m0 2H9m3 0h3m-3 4v-2m0 2H9m3 0h3m-3 4v-2m0 2H9m3 0h3"></path></svg></span>
+        <span>Broadcast Notifikasi</span>
+    </a>
+</li>
 
                     <li>
                         <a href="#"

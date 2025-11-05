@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\TrainerMemberController;
 use App\Http\Controllers\Admin\WorkoutPlanController;
 use App\Http\Controllers\Admin\GoalController;
 use App\Http\Controllers\Admin\BodyMetricController;
+use App\Http\Controllers\Admin\NotificationBroadcasterController;
 
 // ==========================
 // 🧑‍🏫 TRAINER CONTROLLERS
@@ -120,6 +121,8 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::resource('trainer-memberships', TrainerMemberController::class)
             ->except(['show', 'edit', 'update']);
+        Route::get('broadcast', [NotificationBroadcasterController::class, 'index'])->name('broadcast.index');
+        Route::post('broadcast', [NotificationBroadcasterController::class, 'store'])->name('broadcast.store');
     });
 
 // ==========================

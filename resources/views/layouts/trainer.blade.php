@@ -58,7 +58,7 @@
                 use App\Models\User;
                 $trainer = auth()->user();
                 $firstMember = $trainer ? User::where('trainer_id', $trainer->id)->first() : null;
-            @endphp
+            @endphp {{-- <-- Ini adalah perbaikan @php "kocak" --}}
 
             {{-- Overlay Mobile --}}
             <div x-show="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-30 md:hidden" x-cloak></div>
@@ -114,12 +114,26 @@
                         <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 21l1.255-3.765A9.863 9.863 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg></span>
                         <span class="font-medium">Pesan Klien</span>
                     </a>
+
                     <a href="{{ route('trainer.communication.notifications.index') }}"
-                        class="flex items-center px-4 py-3 rounded-md font-medium transition-all
-                            {{ Route::is('trainer.communication.notifications.*') ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
-                        <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg></span>
-                        <span class="font-medium">Notifikasi</span>
+                       class="flex items-center justify-between px-4 py-3 rounded-md font-medium transition-all
+                              {{ Route::is('trainer.communication.notifications.*')
+                                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+                        <div class="flex items-center">
+                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg></span>
+                            <span class="font-medium">Notifikasi</span>
+                        </div>
+
+                        {{-- INI ADALAH BADGE "CIAMIK" DARI VIEW COMPOSER --}}
+                        @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                        <span class="text-xs bg-red-600 text-white font-bold rounded-full px-2 py-0.5">
+                            {{ $unreadNotificationsCount }}
+                        </span>
+                        @endif
                     </a>
+
+
                     <a href="{{ route('trainer.quality.verification.status') }}"
                         class="flex items-center px-4 py-3 rounded-md font-medium transition-all
                             {{ Route::is('trainer.quality.*') ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20' : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
