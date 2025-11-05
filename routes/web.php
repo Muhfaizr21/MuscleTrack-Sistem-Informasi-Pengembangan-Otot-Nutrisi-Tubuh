@@ -67,6 +67,9 @@ use App\Http\Controllers\User\{
 // 🏠 Halaman Utama
 // ==========================
 Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+
 
 // ==========================
 // 🔐 AUTH ROUTES

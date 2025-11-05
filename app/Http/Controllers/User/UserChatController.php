@@ -8,7 +8,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\Services\GeminiService;
 use Carbon\Carbon;
+// use Log; // <-- Dihapus
 
 class UserChatController extends Controller
 {
@@ -19,7 +21,7 @@ class UserChatController extends Controller
     {
         $user = Auth::user();
 
-        // 🔹 Ambil semua trainer yang terhubung dengan user
+        // 🔹 Ambil semua trainer yang terhubung
         $trainers = User::where('role', 'trainer')
             ->where(function ($q) use ($user) {
                 $q->where('id', $user->trainer_id)
@@ -30,23 +32,41 @@ class UserChatController extends Controller
             ->with('trainerProfile')
             ->get();
 
+        // 🔹 Tambah AI Trainer virtual
+        $aiTrainer = (object)[
+            'id' => 0,
+            'name' => 'Muscle AI Trainer',
+            'role' => 'ai',
+            'trainerProfile' => (object)[
+                'speciality' => 'AI Fitness & Nutrition Advisor',
+                'photo' => asset('images/ai-trainer.png'),
+            ],
+        ];
+        $trainers->push($aiTrainer);
+
         // 🔹 Tentukan trainer aktif
         $trainer = null;
         if ($request->has('trainer')) {
-            $trainer = User::find($request->trainer);
+            $trainer = $trainers->firstWhere('id', (int) $request->trainer);
         } elseif ($trainers->count() === 1) {
             $trainer = $trainers->first();
         }
 
-        // 🔹 Ambil chat antara user & trainer aktif
+        // 🔹 Ambil chat
         $groupedChats = collect();
         if ($trainer) {
-            $chats = TrainerChat::where('trainer_id', $trainer->id)
-                ->where('user_id', $user->id)
+            // ==================================================================
+            // ▼▼▼ PERUBAHAN DI SINI ▼▼▼
+            // Jika ID trainer adalah 0 (AI), kita cari 'trainer_id' yang 'null' di DB
+            $trainerIdForQuery = ($trainer->id === 0) ? null : $trainer->id;
+
+            $chats = TrainerChat::where('user_id', $user->id)
+                ->where('trainer_id', $trainerIdForQuery) // <-- DIUBAH
                 ->orderBy('timestamp', 'asc')
                 ->get();
+            // ▲▲▲ PERUBAHAN SELESAI ▲▲▲
+            // ==================================================================
 
-            // 🔹 Group chat berdasarkan hari (hari ini, kemarin, minggu lalu, lainnya)
             $groupedChats = $chats->groupBy(function ($chat) {
                 $date = Carbon::parse($chat->timestamp)->startOfDay();
                 $today = Carbon::now('Asia/Jakarta')->startOfDay();
@@ -64,9 +84,14 @@ class UserChatController extends Controller
             });
         }
 
-        // 🔹 Hitung jumlah pesan belum dibaca per trainer
+        // 🔹 Hitung unread per trainer
         $unreadCount = [];
         foreach ($trainers as $t) {
+            if ($t->id === 0) {
+                $unreadCount[$t->id] = 0;
+                continue;
+            }
+
             $unreadCount[$t->id] = TrainerChat::where('trainer_id', $t->id)
                 ->where('user_id', $user->id)
                 ->where('read_status', false)
@@ -74,7 +99,7 @@ class UserChatController extends Controller
                 ->count();
         }
 
-        // 🔹 Jika belum punya trainer, tampilkan rekomendasi trainer yang verified
+        // 🔹 Rekomendasi trainer
         $recommendedTrainers = [];
         if ($trainers->isEmpty()) {
             $recommendedTrainers = User::where('role', 'trainer')
@@ -84,9 +109,9 @@ class UserChatController extends Controller
                 ->get();
         }
 
-        // 🔹 Cek apakah trainer sedang mengetik (cache)
+        // 🔹 Status typing trainer
         $isTrainerTyping = false;
-        if ($trainer) {
+        if ($trainer && $trainer->id !== 0) {
             $isTrainerTyping = Cache::has("typing_trainer_{$trainer->id}_to_user_{$user->id}");
         }
 
@@ -102,19 +127,76 @@ class UserChatController extends Controller
     }
 
     /**
-     * 💬 Kirim pesan ke trainer (real-time local time)
+     * 💬 Kirim pesan ke trainer / AI Trainer
      */
-    public function store(Request $request)
+    public function store(Request $request, GeminiService $gemini)
     {
         $request->validate([
             'message' => 'required|string|max:1000',
-            'trainer_id' => 'required|exists:users,id',
+            'trainer_id' => 'required',
         ]);
 
         $user = Auth::user();
+        $trainerId = (int) $request->trainer_id;
 
-        // 🔒 Pastikan user terhubung dengan trainer
-        $isConnected = User::where('id', $request->trainer_id)
+        // ================================
+        // 🤖 CHAT DENGAN AI TRAINER
+        // ================================
+        if ($trainerId === 0) {
+            // Simpan pesan user
+            $chatUser = TrainerChat::create([
+                'user_id'     => $user->id,
+                'trainer_id'  => null, // <-- DIUBAH dari 0
+                'message'     => $request->message,
+                'timestamp'   => now('Asia/Jakarta'),
+                'read_status' => true,
+                'sender_type' => 'user',
+            ]);
+
+            try {
+                // Panggil GeminiService untuk mendapatkan respons AI
+                $prompt = "Kamu adalah pelatih kebugaran dan nutrisi profesional. 
+                Jawablah dengan gaya ramah, natural, dan berbobot seolah kamu adalah trainer manusia.
+                Pertanyaan pengguna: {$request->message}";
+
+                // Log::info("Sending prompt to Gemini AI: {$prompt}"); // <-- Dihapus
+
+                $aiResponse = $gemini->generateText($prompt);
+
+                // Log::info("AI response: {$aiResponse}"); // <-- Dihapus
+
+                // Simpan balasan AI
+                $chatAI = TrainerChat::create([
+                    'user_id'     => $user->id,
+                    'trainer_id'  => null, // <-- DIUBAH dari 0
+                    'message'     => $aiResponse,
+                    'timestamp'   => now('Asia/Jakarta'),
+                    'read_status' => true,
+                    'sender_type' => 'trainer',
+                ]);
+
+                return response()->json([
+                    'success'      => true,
+                    'ai_mode'      => true,
+                    'user_message' => $chatUser->message,
+                    'ai_message'   => $chatAI->message,
+                    'local_time'   => Carbon::now('Asia/Jakarta')->format('H:i:s'),
+                ]);
+            } catch (\Throwable $e) {
+                // Log::error("Error processing AI message: " . $e->getMessage()); // <-- Dihapus
+
+                return response()->json([
+                    'success' => false,
+                    'ai_mode' => true,
+                    'error'   => 'Gagal memproses pesan AI: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        // ================================
+        // 💬 CHAT DENGAN TRAINER MANUSIA
+        // ================================
+        $isConnected = User::where('id', $trainerId)
             ->where(function ($q) use ($user) {
                 $q->where('id', $user->trainer_id)
                     ->orWhereHas('trainerMembershipsAsUser', function ($sub) use ($user) {
@@ -127,29 +209,27 @@ class UserChatController extends Controller
             return response()->json(['error' => 'Anda belum terhubung dengan trainer ini.'], 403);
         }
 
-        // 🔹 Simpan pesan baru di database
         $chat = TrainerChat::create([
             'user_id'     => $user->id,
-            'trainer_id'  => $request->trainer_id,
+            'trainer_id'  => $trainerId,
             'message'     => $request->message,
             'timestamp'   => now('Asia/Jakarta'),
             'read_status' => false,
             'sender_type' => 'user',
         ]);
 
-        // 🔹 Ambil waktu real-time (Asia/Jakarta)
-        $nowLocal = Carbon::now('Asia/Jakarta')->format('H:i:s');
-
         return response()->json([
-            'success'     => true,
-            'chat_id'     => $chat->id,
-            'message'     => $chat->message,
-            'local_time'  => $nowLocal,
+            'success'    => true,
+            'ai_mode'    => false,
+            'chat_id'    => $chat->id,
+            'message'    => $chat->message,
+            'local_time' => Carbon::now('Asia/Jakarta')->format('H:i:s'),
         ]);
     }
 
+
     /**
-     * ✍️ Simpan status "user sedang mengetik"
+     * ✍️ Status mengetik
      */
     public function typing(Request $request)
     {
@@ -161,7 +241,10 @@ class UserChatController extends Controller
             return response()->json(['error' => 'Trainer ID tidak ditemukan'], 400);
         }
 
-        // Simpan status typing di cache selama 5 detik
+        if ($trainerId == 0) {
+            return response()->json(['success' => true]); // AI tidak perlu typing status
+        }
+
         $key = "typing_user_{$user->id}_to_trainer_{$trainerId}";
         if ($isTyping) {
             Cache::put($key, true, now()->addSeconds(5));
@@ -180,16 +263,22 @@ class UserChatController extends Controller
         $user = Auth::user();
         $trainerId = $request->input('trainer_id');
 
+        // ==================================================================
+        // ▼▼▼ PERUBAHAN DI SINI ▼▼▼
+        $trainerIdForQuery = ($trainerId == 0) ? null : $trainerId;
+
         TrainerChat::where('user_id', $user->id)
-            ->where('trainer_id', $trainerId)
+            ->where('trainer_id', $trainerIdForQuery) // <-- DIUBAH
             ->where('sender_type', 'trainer')
             ->update(['read_status' => true]);
+        // ▲▲▲ PERUBAHAN SELESAI ▲▲▲
+        // ==================================================================
 
         return response()->json(['success' => true]);
     }
 
     /**
-     * ❌ Hapus pesan user (hanya miliknya sendiri)
+     * ❌ Hapus pesan user
      */
     public function destroy($id)
     {
@@ -200,12 +289,11 @@ class UserChatController extends Controller
         }
 
         $chat->delete();
-
         return response()->json(['success' => true]);
     }
 
     /**
-     * 🧠 Helper: cek apakah user sedang mengetik (dipakai di sisi trainer)
+     * 🧠 Helper: cek user typing
      */
     public static function isUserTyping($userId, $trainerId)
     {

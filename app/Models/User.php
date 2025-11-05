@@ -14,7 +14,6 @@ class User extends Authenticatable
         'name',
         'email',
         'avatar',
-        'password',
         'role',
         'age',
         'gender',
@@ -25,8 +24,10 @@ class User extends Authenticatable
         'verification_status'
     ];
 
-    protected $hidden = ['password'];
-
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
     // === Relasi dasar ===
     public function goal()
     {
