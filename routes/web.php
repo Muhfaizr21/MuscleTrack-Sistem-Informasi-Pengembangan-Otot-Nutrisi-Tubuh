@@ -16,6 +16,8 @@ use App\Http\Controllers\Auth\GoogleRegisterController;
 use App\Http\Controllers\AdminController; // <-- DIPINDAH KE SINI (INI PERBAIKANNYA)
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
+use App\Http\Controllers\PublicContactController;
+use App\Http\Controllers\Admin\ContactMessageController;
 
 // ==========================
 // 🧑‍💼 ADMIN CONTROLLERS (Hanya yang di dalam folder Admin/)
@@ -124,6 +126,9 @@ Route::middleware(['auth', 'role:admin'])
             ->except(['show', 'edit', 'update']);
         Route::get('broadcast', [NotificationBroadcasterController::class, 'index'])->name('broadcast.index');
         Route::post('broadcast', [NotificationBroadcasterController::class, 'store'])->name('broadcast.store');
+        Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact.index');
+        Route::get('/contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact.show');
+        Route::delete('/contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact.destroy');
     });
 
 // ==========================

@@ -111,13 +111,25 @@
     </a>
 </li>
 
-                    <li>
-                        <a href="#"
-                           class="flex items-center px-4 py-3 rounded-md font-medium text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all">
-                            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></span>
-                            <span>Pesan Kontak</span>
-                        </a>
-                    </li>
+ <li>
+    <a href="{{ route('admin.contact.index') }}"
+       class="flex items-center justify-between px-4 py-3 rounded-md font-medium transition-all
+              {{ request()->routeIs('admin.contact.*')
+                 ? 'text-black bg-amber-400 shadow-lg shadow-amber-500/20'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800/50' }}">
+        <div class="flex items-center">
+            <span class="w-6 h-6 mr-3"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></span>
+            <span>Pesan Kontak</span>
+        </div>
+
+        {{-- INI ADALAH BADGE "CIAMIK" DARI STEP 1 --}}
+        @if(isset($unreadContactCount) && $unreadContactCount > 0)
+        <span class="text-xs bg-red-600 text-white font-bold rounded-full px-2 py-0.5">
+            {{ $unreadContactCount }}
+        </span>
+        @endif
+    </a>
+</li>
 
                     <li class="border-t border-gray-700/50 pt-2">
                          <a href="#"
