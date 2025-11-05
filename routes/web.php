@@ -219,6 +219,8 @@ Route::middleware(['auth', 'role:user'])
 // ==========================
 // 🌐 Rute Publik
 // ==========================
+
+
 Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
 

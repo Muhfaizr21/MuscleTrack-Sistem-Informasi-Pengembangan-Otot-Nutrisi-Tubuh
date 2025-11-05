@@ -9,7 +9,7 @@
             </div>
 
             <div class="hidden md:flex items-center space-x-6">
-                <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Home</a>
+                <a href="/" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Home</a>
                 <a href="{{ route('public.articles.index') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Tips & Articles</a>
                 <a href="{{ route('contact.index') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Contact Us</a>
             </div>
