@@ -110,8 +110,7 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Rute ini sekarang akan menunjuk ke \App\Http\Controllers\AdminController (Benar)
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+       Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard'); // (Ini 100% sudah benar)
 
         Route::resources([
             'users' => UserManagementController::class,
