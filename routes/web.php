@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; // (Diperlukan untuk auth.php)
+use Illuminate\Support\Facades\Auth;
 
 // ==========================
 // 🔐 AUTH CONTROLLERS
@@ -13,23 +13,24 @@ use App\Http\Controllers\Auth\GoogleRegisterController;
 // ==========================
 // 🌐 PUBLIC/CORE CONTROLLERS
 // ==========================
-use App\Http\Controllers\AdminController; // <-- DIPINDAH KE SINI (INI PERBAIKANNYA)
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
-use App\Http\Controllers\PublicContactController;
 use App\Http\Controllers\Admin\ContactMessageController;
 
 // ==========================
-// 🧑‍💼 ADMIN CONTROLLERS (Hanya yang di dalam folder Admin/)
+// 🧑‍💼 ADMIN CONTROLLERS
 // ==========================
-use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\ArticleController;
-use App\Http\Controllers\Admin\NutritionProgramController;
-use App\Http\Controllers\Admin\TrainerMemberController;
-use App\Http\Controllers\Admin\WorkoutPlanController;
-use App\Http\Controllers\Admin\GoalController;
-use App\Http\Controllers\Admin\BodyMetricController;
-use App\Http\Controllers\Admin\NotificationBroadcasterController;
+use App\Http\Controllers\Admin\{
+    UserManagementController,
+    ArticleController,
+    NutritionProgramController,
+    TrainerMemberController,
+    WorkoutPlanController,
+    GoalController,
+    BodyMetricController,
+    NotificationBroadcasterController
+};
 
 // ==========================
 // 🧑‍🏫 TRAINER CONTROLLERS
@@ -37,7 +38,7 @@ use App\Http\Controllers\Admin\NotificationBroadcasterController;
 use App\Http\Controllers\Trainer\{
     DashboardController as TrainerDashboardController,
     MemberController,
-    ChatController as TrainerChatController, // Beri alias agar tidak bentrok
+    ChatController as TrainerChatController,
     NotificationController,
     ProgramController,
     SupplementController,
@@ -57,7 +58,8 @@ use App\Http\Controllers\User\{
     UserSummaryController,
     UserChatController,
     UserProfileController,
-    UserArticleController
+    UserArticleController,
+    UserTrainingController
 };
 use App\Http\Controllers\User\NotificationController as UserNotificationController;
 
@@ -73,7 +75,6 @@ use App\Http\Controllers\User\NotificationController as UserNotificationControll
 Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
-
 
 // ==========================
 // 🔐 AUTH ROUTES
@@ -104,13 +105,13 @@ Route::view('/dashboard', 'dashboard')
     ->name('dashboard');
 
 // ==========================
-// 🧑‍💼 ROLE: ADMIN
+// 🧑‍💼 ADMIN
 // ==========================
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-       Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard'); // (Ini 100% sudah benar)
+        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
         Route::resources([
             'users' => UserManagementController::class,
@@ -123,21 +124,22 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::resource('trainer-memberships', TrainerMemberController::class)
             ->except(['show', 'edit', 'update']);
+
         Route::get('broadcast', [NotificationBroadcasterController::class, 'index'])->name('broadcast.index');
         Route::post('broadcast', [NotificationBroadcasterController::class, 'store'])->name('broadcast.store');
+
         Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact.index');
         Route::get('/contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact.show');
         Route::delete('/contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact.destroy');
     });
 
 // ==========================
-// 🧑‍🏫 ROLE: TRAINER
+// 🧑‍🏫 TRAINER
 // ==========================
 Route::middleware(['auth', 'role:trainer'])
     ->prefix('trainer')
     ->name('trainer.')
     ->group(function () {
-
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('members')->name('members.')->group(function () {
@@ -159,6 +161,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::get('/', [ProgramController::class, 'index'])->name('index');
             Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
             Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
+
             Route::prefix('nutrition')->name('nutrition.')->group(function () {
                 Route::get('/{memberId}', [NutritionManagementController::class, 'index'])->name('index');
                 Route::get('/{memberId}/edit', [NutritionManagementController::class, 'edit'])->name('edit');
@@ -166,6 +169,7 @@ Route::middleware(['auth', 'role:trainer'])
                 Route::delete('/{memberId}/supplement/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
                 Route::post('/{memberId}/supplement', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
             });
+
             Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
             Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
@@ -179,13 +183,12 @@ Route::middleware(['auth', 'role:trainer'])
     });
 
 // ==========================
-// 🧍 ROLE: USER
+// 🧍 USER
 // ==========================
 Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
     ->group(function () {
-
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
         Route::resources([
@@ -196,15 +199,24 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
+        // 💬 Chat System
         Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
         Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
         Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
-        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('user.chat.destroy');
-        Route::get('/chat/refresh', [UserChatController::class, 'refresh'])->name('chat.refresh');
+        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('chat.destroy');
         Route::post('/chat/typing', [UserChatController::class, 'typing'])->name('chat.typing');
 
+        // 🏋️ Training: Cari & Pesan Trainer
+        Route::get('/training', [UserTrainingController::class, 'index'])->name('training.index');
+        Route::get('/training/{trainerId}', [UserTrainingController::class, 'show'])->name('training.show');
+        Route::post('/training/{trainerId}/order', [UserTrainingController::class, 'order'])->name('training.order');
+        Route::get('/training/payment/{paymentId}', [UserTrainingController::class, 'payment'])->name('training.payment');
+        Route::post('/training/payment/{paymentId}/confirm', [UserTrainingController::class, 'confirmPayment'])->name('training.confirm');
 
+        // 💬 Chat AI Trainer (limit 5 pesan)
+        Route::post('/training/ai-chat', [UserTrainingController::class, 'chatAI'])->name('training.ai.chat');
 
+        // 👤 Profile
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');
             Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
@@ -213,18 +225,16 @@ Route::middleware(['auth', 'role:user'])
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
 
+        // 📚 Artikel & Notifikasi
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
         Route::get('/notifications', [UserNotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('notifications.read');
     });
 
-
 // ==========================
 // 🌐 Rute Publik
 // ==========================
-
-
 Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
 

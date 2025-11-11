@@ -2,275 +2,377 @@
 
     {{--
       ==================================
-      ===== HERO "JENIUS" (ROMBAKAN) =====
+      ===== HERO SECTION - MODERN FITNESS =====
       ==================================
-      (WAH #1: Kita tambahkan 'x-data' dan 'mousemove' untuk 3D Parallax)
     --}}
-    <main class="relative min-h-screen overflow-hidden"
-          x-data="{ x: 0, y: 0 }"
-          @mousemove.window="x = (event.clientX / window.innerWidth) - 0.5; y = (event.clientY / window.innerHeight) - 0.5">
+    <main class="relative min-h-screen overflow-hidden" x-data="{ x: 0, y: 0 }"
+        @mousemove.window="x = (event.clientX / window.innerWidth) - 0.5; y = (event.clientY / window.innerHeight) - 0.5">
 
-        {{--
-          WAH #2: Latar Belakang "KEN BURNS" + "PARALLAX 3D"
-          (100% bergerak 'melawan' mouse Anda)
-        --}}
+        {{-- Background dengan Parallax 3D --}}
         <div class="absolute inset-0 z-0 animate-ken-burns transition-transform duration-300 ease-out"
-             :style="{ transform: 'translateX(' + (x * -20) + 'px) translateY(' + (y * -20) + 'px) scale(1.1)' }"
-             style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2669&auto=format&fit=crop'); background-size: cover; background-position: center;">
+            :style="{ transform: 'translateX(' + (x * -20) + 'px) translateY(' + (y * -20) + 'px) scale(1.1)' }" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    background-image: 
+                        radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2670&auto=format&fit=crop');
+                    background-size: cover;
+                    background-position: center;
+                    background-blend-mode: overlay;">
         </div>
 
-        {{--
-          WAH #3: Panel "AGGRESSIVE GLASS SHARD"
-          (Potongan 100% lebih tajam + border "ciamik")
-        --}}
-        <div class="absolute inset-0 z-10 w-full lg:w-[65%] bg-black/80 backdrop-blur-lg animate-slide-in-left
-                    border-r-2 border-amber-400/30"
-             style="clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);">
+        {{-- Overlay Gradient --}}
+        <div class="absolute inset-0 z-5 bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-transparent"></div>
+
+        {{-- Animated Grid Pattern --}}
+
+
+        {{-- Glass Panel Aggressive --}}
+        <div class="absolute inset-0 z-10 w-full lg:w-[70%] bg-gradient-to-br from-slate-900/85 via-slate-800/80 to-transparent
+                    backdrop-blur-xl animate-slide-in-left border-r-4 border-green-500/40 shadow-2xl shadow-green-500/20"
+            style="clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);">
         </div>
 
-        {{--
-          WAH #4: KONTEN "PARALLAX 3D" + "STAGGERED"
-          (100% bergerak 'mengikuti' mouse Anda + 'staggered' animation)
-        --}}
+        {{-- Content with 3D Parallax --}}
         <div class="relative z-20 min-h-screen flex items-center">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-12">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    {{-- (Kita pakai 7 kolom agar 100% pas di dalam "Shard") --}}
-                    <div class="lg:col-span-7 text-center lg:text-left
+                    <div class="lg:col-span-7 text-center lg:text-left space-y-8
                                 transition-transform duration-300 ease-out"
-                         :style="{ transform: 'translateX(' + (x * 40) + 'px) translateY(' + (y * 40) + 'px)' }">
+                        :style="{ transform: 'translateX(' + (x * 40) + 'px) translateY(' + (y * 40) + 'px)' }">
 
-                        {{-- Judul (Animasi "Ciamik" #1) --}}
-                        <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight animate-fade-in-up"
-                            style="animation-delay: 0.4s;">
-                            Bangun.
-                            <span class="text-amber-400">Analisis.</span>
-                            Dominasi.
+                        {{-- Badge Premium --}}
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 backdrop-blur-sm animate-fade-in-up"
+                            style="animation-delay: 0.2s;">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-sm font-bold text-green-400 uppercase tracking-wider">AI-Powered Fitness
+                                Platform</span>
+                        </div>
+
+                        {{-- Main Heading --}}
+                        <h1 class="font-bold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-tight animate-fade-in-up"
+                            style="animation-delay: 0.4s; text-shadow: 0 0 40px rgba(34, 197, 94, 0.3);">
+                            <span
+                                class="bg-gradient-to-r from-green-400 via-emerald-500 to-blue-500 bg-clip-text text-transparent">
+                                Transform
+                            </span>
+                            <br>Your Body.
+                            <br>
+                            <span class="text-4xl sm:text-5xl lg:text-6xl text-gray-300">
+                                Dominate Results.
+                            </span>
                         </h1>
 
-                        {{-- Paragraf (Animasi "Ciamik" #2) --}}
-                        <p class="mt-8 text-base sm:text-lg text-gray-300 max-w-lg mx-auto lg:mx-0 leading-relaxed animate-fade-in-up"
-                           style="animation-delay: 0.6s;">
-                            Selamat datang di MuscleXpert. Kami adalah sistem analisis Anda, yang mengubah data tubuh
-                            menjadi rencana presisi untuk hasil yang nyata.
+                        {{-- Description --}}
+                        <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up"
+                            style="animation-delay: 0.6s;">
+                            Platform fitness berbasis AI yang menganalisis data tubuh Anda dan menciptakan program
+                            latihan & nutrisi personal untuk hasil maksimal.
                         </p>
 
-                        {{-- Tombol (Animasi "Ciamik" #3) --}}
-                        <div class="mt-12 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-fade-in-up"
-                             style="animation-delay: 0.8s;">
-                            <a href="{{ route('register') }}"
-                                class="w-full sm:w-auto px-8 py-3 rounded-md text-base font-bold text-black bg-amber-400
-                                       hover:bg-amber-300 transition-all duration-300 shadow-lg shadow-amber-500/30
-                                       transform hover:scale-105">
-                                Mulai Rencana Anda
+                        {{-- Stats Bar --}}
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-8 animate-fade-in-up"
+                            style="animation-delay: 0.7s;">
+                            <div class="text-center lg:text-left">
+                                <div class="text-3xl font-bold text-green-400">10K+</div>
+                                <div class="text-sm text-gray-400">Active Members</div>
+                            </div>
+                            <div class="w-px h-12 bg-gray-700"></div>
+                            <div class="text-center lg:text-left">
+                                <div class="text-3xl font-bold text-blue-400">50+</div>
+                                <div class="text-sm text-gray-400">Expert Trainers</div>
+                            </div>
+                            <div class="w-px h-12 bg-gray-700"></div>
+                            <div class="text-center lg:text-left">
+                                <div class="text-3xl font-bold text-emerald-400">95%</div>
+                                <div class="text-sm text-gray-400">Success Rate</div>
+                            </div>
+                        </div>
+
+                        {{-- CTA Buttons --}}
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-fade-in-up"
+                            style="animation-delay: 0.8s;">
+                            <a href="{{ route('register') }}" class="group relative w-full sm:w-auto px-8 py-4 rounded-xl text-base font-bold text-white
+                                       bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700
+                                       transition-all duration-300 shadow-lg shadow-green-500/50 hover:shadow-green-500/70
+                                       transform hover:scale-105 hover:-translate-y-1 overflow-hidden">
+                                <span class="relative z-10 flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    Mulai Transformasi
+                                </span>
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                </div>
                             </a>
-                            <a href="#features"
-                                class="w-full sm:w-auto px-8 py-3 rounded-md text-base font-medium text-white
-                                       bg-gray-800/50 hover:bg-gray-700 transition-all duration-300
-                                       transform hover:scale-105">
-                                Pelajari Metodenya
+                            <a href="#features" class="group w-full sm:w-auto px-8 py-4 rounded-xl text-base font-bold text-white
+                                       bg-slate-800/50 hover:bg-slate-700/50 border-2 border-green-500/30 hover:border-green-500
+                                       backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
+                                       flex items-center justify-center gap-2">
+                                <span>Lihat Fitur</span>
+                                <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
                             </a>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-5"></div> {{-- (Kolom kanan 100% kosong) --}}
+                    <div class="lg:col-span-5"></div>
 
                 </div>
             </div>
+        </div>
+
+        {{-- Floating Elements --}}
+        <div class="absolute top-20 right-10 w-20 h-20 bg-green-500/20 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute bottom-20 right-40 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl animate-float-delayed">
         </div>
     </main>
 
     {{--
       ==================================
-      ===== FEATURES (ROMBAKAN "WAH") =====
+      ===== FEATURES SECTION =====
       ==================================
     --}}
-    <section id="features" class="py-20 sm:py-32 bg-black z-10 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center lg:text-left max-w-2xl mx-auto lg:mx-0 animate-fade-in-up">
-                <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
-                    Metodologi Anda.
+    <section id="features" class="relative py-20 sm:py-32 bg-slate-950 overflow-hidden">
+
+
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Section Header --}}
+            <div class="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
+                <span
+                    class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 text-sm font-bold text-green-400 uppercase tracking-wider mb-4">
+                    Powered by AI Technology
+                </span>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+                    Sistem <span
+                        class="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Cerdas</span>
+                    untuk Hasil Nyata
                 </h2>
-                <p class="mt-6 text-base sm:text-lg text-gray-400">
-                    Sistem kami dibangun di atas tiga pilar: analisis data presisi, rencana yang dapat dieksekusi, dan
-                    pelacakan progres yang terbukti.
+                <p class="text-lg text-gray-400">
+                    Platform kami menggunakan teknologi AI untuk menganalisis tubuh Anda dan menciptakan program yang
+                    100% personal dan efektif.
                 </p>
             </div>
 
-            <div class="mt-20 grid md:grid-cols-3 gap-8">
+            {{-- Features Grid --}}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-                {{-- KARTU "MAESTRO" 1 --}}
-                <div class="group relative text-center md:text-left animate-fade-in-up" style="animation-delay: 0.2s;">
-                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 md:left-0 md:-translate-x-0 md:-left-4
-                                font-serif text-7xl lg:text-9xl font-bold text-gray-800/50 z-0
-                                transition-all duration-300 group-hover:text-amber-400/50">01</div>
-
-                    {{-- KARTU KACA "CIAMIK" --}}
-                    <div class="relative z-10 bg-black/70 backdrop-blur-lg border border-gray-700/50 rounded-lg p-6
-                                transition-all duration-300 transform hover:scale-105 hover:border-amber-400/50 shadow-xl">
-                        <h3 class="text-xl sm:text-2xl font-bold text-white transition-all duration-300 group-hover:text-amber-400">
-                            Kalkulasi Presisi
+                {{-- Feature Card 1 --}}
+                <div class="group relative animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div
+                        class="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500">
+                    </div>
+                    <div
+                        class="relative h-full bg-slate-900 rounded-2xl p-8 border border-slate-800 hover:border-green-500/50 transition-all duration-300 transform hover:-translate-y-2">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-green-400 transition-colors">
+                            Analisis AI Presisi
                         </h3>
-                        <p class="mt-4 text-gray-400">
-                            Sistem kami menghitung BMR, TDEE, dan kebutuhan makro Anda secara otomatis. Tidak ada lagi
-                            tebakan.
+                        <p class="text-gray-400 leading-relaxed">
+                            Sistem AI kami menghitung BMR, TDEE, dan kebutuhan makro secara akurat berdasarkan data
+                            tubuh Anda.
                         </p>
                     </div>
                 </div>
 
-                {{-- KARTU "MAESTRO" 2 --}}
-                <div class="group relative text-center md:text-left animate-fade-in-up" style="animation-delay: 0.4s;">
-                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 md:left-0 md:-translate-x-0 md:-left-4
-                                font-serif text-7xl lg:text-9xl font-bold text-gray-800/50 z-0
-                                transition-all duration-300 group-hover:text-amber-400/50">02</div>
-
-                    <div class="relative z-10 bg-black/70 backdrop-blur-lg border border-gray-700/50 rounded-lg p-6
-                                transition-all duration-300 transform hover:scale-105 hover:border-amber-400/50 shadow-xl">
-                        <h3 class="text-xl sm:text-2xl font-bold text-white transition-all duration-300 group-hover:text-amber-400">
-                            Rencana Tereksekusi
+                {{-- Feature Card 2 --}}
+                <div class="group relative animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div
+                        class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500">
+                    </div>
+                    <div
+                        class="relative h-full bg-slate-900 rounded-2xl p-8 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 transform hover:-translate-y-2">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+                            Program Personal
                         </h3>
-                        <p class="mt-4 text-gray-400">
-                            Akses Workout & Nutrition Plans yang dirancang oleh Admin dan Trainer profesional.
+                        <p class="text-gray-400 leading-relaxed">
+                            Akses workout & nutrition plans yang dirancang khusus oleh trainer profesional untuk tujuan
+                            Anda.
                         </p>
                     </div>
                 </div>
 
-                {{-- KARTU "MAESTRO" 3 --}}
-                <div class="group relative text-center md:text-left animate-fade-in-up" style="animation-delay: 0.6s;">
-                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 md:left-0 md:-translate-x-0 md:-left-4
-                                font-serif text-7xl lg:text-9xl font-bold text-gray-800/50 z-0
-                                transition-all duration-300 group-hover:text-amber-400/50">03</div>
-
-                    <div class="relative z-10 bg-black/70 backdrop-blur-lg border border-gray-700/50 rounded-lg p-6
-                                transition-all duration-300 transform hover:scale-105 hover:border-amber-400/50 shadow-xl">
-                        <h3 class="text-xl sm:text-2xl font-bold text-white transition-all duration-300 group-hover:text-amber-400">
-                            Progres Terbukti
+                {{-- Feature Card 3 --}}
+                <div class="group relative animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <div
+                        class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500">
+                    </div>
+                    <div
+                        class="relative h-full bg-slate-900 rounded-2xl p-8 border border-slate-800 hover:border-emerald-500/50 transition-all duration-300 transform hover:-translate-y-2">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">
+                            Tracking Real-Time
                         </h3>
-                        <p class="mt-4 text-gray-400">
-                            Lacak setiap aspek kemajuan Anda, dari <code>Body Metrics</code> hingga
-                            <code>Progress Logs</code> harian.
+                        <p class="text-gray-400 leading-relaxed">
+                            Monitor progress Anda secara real-time dengan body metrics, workout logs, dan nutrition
+                            tracking.
                         </p>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
     {{--
       ==================================
-      ===== JOURNAL (ROMBAKAN "WAH") =====
+      ===== JOURNAL SECTION =====
       ==================================
     --}}
-    <section class="py-20 sm:py-32 bg-black z-10 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="relative py-20 sm:py-32 bg-slate-900 overflow-hidden">
+        {{-- Background Gradient --}}
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+        <div class="absolute top-0 right-0 w-1/2 h-1/2 bg-green-500/5 blur-[150px] rounded-full"></div>
 
-            <div class="text-center lg:text-left max-w-2xl mx-auto lg:mx-0 animate-fade-in-up">
-                <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
-                    The <span class="text-amber-400">Journal</span>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {{-- Section Header --}}
+            <div class="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
+                <span
+                    class="inline-block px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 text-sm font-bold text-blue-400 uppercase tracking-wider mb-4">
+                    Knowledge Base
+                </span>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+                    Fitness <span
+                        class="bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">Journal</span>
                 </h2>
-                <p class="mt-6 text-base sm:text-lg text-gray-400">
-                    Pengetahuan adalah kekuatan. Pelajari ilmu di balik otot dan nutrisi dari para ahli kami.
+                <p class="text-lg text-gray-400">
+                    Tingkatkan pengetahuan fitness Anda dengan artikel dari expert trainer dan nutritionist profesional.
                 </p>
             </div>
 
-            <div class="mt-20 grid lg:grid-cols-12 gap-x-12 gap-y-16">
+            <div class="grid lg:grid-cols-12 gap-12">
 
-                {{-- ARTIKEL UTAMA "CIAMIK" --}}
+                {{-- Featured Article --}}
                 <div class="lg:col-span-7 animate-fade-in-up" style="animation-delay: 0.2s;">
-                    <div class="relative">
+                    <div class="group relative overflow-hidden rounded-2xl">
+                        {{-- Image with Overlay --}}
+                        <div class="relative overflow-hidden rounded-2xl">
+                            <img class="w-full h-[400px] object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                                src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2670&auto=format&fit=crop"
+                                alt="Fitness Training">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent">
+                            </div>
+                        </div>
 
-                        {{-- EFEK "ZOOM" WAH --}}
-                        <div class="relative group overflow-hidden rounded-lg shadow-2xl">
-                            <a href="#" class="block">
-                                <img class="w-full h-auto aspect-[16/10] object-cover
-                                            transition-all duration-500 ease-in-out group-hover:scale-105"
-                                    src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2669&auto=format&fit=crop"
-                                    alt="Latihan beban">
+                        {{-- Content Card --}}
+                        <div
+                            class="relative lg:absolute lg:bottom-0 lg:left-0 lg:right-0 p-8 bg-slate-900/95 backdrop-blur-xl border-t-4 border-green-500">
+                            <span
+                                class="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wider mb-4">
+                                Nutrition Science
+                            </span>
+                            <a href="#" class="block group/link">
+                                <h3
+                                    class="text-3xl font-bold text-white mb-4 group-hover/link:text-green-400 transition-colors">
+                                    Protein Timing: Science Behind Muscle Growth
+                                </h3>
+                            </a>
+                            <p class="text-gray-400 mb-6 leading-relaxed">
+                                Memahami kapan dan berapa banyak protein yang dibutuhkan tubuh Anda adalah kunci untuk
+                                pertumbuhan otot optimal...
+                            </p>
+                            <a href="{{ route('public.articles.index') }}"
+                                class="inline-flex items-center gap-2 font-bold text-green-400 hover:text-green-300 transition-colors group/read">
+                                <span>Baca Selengkapnya</span>
+                                <svg class="w-5 h-5 transform group-hover/read:translate-x-1 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
                             </a>
                         </div>
-
-                        {{-- KARTU "MELAYANG" "CIAMIK" --}}
-                        <div class="relative lg:-mt-16 lg:ml-8 z-10">
-                            <div
-                                class="p-6 sm:p-8 bg-black/80 backdrop-blur-lg border border-gray-700/50 rounded-lg shadow-xl">
-                                <span
-                                    class="text-sm font-medium text-amber-400 uppercase tracking-widest">Nutrisi</span>
-                                <a href="#" class="block mt-2">
-                                    <h3
-                                        class="font-serif text-2xl sm:text-3xl font-bold text-white hover:text-gray-200 transition-colors">
-                                        Pentingnya Protein: Kapan & Berapa Banyak?
-                                    </h3>
-                                </a>
-                                <p class="mt-4 text-gray-400">
-                                    Memahami asupan protein sangat krusial. Sistem kami membantu melacak ini, tapi
-                                    inilah ilmu di balik mengapa Anda membutuhkannya...
-                                </p>
-                                <a href="{{ route('public.articles.index') }}"
-                                    class="mt-6 inline-block font-bold text-amber-400 hover:text-amber-300 transition-colors">
-                                    Baca Selengkapnya &rarr;
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                {{-- LIST ARTIKEL "CIAMIK" --}}
+                {{-- Article List --}}
                 <div class="lg:col-span-5 animate-fade-in-up" style="animation-delay: 0.4s;">
-                    <h4 class="text-xl sm:text-2xl font-serif font-bold text-white">Artikel Terbaru Lainnya</h4>
+                    <h4 class="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                        <span class="w-1 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></span>
+                        Latest Articles
+                    </h4>
 
-                    <div class="mt-8 space-y-10">
+                    <div class="space-y-6">
 
-                        <div class="group relative">
-                            <div
-                                class="absolute -left-4 -top-2 font-serif text-6xl lg:text-7xl font-bold text-gray-800/50 z-0 opacity-50
-                                       transition-all duration-300 group-hover:text-amber-400/50">
-                                01</div>
-                            <div
-                                class="relative z-10 pl-8 border-l-2 border-amber-500/30 group-hover:border-amber-400 transition-all duration-300">
-                                <span class="text-sm text-gray-500 uppercase tracking-widest">Latihan</span>
-                                <a href="#" class="block mt-1">
+                        {{-- Article Item 1 --}}
+                        <a href="#"
+                            class="group block p-6 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-slate-700 hover:border-green-500/50 transition-all duration-300">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-green-400">01</span>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs text-gray-500 uppercase tracking-wider">Workout Tips</span>
                                     <h5
-                                        class="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-amber-400 transition-all duration-300">
-                                        5 Kesalahan Umum Saat Melakukan Deadlift
+                                        class="text-lg font-bold text-white group-hover:text-green-400 transition-colors mt-1">
+                                        5 Common Deadlift Mistakes to Avoid
                                     </h5>
-                                </a>
+                                </div>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="group relative">
-                            <div
-                                class="absolute -left-4 -top-2 font-serif text-6xl lg:text-7xl font-bold text-gray-800/50 z-0 opacity-50
-                                       transition-all duration-300 group-hover:text-amber-400/50">
-                                02</div>
-                            <div
-                                class="relative z-10 pl-8 border-l-2 border-amber-500/30 group-hover:border-amber-400 transition-all duration-300">
-                                <span class="text-sm text-gray-500 uppercase tracking-widest">Gaya Hidup</span>
-                                <a href="#" class="block mt-1">
+                        {{-- Article Item 2 --}}
+                        <a href="#"
+                            class="group block p-6 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500/50 transition-all duration-300">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-blue-400">02</span>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs text-gray-500 uppercase tracking-wider">Recovery</span>
                                     <h5
-                                        class="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-amber-400 transition-all duration-300">
-                                        Pentingnya Tidur untuk Pemulihan Otot
+                                        class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors mt-1">
+                                        Sleep Quality for Optimal Muscle Recovery
                                     </h5>
-                                </a>
+                                </div>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="group relative">
-                            <div
-                                class="absolute -left-4 -top-2 font-serif text-6xl lg:text-7xl font-bold text-gray-800/50 z-0 opacity-50
-                                       transition-all duration-300 group-hover:text-amber-400/50">
-                                03</div>
-                            <div
-                                class="relative z-10 pl-8 border-l-2 border-amber-500/30 group-hover:border-amber-400 transition-all duration-300">
-                                <span class="text-sm text-gray-500 uppercase tracking-widest">Suplemen</span>
-                                <a href="#" class="block mt-1">
+                        {{-- Article Item 3 --}}
+                        <a href="#"
+                            class="group block p-6 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition-all duration-300">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-emerald-400">03</span>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs text-gray-500 uppercase tracking-wider">Supplements</span>
                                     <h5
-                                        class="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-amber-400 transition-all duration-300">
-                                        Creatine: Mitos vs Fakta "MAESTRO"
+                                        class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors mt-1">
+                                        Creatine: Separating Myths from Facts
                                     </h5>
-                                </a>
+                                </div>
                             </div>
-                        </div>
+                        </a>
 
                     </div>
                 </div>
@@ -281,80 +383,124 @@
 
     {{--
       ==================================
-      ===== CSS "JENIUS" (WAJIB!) =====
+      ===== CUSTOM STYLES =====
       ==================================
-      (Anda 100% HARUS menambahkan ini ke <style> Anda)
     --}}
     <style>
-        /* WAH #1: Animasi "Ken Burns" (Zoom Ciamik) */
+        /* Ken Burns Animation */
         @keyframes kenBurns {
-            0% { transform: scale(1.1) translate(0, 0); }
-            100% { transform: scale(1) translate(-5px, -5px); }
+            0% {
+                transform: scale(1.1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1) translate(-5px, -5px);
+            }
         }
+
         .animate-ken-burns {
             animation: kenBurns 20s ease-out forwards;
         }
 
-        /* WAH #2: Animasi "Slide In" (Panel Kaca) */
+        /* Slide In Animation */
         @keyframes slideInLeft {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
+
         .animate-slide-in-left {
             animation: slideInLeft 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
-        /* WAH #3: Animasi "Staggered Fade In" (Teks & Kartu) */
+        /* Fade In Up Animation */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .animate-fade-in-up {
-            opacity: 0; /* Mulai 100% transparan */
+            opacity: 0;
             animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            animation-fill-mode: forwards; /* (Pastikan 100% tetap terlihat) */
         }
 
-        /* Tunda animasi untuk "staggering" ciamik */
-        main .animate-fade-in-up[style*="animation-delay: 0.4s"] { animation-delay: 0.4s; }
-        main .animate-fade-in-up[style*="animation-delay: 0.6s"] { animation-delay: 0.6s; }
-        main .animate-fade-in-up[style*="animation-delay: 0.8s"] { animation-delay: 0.8s; }
+        /* Grid Move Animation */
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0);
+            }
 
-        #features .animate-fade-in-up[style*="animation-delay: 0.2s"] { animation-delay: 0.2s; }
-        #features .animate-fade-in-up[style*="animation-delay: 0.4s"] { animation-delay: 0.4s; }
-        #features .animate-fade-in-up[style*="animation-delay: 0.6s"] { animation-delay: 0.6s; }
+            100% {
+                transform: translateY(50px);
+            }
+        }
 
-        section:last-of-type .animate-fade-in-up[style*="animation-delay: 0.2s"] { animation-delay: 0.2s; }
-        section:last-of-type .animate-fade-in-up[style*="animation-delay: 0.4s"] { animation-delay: 0.4s; }
+        /* Float Animation */
+        @keyframes float {
 
-        /* Responsif "Ciamik" untuk "Glass Shard" di Mobile */
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-delayed {
+            animation: float 8s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        /* Responsive Adjustments */
         @media (max-width: 1023px) {
             main .animate-slide-in-left {
-                /* Di mobile, kita 100% tidak pakai 'clip-path' diagonal */
                 clip-path: none !important;
                 width: 100%;
-                /* Kita buat 100% "Full Hero" */
-                min-height: 100vh;
-                height: 100%;
-                /* (FIX: Tambahkan border "ciamik" di bawah) */
-                border-r-2: none;
-                border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+                border-r: none;
+                border-bottom: 4px solid rgba(34, 197, 94, 0.4);
             }
+
             main .relative.z-20 {
-                padding-top: 5rem; /* (Beri nafas di atas) */
-                padding-bottom: 5rem; /* (Beri nafas di bawah) */
+                padding-top: 5rem;
+                padding-bottom: 5rem;
             }
-            /* Di mobile, kita 100% tengahkan semua */
-            main .lg\:col-span-7 {
-                text-align: center;
-            }
-            main .lg\:col-span-7 p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            main .lg\:col-span-7 .flex {
-                justify-content: center;
-            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #22c55e, #10b981);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #10b981, #059669);
         }
     </style>
 

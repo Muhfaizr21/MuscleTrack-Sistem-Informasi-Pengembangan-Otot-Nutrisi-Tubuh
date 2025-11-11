@@ -21,19 +21,22 @@ class User extends Authenticatable
         'weight',
         'goal_id',
         'trainer_id',
-        'verification_status'
+        'verification_status',
+        'password'
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
-    // === Relasi dasar ===
+
+    // === 🏋️‍♂️ Relasi ke Goal ===
     public function goal()
     {
         return $this->belongsTo(Goal::class);
     }
 
+    // === 📊 Data Latihan & Nutrisi ===
     public function workoutPlans()
     {
         return $this->hasMany(WorkoutPlan::class);
@@ -54,12 +57,13 @@ class User extends Authenticatable
         return $this->hasMany(ProgressLog::class);
     }
 
+    // === 🔔 Notifikasi ===
     public function notifications()
     {
         return $this->hasMany(Notification::class);
     }
 
-    // === Relasi Trainer <-> Member ===
+    // === 👥 Hubungan Trainer ↔ Member ===
     public function trainerMembershipsAsTrainer()
     {
         return $this->hasMany(TrainerMembership::class, 'trainer_id');
@@ -70,7 +74,7 @@ class User extends Authenticatable
         return $this->hasMany(TrainerMembership::class, 'user_id');
     }
 
-    // === Chat antar Trainer & User ===
+    // === 💬 Chat antar Trainer & User ===
     public function trainerChatsAsTrainer()
     {
         return $this->hasMany(TrainerChat::class, 'trainer_id');
@@ -82,8 +86,8 @@ class User extends Authenticatable
     }
 
     /**
-     * 🔹 Relasi umum untuk semua chat (baik user maupun trainer)
-     * -> Bisa langsung pakai $user->trainerChats() tanpa error
+     * 🔹 Relasi umum untuk semua chat
+     * (berguna untuk query campuran user-trainer)
      */
     public function trainerChats()
     {
@@ -91,8 +95,7 @@ class User extends Authenticatable
             ->orWhere('trainer_id', $this->id);
     }
 
-
-    // === Log Akses Premium ===
+    // === 💎 Premium Access ===
     public function premiumAccessLogsAsUser()
     {
         return $this->hasMany(PremiumAccessLog::class, 'user_id');
@@ -103,15 +106,22 @@ class User extends Authenticatable
         return $this->hasMany(PremiumAccessLog::class, 'trainer_id');
     }
 
-    // === Relasi tambahan MuscleXpert ===
+    // === 🧑‍🏫 Profil & Verifikasi Trainer ===
     public function trainerProfile()
     {
-        return $this->hasOne(TrainerProfile::class);
+        return $this->hasOne(TrainerProfile::class, 'user_id', 'id');
     }
 
+
+    public function trainerVerification()
+    {
+        return $this->hasOne(TrainerVerification::class, 'trainer_id');
+    }
+
+    // === 🗣️ Feedback ===
     public function feedbacksGiven()
     {
-        return $this->hasMany(Feedback::class);
+        return $this->hasMany(Feedback::class, 'user_id');
     }
 
     public function feedbacksReceived()
@@ -119,9 +129,10 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class, 'trainer_id');
     }
 
+    // === 💰 Pembayaran ===
     public function paymentsMade()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class, 'user_id');
     }
 
     public function paymentsReceived()
@@ -129,13 +140,14 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class, 'trainer_id');
     }
 
+    // === 🧠 AI & Log Aktivitas ===
     public function activityLogs()
     {
-        return $this->hasMany(ActivityLog::class);
+        return $this->hasMany(ActivityLog::class, 'user_id');
     }
 
     public function aiRecommendations()
     {
-        return $this->hasMany(AiRecommendation::class);
+        return $this->hasMany(AiRecommendation::class, 'user_id');
     }
 }
