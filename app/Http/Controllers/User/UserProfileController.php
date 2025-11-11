@@ -49,25 +49,53 @@ class UserProfileController extends Controller
         // Jika ada file avatar
         if ($request->hasFile('avatar')) {
             // Hapus avatar lama jika ada
-            if ($user->avatar && Storage::disk('public')->exists('profile_pictures/' . $user->avatar)) {
-                Storage::disk('public')->delete('profile_pictures/' . $user->avatar);
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
             }
 
             $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('profile_pictures', $filename, 'public');
-            $user->avatar = $filename;
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $avatarPath = $file->storeAs('avatars', $filename, 'public');
+            $user->avatar = $avatarPath;
         }
 
         // Update data user
         $user->update($request->only('name', 'email', 'age', 'gender', 'height', 'weight'));
 
-        // Simpan avatar jika ada
-        if ($request->hasFile('avatar')) {
-            $user->save();
-        }
-
         return redirect()->route('user.profile.index')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Update user avatar secara langsung
+     */
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        try {
+            // Delete old avatar if exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Store new avatar
+            $file = $request->file('avatar');
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $avatarPath = $file->storeAs('avatars', $filename, 'public');
+
+            // Update user avatar
+            $user->update([
+                'avatar' => $avatarPath
+            ]);
+
+            return redirect()->route('user.profile.index')->with('success', 'Foto profil berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->route('user.profile.index')->with('error', 'Gagal memperbarui foto profil. Silakan coba lagi.');
+        }
     }
 
     /**
@@ -85,7 +113,7 @@ class UserProfileController extends Controller
     {
         $request->validate([
             'current_password' => ['required'],
-            'new_password' => ['required', 'min:8', 'confirmed'], // validasi Laravel 'confirmed'
+            'new_password' => ['required', 'min:8', 'confirmed'],
         ]);
 
         $user = Auth::user();

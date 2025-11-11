@@ -216,11 +216,12 @@ Route::middleware(['auth', 'role:user'])
         // 💬 Chat AI Trainer (limit 5 pesan)
         Route::post('/training/ai-chat', [UserTrainingController::class, 'chatAI'])->name('training.ai.chat');
 
-        // 👤 Profile
+        // 👤 Profile - DIPERBARUI DENGAN ROUTE AVATAR
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');
             Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
             Route::patch('/update', [UserProfileController::class, 'update'])->name('update');
+            Route::put('/avatar', [UserProfileController::class, 'updateAvatar'])->name('avatar.update'); // ROUTE BARU
             Route::get('/password', [UserProfileController::class, 'editPassword'])->name('password.edit');
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
@@ -230,6 +231,12 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
         Route::get('/notifications', [UserNotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('notifications.read');
+
+        // 🔄 Training Management - ROUTE BARU
+        Route::get('/my-trainer', [UserTrainingController::class, 'myTrainer'])->name('training.my-trainer');
+        Route::post('/switch-trainer', [UserTrainingController::class, 'switchTrainer'])->name('training.switch-trainer');
+        Route::post('/cancel-order/{paymentId}', [UserTrainingController::class, 'cancelOrder'])->name('training.cancel-order');
+        Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('training.reset-ai-chat');
     });
 
 // ==========================
