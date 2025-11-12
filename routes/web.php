@@ -46,7 +46,6 @@ use App\Http\Controllers\Trainer\{
     ChatController as TrainerChatController,
     NotificationController as TrainerNotificationController,
     ProgramController,
-    SupplementController,
     QualityController,
     NutritionManagementController
 };
