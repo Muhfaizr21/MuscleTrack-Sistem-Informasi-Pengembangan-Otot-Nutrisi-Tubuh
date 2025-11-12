@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\NewsArticle;
-use App\Models\ContactMessage;
-use App\Models\Payment;
-use App\Models\ActivityLog;
 use App\Models\BodyMetric;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
+use App\Models\ContactMessage;
+use App\Models\NewsArticle;
+use App\Models\Payment;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -60,7 +57,7 @@ class AdminController extends Controller
 
         return [
             'labels' => $labels,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -72,10 +69,10 @@ class AdminController extends Controller
 
         foreach ($goals as $goal) {
             $avgMuscleMass = BodyMetric::join('users', 'body_metrics.user_id', '=', 'users.id')
-                ->where('users.goal_id', function($query) use ($goal) {
+                ->where('users.goal_id', function ($query) use ($goal) {
                     $query->select('id')
-                          ->from('goals')
-                          ->where('name', $goal);
+                        ->from('goals')
+                        ->where('name', $goal);
                 })
                 ->avg('body_metrics.muscle_mass');
 
@@ -84,7 +81,7 @@ class AdminController extends Controller
 
         return [
             'labels' => $goals,
-            'data' => $progressData
+            'data' => $progressData,
         ];
     }
 
@@ -105,7 +102,7 @@ class AdminController extends Controller
                 'description' => $user->email,
                 'time' => $user->created_at->diffForHumans(),
                 'icon' => 'user',
-                'color' => 'green'
+                'color' => 'green',
             ];
         }
 
@@ -120,10 +117,10 @@ class AdminController extends Controller
             $activities[] = [
                 'type' => 'premium_payment',
                 'title' => 'Pembayaran Premium',
-                'description' => 'Dari: ' . ($payment->user->name ?? 'Unknown User') . ' (Status: LUNAS)',
+                'description' => 'Dari: '.($payment->user->name ?? 'Unknown User').' (Status: LUNAS)',
                 'time' => $payment->created_at->diffForHumans(),
                 'icon' => 'payment',
-                'color' => 'emerald'
+                'color' => 'emerald',
             ];
         }
 
@@ -136,15 +133,15 @@ class AdminController extends Controller
             $activities[] = [
                 'type' => 'article_published',
                 'title' => 'Artikel Baru Diposting',
-                'description' => '"' . $article->title . '"',
+                'description' => '"'.$article->title.'"',
                 'time' => $article->created_at->diffForHumans(),
                 'icon' => 'article',
-                'color' => 'blue'
+                'color' => 'blue',
             ];
         }
 
         // Sort by time and take latest 5
-        usort($activities, function($a, $b) {
+        usort($activities, function ($a, $b) {
             return strtotime($b['time']) - strtotime($a['time']);
         });
 

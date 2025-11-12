@@ -55,9 +55,10 @@ class NewsArticle extends Model
      */
     public function getShortSummaryAttribute()
     {
-        if (!empty($this->summary)) {
+        if (! empty($this->summary)) {
             return $this->summary;
         }
+
         return Str::limit(strip_tags($this->content), 120);
     }
 
@@ -67,7 +68,7 @@ class NewsArticle extends Model
     public function getImageUrlAttribute()
     {
         return $this->image
-            ? asset('storage/articles/' . $this->image)
+            ? asset('storage/articles/'.$this->image)
             : asset('images/default-article.jpg');
     }
 }

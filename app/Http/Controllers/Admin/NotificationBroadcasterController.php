@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class NotificationBroadcasterController extends Controller
 {
@@ -17,8 +16,8 @@ class NotificationBroadcasterController extends Controller
     {
         // Ambil semua user & trainer untuk dropdown "Target Spesifik"
         $users = User::whereIn('role', ['user', 'trainer'])
-                     ->orderBy('name')
-                     ->get();
+            ->orderBy('name')
+            ->get();
 
         return view('admin.notifications.broadcast', compact('users'));
     }
@@ -43,19 +42,16 @@ class NotificationBroadcasterController extends Controller
         // Tentukan target "ciamik"
         if ($request->target_group === 'all_users') {
             $targets = User::where('role', 'user')->get();
-        }
-        elseif ($request->target_group === 'all_trainers') {
+        } elseif ($request->target_group === 'all_trainers') {
             $targets = User::where('role', 'trainer')->get();
-        }
-        elseif ($request->target_group === 'specific_user' && $request->target_user_id) {
+        } elseif ($request->target_group === 'specific_user' && $request->target_user_id) {
             $targets = User::where('id', $request->target_user_id)->get();
-        }
-        else {
+        } else {
             return back()->with('error', 'Target tidak valid.');
         }
 
         if ($targets->isEmpty()) {
-             return back()->with('error', 'Tidak ada user yang cocok dengan target ini.');
+            return back()->with('error', 'Tidak ada user yang cocok dengan target ini.');
         }
 
         // ==========================================================
@@ -80,6 +76,6 @@ class NotificationBroadcasterController extends Controller
         }
 
         return redirect()->route('admin.broadcast.index')
-                         ->with('success', 'Notifikasi berhasil dikirim ke ' . $targets->count() . ' user.');
+            ->with('success', 'Notifikasi berhasil dikirim ke '.$targets->count().' user.');
     }
 }

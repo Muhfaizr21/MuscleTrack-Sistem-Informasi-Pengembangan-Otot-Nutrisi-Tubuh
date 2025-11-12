@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\TrainerVerification;
-use App\Models\WorkoutPlan;
 use App\Models\NutritionPlan;
 use App\Models\Supplement;
+use App\Models\TrainerVerification;
+use App\Models\User;
+use App\Models\WorkoutPlan;
+use Illuminate\Database\Seeder;
 
 class MuscleDemoSeeder extends Seeder
 {
@@ -20,8 +20,9 @@ class MuscleDemoSeeder extends Seeder
             ->where('verification_status', 'approved')
             ->first();
 
-        if (!$trainer) {
+        if (! $trainer) {
             $this->command->warn('⚠️ Tidak ditemukan trainer yang disetujui. Jalankan UserSeeder dulu.');
+
             return;
         }
 
@@ -34,6 +35,7 @@ class MuscleDemoSeeder extends Seeder
 
         if ($members->isEmpty()) {
             $this->command->warn('⚠️ Tidak ada member yang terhubung ke trainer approved.');
+
             return;
         }
 

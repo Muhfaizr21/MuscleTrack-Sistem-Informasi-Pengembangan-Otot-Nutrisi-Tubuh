@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\BodyMetric;
-use App\Models\WorkoutPlan;
+use App\Models\NewsArticle;
 use App\Models\NutritionPlan;
 use App\Models\ProgressLog;
-use App\Models\NewsArticle;
 use App\Models\TrainerChat;
+use App\Models\WorkoutPlan;
+use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
 {
@@ -36,7 +36,6 @@ class UserDashboardController extends Controller
             ->orderBy('timestamp', 'desc')
             ->take(5)
             ->get();
-
 
         return view('user.dashboard', compact(
             'user',

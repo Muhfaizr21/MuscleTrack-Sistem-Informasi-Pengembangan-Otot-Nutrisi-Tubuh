@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class UserSummaryController extends Controller
 {
@@ -66,7 +66,7 @@ class UserSummaryController extends Controller
          * 📊 RINGKASAN MINGGUAN
          */
         $weeklySummary = [
-            'range' => $startOfWeek->format('d M') . ' - ' . $endOfWeek->format('d M Y'),
+            'range' => $startOfWeek->format('d M').' - '.$endOfWeek->format('d M Y'),
             'total_workouts' => $workouts->count(),
             'completed_workouts' => $workouts->where('status', 'completed')->count(),
             'total_calories' => $nutrition->total_calories ?? 0,
@@ -101,11 +101,11 @@ class UserSummaryController extends Controller
     private function getMotivationalMessage($summary)
     {
         if ($summary['completed_workouts'] >= 4 && $summary['total_calories'] > 0) {
-            return "🔥 Luar biasa, kamu konsisten latihan dan menjaga nutrisi! Pertahankan semangatmu!";
+            return '🔥 Luar biasa, kamu konsisten latihan dan menjaga nutrisi! Pertahankan semangatmu!';
         } elseif ($summary['completed_workouts'] >= 2) {
-            return "💪 Bagus! Kamu sedang berada di jalur yang benar — tingkatkan lagi minggu depan!";
+            return '💪 Bagus! Kamu sedang berada di jalur yang benar — tingkatkan lagi minggu depan!';
         } else {
-            return "✨ Yuk semangat lagi minggu depan! Mulai dari langkah kecil, yang penting konsisten!";
+            return '✨ Yuk semangat lagi minggu depan! Mulai dari langkah kecil, yang penting konsisten!';
         }
     }
 }

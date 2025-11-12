@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
         $user = Auth::user();
+
         return view('admin.profile.edit', compact('user'));
     }
 
@@ -22,7 +22,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:8|confirmed|different:current_password',
         ]);
@@ -33,7 +33,7 @@ class ProfileController extends Controller
 
         // Update password if provided
         if ($request->filled('current_password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (! Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai']);
             }
 

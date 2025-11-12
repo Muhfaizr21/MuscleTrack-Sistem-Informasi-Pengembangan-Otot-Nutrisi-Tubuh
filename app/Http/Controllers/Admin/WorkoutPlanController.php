@@ -14,6 +14,7 @@ class WorkoutPlanController extends Controller
     public function index()
     {
         $plans = WorkoutPlan::latest()->paginate(10);
+
         return view('admin.workout_plans.index', compact('plans'));
     }
 
@@ -46,7 +47,7 @@ class WorkoutPlanController extends Controller
         WorkoutPlan::create($request->all());
 
         return redirect()->route('admin.workout-plans.index')
-                         ->with('success', 'Program latihan baru berhasil dibuat.');
+            ->with('success', 'Program latihan baru berhasil dibuat.');
     }
 
     /**
@@ -77,7 +78,7 @@ class WorkoutPlanController extends Controller
         $workoutPlan->update($request->all());
 
         return redirect()->route('admin.workout-plans.index')
-                         ->with('success', 'Program latihan berhasil diperbarui.');
+            ->with('success', 'Program latihan berhasil diperbarui.');
     }
 
     /**
@@ -86,7 +87,8 @@ class WorkoutPlanController extends Controller
     public function destroy(WorkoutPlan $workoutPlan)
     {
         $workoutPlan->delete();
+
         return redirect()->route('admin.workout-plans.index')
-                         ->with('success', 'Program latihan berhasil dihapus.');
+            ->with('success', 'Program latihan berhasil dihapus.');
     }
 }

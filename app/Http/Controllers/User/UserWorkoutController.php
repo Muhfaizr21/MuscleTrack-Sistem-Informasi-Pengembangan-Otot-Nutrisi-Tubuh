@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
+use App\Models\WorkoutExercise;
 use App\Models\WorkoutPlan;
 use App\Models\WorkoutSchedule;
-use App\Models\WorkoutExercise;
-use App\Models\Notification;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserWorkoutController extends Controller
 {
@@ -22,7 +22,7 @@ class UserWorkoutController extends Controller
 
         // 🧮 Hitung BMI (hanya jika tinggi & berat tersedia)
         $bmi = null;
-        if (!empty($user->weight) && !empty($user->height)) {
+        if (! empty($user->weight) && ! empty($user->height)) {
             $heightInMeter = $user->height / 100;
             $bmi = round($user->weight / ($heightInMeter ** 2), 1);
         }
@@ -30,11 +30,11 @@ class UserWorkoutController extends Controller
         // 🔎 Tentukan kategori BMI
         $bmiCategory = match (true) {
             $bmi === null => null,
-            $bmi < 18.5   => 'underweight',
-            $bmi < 25     => 'normal',
-            $bmi < 30     => 'overweight',
-            $bmi >= 30    => 'obese',
-            default       => null,
+            $bmi < 18.5 => 'underweight',
+            $bmi < 25 => 'normal',
+            $bmi < 30 => 'overweight',
+            $bmi >= 30 => 'obese',
+            default => null,
         };
 
         // 💡 Ambil plan rekomendasi by BMI
@@ -103,8 +103,8 @@ class UserWorkoutController extends Controller
                     'user_id' => $user->id,
                     'title' => 'Workout Plan Otomatis 💪',
                     'message' => "Sistem menyiapkan rencana '{$selectedPlan->title}' berdasarkan BMI kamu"
-                        . ($bmiCategory ? " ({$bmiCategory})" : "")
-                        . ($user->trainer_id ? " dan bimbingan trainer kamu." : "."),
+                        .($bmiCategory ? " ({$bmiCategory})" : '')
+                        .($user->trainer_id ? ' dan bimbingan trainer kamu.' : '.'),
                     'type' => 'reminder',
                     'read_status' => false,
                 ]);
@@ -200,7 +200,7 @@ class UserWorkoutController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title' => 'Workout Completed 🎉',
-            'message' => "Hebat! Kamu telah menyelesaikan latihan '{$schedule->workoutPlan->title}' pada " .
+            'message' => "Hebat! Kamu telah menyelesaikan latihan '{$schedule->workoutPlan->title}' pada ".
                 Carbon::now()->translatedFormat('l, d F Y H:i'),
             'type' => 'achievement',
             'read_status' => false,
@@ -215,6 +215,7 @@ class UserWorkoutController extends Controller
     public function edit($id)
     {
         $schedule = WorkoutSchedule::with('workoutPlan')->findOrFail($id);
+
         return view('user.workouts.edit', compact('schedule'));
     }
 

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1614289371518-722f2615943d?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=150&h=150&fit=crop&crop=face'
+            'https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=150&h=150&fit=crop&crop=face',
         ];
 
         // Avatar URLs untuk trainer female
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
             'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face'
+            'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face',
         ];
 
         // Trainer 1 - Specialization: Weight Loss
@@ -244,7 +244,7 @@ class UserSeeder extends Seeder
             'https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop&crop=face'
+            'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop&crop=face',
         ];
 
         // User 1 - Punya trainer approved
@@ -340,7 +340,7 @@ class UserSeeder extends Seeder
             'Muscle Building & Strength',
             'Bodybuilding Competition',
             'Calisthenics & Bodyweight',
-            'Functional Training & Mobility'
+            'Functional Training & Mobility',
         ];
 
         $bios = [
@@ -348,7 +348,7 @@ class UserSeeder extends Seeder
             'Expert dalam pembentukan otot dan peningkatan kekuatan. Menggunakan metode progressive overload untuk hasil maksimal.',
             'Coach berpengalaman di kompetisi bodybuilding dengan banyak atlet juara. Spesialisasi dalam cutting dan bulking.',
             'Master dalam training menggunakan berat badan sendiri. Mengajarkan kontrol tubuh dan kekuatan fungsional.',
-            'Spesialis training fungsional untuk kehidupan sehari-hari. Fokus pada mobilitas, stabilitas, dan pencegahan cedera.'
+            'Spesialis training fungsional untuk kehidupan sehari-hari. Fokus pada mobilitas, stabilitas, dan pencegahan cedera.',
         ];
 
         foreach ($trainerApprovedIds as $index => $trainerId) {
@@ -366,7 +366,7 @@ class UserSeeder extends Seeder
             // Trainer Verifications untuk approved trainers
             DB::table('trainer_verifications')->insert([
                 'trainer_id' => $trainerId,
-                'certificate' => 'certificates/trainer_' . $trainerId . '.pdf',
+                'certificate' => 'certificates/trainer_'.$trainerId.'.pdf',
                 'bio' => $bios[$index] ?? 'Trainer profesional terverifikasi.',
                 'status' => 'approved',
                 'created_at' => now(),
@@ -390,7 +390,7 @@ class UserSeeder extends Seeder
             // Trainer Verifications untuk pending trainers
             DB::table('trainer_verifications')->insert([
                 'trainer_id' => $trainerId,
-                'certificate' => 'certificates/trainer_' . $trainerId . '.pdf',
+                'certificate' => 'certificates/trainer_'.$trainerId.'.pdf',
                 'bio' => 'Sedang menunggu proses verifikasi oleh admin.',
                 'status' => 'pending',
                 'created_at' => now(),
@@ -411,7 +411,7 @@ class UserSeeder extends Seeder
             'Teknik yang diajarkan sangat detail dan aman dari cedera.',
             'Selalu memberikan feedback yang membangun setiap sesi.',
             'Nutrisi dan workout plan-nya sangat balance dan efektif.',
-            'Progress saya meningkat signifikan sejak bergabung.'
+            'Progress saya meningkat signifikan sejak bergabung.',
         ];
 
         // User 1 memberikan rating ke trainernya
@@ -469,7 +469,7 @@ class UserSeeder extends Seeder
                     'trainer_id' => $userIds[$index] == $userIds[2] ? $trainerPendingIds[0] : $trainerApprovedIds[$index],
                     'user_id' => $userId,
                     'status' => 'approved',
-                    'note' => 'Program training untuk user ' . ($index + 1),
+                    'note' => 'Program training untuk user '.($index + 1),
                     'created_at' => now()->subDays(30),
                     'updated_at' => now()->subDays(30),
                 ]);
@@ -481,7 +481,7 @@ class UserSeeder extends Seeder
                     'amount' => 150000,
                     'method' => 'transfer',
                     'status' => 'paid',
-                    'transaction_id' => 'TRX-' . strtoupper(uniqid()),
+                    'transaction_id' => 'TRX-'.strtoupper(uniqid()),
                     'created_at' => now()->subDays(30),
                     'updated_at' => now()->subDays(30),
                 ]);

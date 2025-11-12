@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\TrainerChat;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class ChatSeeder extends Seeder
@@ -20,7 +20,7 @@ class ChatSeeder extends Seeder
         $user = User::where('role', 'user')->first();
         $trainer = User::where('role', 'trainer')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = User::factory()->create([
                 'name' => 'Budi',
                 'email' => 'budi@example.com',
@@ -29,7 +29,7 @@ class ChatSeeder extends Seeder
             ]);
         }
 
-        if (!$trainer) {
+        if (! $trainer) {
             $trainer = User::factory()->create([
                 'name' => 'Coach Arif',
                 'email' => 'coach@example.com',

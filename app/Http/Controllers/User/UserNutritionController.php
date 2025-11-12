@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
+use App\Models\NutritionPlan;
+use App\Models\ProgressLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\NutritionPlan;
-use App\Models\User;
-use App\Models\ProgressLog;
-use App\Models\Notification;
-use Carbon\Carbon;
 
 class UserNutritionController extends Controller
 {
@@ -52,21 +51,21 @@ class UserNutritionController extends Controller
 
         $adminTargets = [
             'calories' => round($adminPlans->avg('calories') ?: 2000),
-            'protein'  => round($adminPlans->avg('protein')  ?: 150),
-            'carbs'    => round($adminPlans->avg('carbs')    ?: 250),
-            'fat'      => round($adminPlans->avg('fat')      ?: 70),
+            'protein' => round($adminPlans->avg('protein') ?: 150),
+            'carbs' => round($adminPlans->avg('carbs') ?: 250),
+            'fat' => round($adminPlans->avg('fat') ?: 70),
         ];
 
         // 🔹 Hitung kebutuhan kalori & makro user
         $calorieNeeds = $this->calculateCalories($user, $latestProgress);
-        $macroNeeds   = $this->calculateMacros($calorieNeeds);
+        $macroNeeds = $this->calculateMacros($calorieNeeds);
 
         // 🔹 Total harian dari menu hari terpilih
         $dailyTotals = [
             'calories' => $nutritions->sum('calories'),
-            'protein'  => $nutritions->sum('protein'),
-            'carbs'    => $nutritions->sum('carbs'),
-            'fat'      => $nutritions->sum('fat'),
+            'protein' => $nutritions->sum('protein'),
+            'carbs' => $nutritions->sum('carbs'),
+            'fat' => $nutritions->sum('fat'),
         ];
 
         // 🔹 Data untuk chart nutrisi
@@ -105,6 +104,7 @@ class UserNutritionController extends Controller
     public function edit($id)
     {
         $nutrition = NutritionPlan::where('user_id', Auth::id())->findOrFail($id);
+
         return view('user.nutrition.edit', compact('nutrition'));
     }
 
@@ -116,6 +116,7 @@ class UserNutritionController extends Controller
     public function update(Request $request, $id)
     {
         $nutrition = NutritionPlan::where('user_id', Auth::id())->findOrFail($id);
+
         return $this->saveNutrition($request, $nutrition);
     }
 
@@ -123,25 +124,25 @@ class UserNutritionController extends Controller
      * 💾 PRIVATE — Simpan dan Analisis Nutrisi
      * ---------------------------------------------------------- */
 
-    private function saveNutrition(Request $request, NutritionPlan $nutrition = null)
+    private function saveNutrition(Request $request, ?NutritionPlan $nutrition = null)
     {
         $user = Auth::user();
 
         $validated = $request->validate([
-            'meal_name'   => 'required|string|max:100',
-            'calories'    => 'required|numeric|min:1',
-            'protein'     => 'required|numeric|min:0',
-            'carbs'       => 'required|numeric|min:0',
-            'fat'         => 'required|numeric|min:0',
+            'meal_name' => 'required|string|max:100',
+            'calories' => 'required|numeric|min:1',
+            'protein' => 'required|numeric|min:0',
+            'carbs' => 'required|numeric|min:0',
+            'fat' => 'required|numeric|min:0',
             'day_of_week' => 'required|string',
-            'type'        => 'nullable|string',
+            'type' => 'nullable|string',
         ]);
 
         // 🔹 Simpan / update
         $nutrition
             ? $nutrition->update($validated)
             : $nutrition = NutritionPlan::create(array_merge($validated, [
-                'user_id'        => $user->id,
+                'user_id' => $user->id,
                 'target_fitness' => $user->target_fitness,
             ]));
 
@@ -163,28 +164,36 @@ class UserNutritionController extends Controller
         // 🔹 Hitung selisih (defisit/surplus)
         $deficits = [
             'calories' => ($adminTargets->calories ?? 2000) - ($dailyNutri->total_calories ?? 0),
-            'protein'  => ($adminTargets->protein  ?? 150) - ($dailyNutri->total_protein  ?? 0),
-            'carbs'    => ($adminTargets->carbs    ?? 250) - ($dailyNutri->total_carbs    ?? 0),
-            'fat'      => ($adminTargets->fat      ?? 70)  - ($dailyNutri->total_fat      ?? 0),
+            'protein' => ($adminTargets->protein ?? 150) - ($dailyNutri->total_protein ?? 0),
+            'carbs' => ($adminTargets->carbs ?? 250) - ($dailyNutri->total_carbs ?? 0),
+            'fat' => ($adminTargets->fat ?? 70) - ($dailyNutri->total_fat ?? 0),
         ];
 
         // 🔹 Rekomendasi makanan otomatis
         $suggestions = [];
-        if ($deficits['protein'] > 10) $suggestions[] = "Tambahkan protein seperti ayam dada, telur rebus, atau whey protein.";
-        if ($deficits['carbs'] > 20)   $suggestions[] = "Tambahkan karbo sehat seperti nasi merah, oats, atau kentang rebus.";
-        if ($deficits['fat'] > 5)      $suggestions[] = "Tambahkan lemak sehat seperti alpukat, kacang almond, atau minyak zaitun.";
-        if ($deficits['calories'] > 200) $suggestions[] = "Kalorimu defisit, tambahkan porsi makan siang atau camilan sehat.";
+        if ($deficits['protein'] > 10) {
+            $suggestions[] = 'Tambahkan protein seperti ayam dada, telur rebus, atau whey protein.';
+        }
+        if ($deficits['carbs'] > 20) {
+            $suggestions[] = 'Tambahkan karbo sehat seperti nasi merah, oats, atau kentang rebus.';
+        }
+        if ($deficits['fat'] > 5) {
+            $suggestions[] = 'Tambahkan lemak sehat seperti alpukat, kacang almond, atau minyak zaitun.';
+        }
+        if ($deficits['calories'] > 200) {
+            $suggestions[] = 'Kalorimu defisit, tambahkan porsi makan siang atau camilan sehat.';
+        }
 
         $message = $suggestions
-            ? implode(" ", $suggestions)
-            : "Asupan harianmu sudah mendekati target 🎯. Pertahankan pola makanmu hari ini!";
+            ? implode(' ', $suggestions)
+            : 'Asupan harianmu sudah mendekati target 🎯. Pertahankan pola makanmu hari ini!';
 
         // 🔔 Kirim notifikasi adaptif
         Notification::create([
-            'user_id'     => $user->id,
-            'title'       => 'Rekomendasi Makanan Tambahan 🍱',
-            'message'     => $message,
-            'type'        => 'reminder',
+            'user_id' => $user->id,
+            'title' => 'Rekomendasi Makanan Tambahan 🍱',
+            'message' => $message,
+            'type' => 'reminder',
             'read_status' => false,
         ]);
 
@@ -192,7 +201,7 @@ class UserNutritionController extends Controller
             ->route('user.nutrition.index')
             ->with('success', ($nutrition->wasRecentlyCreated
                 ? 'Menu berhasil ditambahkan! '
-                : 'Menu berhasil diperbarui! ') . $message);
+                : 'Menu berhasil diperbarui! ').$message);
     }
 
     /* ----------------------------------------------------------
@@ -203,7 +212,7 @@ class UserNutritionController extends Controller
     {
         $weight = $user->weight ?? 70;
         $height = $user->height ?? 170;
-        $age    = $user->age ?? 25;
+        $age = $user->age ?? 25;
         $gender = $user->gender ?? 'male';
 
         // 🔹 Rumus Harris-Benedict
@@ -216,14 +225,17 @@ class UserNutritionController extends Controller
         // 🔹 Penyesuaian berdasar progress
         if ($progress) {
             $avgConsumed = $progress->calories_consumed ?? 0;
-            if ($avgConsumed > $calories * 1.1) $calories *= 0.95;
-            elseif ($avgConsumed < $calories * 0.85) $calories *= 1.05;
+            if ($avgConsumed > $calories * 1.1) {
+                $calories *= 0.95;
+            } elseif ($avgConsumed < $calories * 0.85) {
+                $calories *= 1.05;
+            }
         }
 
         return match ($user->target_fitness) {
-            'fat_loss'    => round($calories * 0.85),
+            'fat_loss' => round($calories * 0.85),
             'muscle_gain' => round($calories * 1.15),
-            default       => round($calories),
+            default => round($calories),
         };
     }
 
@@ -231,9 +243,9 @@ class UserNutritionController extends Controller
     {
         return [
             'calories' => round($calories),
-            'protein'  => round(($calories * 0.30) / 4),
-            'carbs'    => round(($calories * 0.45) / 4),
-            'fat'      => round(($calories * 0.25) / 9),
+            'protein' => round(($calories * 0.30) / 4),
+            'carbs' => round(($calories * 0.45) / 4),
+            'fat' => round(($calories * 0.25) / 9),
         ];
     }
 }

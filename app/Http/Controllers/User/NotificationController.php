@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class NotificationController extends Controller
 {
@@ -128,13 +127,13 @@ class NotificationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Notifikasi ditandai sebagai dibaca',
-                'unread_count' => Auth::user()->notifications()->where('read_status', 0)->count()
+                'unread_count' => Auth::user()->notifications()->where('read_status', 0)->count(),
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Notifikasi sudah dibaca sebelumnya'
+            'message' => 'Notifikasi sudah dibaca sebelumnya',
         ]);
     }
 
@@ -165,7 +164,7 @@ class NotificationController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('user.partials.notifications-list', compact('notifications'))->render(),
-                'pagination' => $notifications->links()->toHtml()
+                'pagination' => $notifications->links()->toHtml(),
             ]);
         }
 

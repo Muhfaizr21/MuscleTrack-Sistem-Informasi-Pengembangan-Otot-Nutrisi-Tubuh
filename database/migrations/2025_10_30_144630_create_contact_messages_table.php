@@ -10,16 +10,16 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('contact_messages', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('email');
-        $table->string('subject')->nullable(); // Opsional
-        $table->text('message');
-        $table->timestamps(); // membuat created_at & updated_at
-    });
-}
+    {
+        Schema::create('contact_messages', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email');
+            $table->string('subject')->nullable(); // Opsional
+            $table->text('message');
+            $table->timestamps(); // membuat created_at & updated_at
+        });
+    }
 
     /**
      * Reverse the migrations.

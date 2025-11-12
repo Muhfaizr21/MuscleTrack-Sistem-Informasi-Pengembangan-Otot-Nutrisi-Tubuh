@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class Notification extends Model
@@ -21,8 +21,8 @@ class Notification extends Model
 
     protected $casts = [
         'read_status' => 'boolean',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -65,12 +65,12 @@ class Notification extends Model
     public function getTypeColorAttribute(): string
     {
         return match ($this->type) {
-            'reminder'    => 'text-amber-400',
-            'alert'       => 'text-red-400',
+            'reminder' => 'text-amber-400',
+            'alert' => 'text-red-400',
             'achievement' => 'text-green-400',
-            'trainer'     => 'text-blue-400',
-            'system'      => 'text-purple-400',
-            default       => 'text-gray-300',
+            'trainer' => 'text-blue-400',
+            'system' => 'text-purple-400',
+            default => 'text-gray-300',
         };
     }
 }

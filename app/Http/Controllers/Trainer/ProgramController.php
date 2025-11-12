@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\TrainerVerification;
 use App\Models\User;
 use App\Models\WorkoutPlan;
-use App\Models\TrainerVerification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProgramController extends Controller
 {
@@ -19,7 +19,7 @@ class ProgramController extends Controller
         $trainer = Auth::user();
 
         // 🚫 Pastikan login sebagai trainer
-        if (!$trainer || $trainer->role !== 'trainer') {
+        if (! $trainer || $trainer->role !== 'trainer') {
             return redirect()->route('login')->with('error', 'Silakan login sebagai trainer terlebih dahulu.');
         }
 
@@ -39,7 +39,7 @@ class ProgramController extends Controller
         $trainer = Auth::user();
 
         // 🚫 Cek login & role
-        if (!$trainer || $trainer->role !== 'trainer') {
+        if (! $trainer || $trainer->role !== 'trainer') {
             return redirect()->route('login')->with('error', 'Silakan login sebagai trainer terlebih dahulu.');
         }
 
@@ -49,7 +49,7 @@ class ProgramController extends Controller
                 ->where('status', 'approved')
                 ->exists();
 
-        if (!$isVerified) {
+        if (! $isVerified) {
             return redirect()
                 ->route('trainer.quality.verification.status')
                 ->with('warning', 'Akun Anda belum diverifikasi sebagai trainer.');
@@ -60,7 +60,7 @@ class ProgramController extends Controller
             ->where('trainer_id', $trainer->id)
             ->first();
 
-        if (!$member) {
+        if (! $member) {
             abort(403, 'Anda tidak memiliki akses ke member ini.');
         }
 
@@ -82,7 +82,7 @@ class ProgramController extends Controller
             ->where('trainer_id', $trainer->id)
             ->first();
 
-        if (!$member) {
+        if (! $member) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit member ini.');
         }
 
@@ -118,6 +118,7 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
         $request = TrainerVerification::where('trainer_id', $trainer->id)->latest()->first();
+
         return view('trainer.programs.daftar', compact('trainer', 'request'));
     }
 

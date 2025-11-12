@@ -11,12 +11,32 @@ class UserProteinController extends Controller
     {
         $user = Auth::user();
         $proteinNeed = $user->weight ? $user->weight * 1.6 : null;
+
         return view('user.protein.index', compact('user', 'proteinNeed'));
     }
 
-    public function create() { return view('user.protein.create'); }
-    public function store() { return redirect()->route('user.protein.index')->with('success', 'Data berhasil disimpan!'); }
-    public function edit($id) { return view('user.protein.edit'); }
-    public function update() { return redirect()->route('user.protein.index')->with('success', 'Data diperbarui!'); }
-    public function destroy() { return redirect()->route('user.protein.index')->with('success', 'Data dihapus!'); }
+    public function create()
+    {
+        return view('user.protein.create');
+    }
+
+    public function store()
+    {
+        return redirect()->route('user.protein.index')->with('success', 'Data berhasil disimpan!');
+    }
+
+    public function edit($id)
+    {
+        return view('user.protein.edit');
+    }
+
+    public function update()
+    {
+        return redirect()->route('user.protein.index')->with('success', 'Data diperbarui!');
+    }
+
+    public function destroy()
+    {
+        return redirect()->route('user.protein.index')->with('success', 'Data dihapus!');
+    }
 }

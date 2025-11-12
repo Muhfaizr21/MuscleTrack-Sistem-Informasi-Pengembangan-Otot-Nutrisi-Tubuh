@@ -51,8 +51,9 @@ class TrainerProfile extends Model
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+            return asset('storage/'.$this->avatar);
         }
+
         return asset('images/default-trainer.png');
     }
 }

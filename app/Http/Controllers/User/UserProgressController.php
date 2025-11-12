@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\BodyMetric;
 use App\Models\Notification;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserProgressController extends Controller
 {
@@ -71,11 +70,11 @@ class UserProgressController extends Controller
                 $notifications[] = "Berat badan berubah dari {$lastMetric->weight} kg ke {$request->weight} kg.";
             }
 
-            if (!is_null($request->muscle_mass) && abs($request->muscle_mass - $lastMetric->muscle_mass) >= 1) {
+            if (! is_null($request->muscle_mass) && abs($request->muscle_mass - $lastMetric->muscle_mass) >= 1) {
                 $notifications[] = "Massa otot berubah dari {$lastMetric->muscle_mass} kg ke {$request->muscle_mass} kg.";
             }
 
-            if (!is_null($request->body_fat) && abs($request->body_fat - $lastMetric->body_fat) >= 2) {
+            if (! is_null($request->body_fat) && abs($request->body_fat - $lastMetric->body_fat) >= 2) {
                 $notifications[] = "Persentase lemak tubuh berubah dari {$lastMetric->body_fat}% ke {$request->body_fat}%.";
             }
 
@@ -99,18 +98,17 @@ class UserProgressController extends Controller
     public function edit($id)
     {
         $progress = BodyMetric::findOrFail($id);
+
         return view('user.progress.edit', compact('progress'));
     }
 
     /**
      * Update progress
      */
-
-    
     public function update(Request $request, $id)
     {
         // Debug: lihat data yang dikirim
-    //dd($request->all());
+        // dd($request->all());
         $request->validate([
             'weight' => 'required|numeric|min:1',
             'muscle_mass' => 'nullable|numeric|min:0',
@@ -141,11 +139,11 @@ class UserProgressController extends Controller
             $notifications[] = "Berat badan berubah dari {$oldMetric->weight} kg ke {$request->weight} kg.";
         }
 
-        if (!is_null($request->muscle_mass) && abs($request->muscle_mass - $oldMetric->muscle_mass) >= 1) {
+        if (! is_null($request->muscle_mass) && abs($request->muscle_mass - $oldMetric->muscle_mass) >= 1) {
             $notifications[] = "Massa otot berubah dari {$oldMetric->muscle_mass} kg ke {$request->muscle_mass} kg.";
         }
 
-        if (!is_null($request->body_fat) && abs($request->body_fat - $oldMetric->body_fat) >= 2) {
+        if (! is_null($request->body_fat) && abs($request->body_fat - $oldMetric->body_fat) >= 2) {
             $notifications[] = "Persentase lemak tubuh berubah dari {$oldMetric->body_fat}% ke {$request->body_fat}%.";
         }
 

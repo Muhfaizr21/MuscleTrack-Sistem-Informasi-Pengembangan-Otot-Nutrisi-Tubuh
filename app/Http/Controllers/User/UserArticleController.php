@@ -4,10 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\NewsArticle;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
 
 class UserArticleController extends Controller
 {
@@ -26,10 +25,10 @@ class UserArticleController extends Controller
 
         // Cache notifikasi agar tidak muncul terus menerus
         $user = Auth::user();
-        $notificationKey = 'article_notification_shown_' . ($user?->id ?? 'guest');
+        $notificationKey = 'article_notification_shown_'.($user?->id ?? 'guest');
         $showNotification = false;
 
-        if ($newArticlesCount > 0 && !Cache::get($notificationKey)) {
+        if ($newArticlesCount > 0 && ! Cache::get($notificationKey)) {
             $showNotification = true;
             Cache::put($notificationKey, true, now()->addDay());
         }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsArticle;
-use Illuminate\Http\Request;
 
 class NewsArticleController extends Controller
 {
@@ -14,8 +13,8 @@ class NewsArticleController extends Controller
     {
         // Ambil semua artikel dengan slug yang tidak null, 9 per halaman
         $articles = NewsArticle::whereNotNull('slug')
-                              ->latest()
-                              ->paginate(9);
+            ->latest()
+            ->paginate(9);
 
         return view('articles_publik.index', compact('articles'));
     }

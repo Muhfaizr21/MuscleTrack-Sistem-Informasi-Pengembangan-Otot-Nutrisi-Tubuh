@@ -10,9 +10,9 @@ class ProgressLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'workout_plan_id', 'nutrition_plan_id', 
-        'calories_consumed', 'protein_consumed', 'carbs_consumed', 'fat_consumed', 
-        'notes', 'log_date'
+        'user_id', 'workout_plan_id', 'nutrition_plan_id',
+        'calories_consumed', 'protein_consumed', 'carbs_consumed', 'fat_consumed',
+        'notes', 'log_date',
     ];
 
     public function user()

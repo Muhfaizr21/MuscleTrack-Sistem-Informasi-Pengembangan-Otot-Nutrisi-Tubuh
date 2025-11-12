@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\Builder;
 
 class TrainerChat extends Model
 {
@@ -57,11 +57,6 @@ class TrainerChat extends Model
 
     /**
      * Scope: ambil chat antara trainer dan user tertentu.
-     *
-     * @param Builder $query
-     * @param int $trainerId
-     * @param int $userId
-     * @return Builder
      */
     public function scopeBetween(Builder $query, int $trainerId, int $userId): Builder
     {

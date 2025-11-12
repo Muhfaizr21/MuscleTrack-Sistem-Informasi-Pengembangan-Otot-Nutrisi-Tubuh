@@ -35,7 +35,7 @@ class GoogleRegisterController extends Controller
             // Cek apakah user sudah ada
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (!$user) {
+            if (! $user) {
                 // Simpan data sementara di session untuk pemilihan role dan password
                 session([
                     'google_name' => $googleUser->getName(),
@@ -53,7 +53,7 @@ class GoogleRegisterController extends Controller
             return $this->redirectByRole($user);
 
         } catch (\Exception $e) {
-            Log::error('Register/Login Google gagal: ' . $e->getMessage(), [
+            Log::error('Register/Login Google gagal: '.$e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
@@ -70,7 +70,7 @@ class GoogleRegisterController extends Controller
         $name = session('google_name');
         $email = session('google_email');
 
-        if (!$name || !$email) {
+        if (! $name || ! $email) {
             return redirect('/register')->with('error', 'Data Google tidak ditemukan.');
         }
 

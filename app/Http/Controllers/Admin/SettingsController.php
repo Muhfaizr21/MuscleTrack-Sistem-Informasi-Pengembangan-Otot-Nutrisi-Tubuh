@@ -11,6 +11,7 @@ class SettingsController extends Controller
     public function edit()
     {
         $user = Auth::user();
+
         return view('admin.settings.edit', compact('user'));
     }
 

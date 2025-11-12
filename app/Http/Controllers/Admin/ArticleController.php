@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NewsArticle; // Gunakan model yang baru kita buat
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
@@ -17,6 +17,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = NewsArticle::latest()->paginate(10);
+
         return view('admin.articles.index', compact('articles'));
     }
 
@@ -49,7 +50,7 @@ class ArticleController extends Controller
 
         NewsArticle::create([
             'title' => $request->input('title'),
-            'slug' => Str::slug($request->input('title')) . '-' . uniqid(), // Slug unik
+            'slug' => Str::slug($request->input('title')).'-'.uniqid(), // Slug unik
             'category' => $request->input('category'),
             'summary' => $request->input('summary'),
             'content' => $request->input('content'),
@@ -58,7 +59,7 @@ class ArticleController extends Controller
         ]);
 
         return redirect()->route('admin.articles.index')
-                         ->with('success', 'Artikel baru berhasil dipublikasikan.');
+            ->with('success', 'Artikel baru berhasil dipublikasikan.');
     }
 
     /**
@@ -75,7 +76,7 @@ class ArticleController extends Controller
     public function update(Request $request, NewsArticle $article)
     {
         $request->validate([
-            'title' => 'required|string|max:255|unique:news_articles,title,' . $article->id,
+            'title' => 'required|string|max:255|unique:news_articles,title,'.$article->id,
             'category' => 'nullable|string|max:100',
             'summary' => 'nullable|string|max:300',
             'content' => 'required|string',
@@ -83,7 +84,7 @@ class ArticleController extends Controller
         ]);
 
         $data = $request->except('image');
-        $data['slug'] = Str::slug($request->input('title')) . '-' . $article->id; // Slug unik
+        $data['slug'] = Str::slug($request->input('title')).'-'.$article->id; // Slug unik
 
         if ($request->hasFile('image')) {
             // 1. Hapus gambar lama (jika ada)
@@ -97,7 +98,7 @@ class ArticleController extends Controller
         $article->update($data);
 
         return redirect()->route('admin.articles.index')
-                         ->with('success', 'Artikel berhasil diperbarui.');
+            ->with('success', 'Artikel berhasil diperbarui.');
     }
 
     /**
@@ -114,6 +115,6 @@ class ArticleController extends Controller
         $article->delete();
 
         return redirect()->route('admin.articles.index')
-                         ->with('success', 'Artikel berhasil dihapus.');
+            ->with('success', 'Artikel berhasil dihapus.');
     }
 }

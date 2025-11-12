@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // <-- Pastikan ini ada
 use App\Models\User; // <-- Pastikan ini ada
+use Illuminate\Support\Facades\Auth; // <-- Pastikan ini ada
 
 class DashboardController extends Controller
 {
@@ -20,7 +19,7 @@ class DashboardController extends Controller
 
         // Kirim variabel $firstMember ke view
         return view('trainer.dashboard', [
-            'firstMember' => $firstMember
+            'firstMember' => $firstMember,
         ]);
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\NewTrainerChatMessage;
 use App\Http\Controllers\Controller;
 use App\Models\TrainerChat;
 use App\Models\User;
+use App\Services\GeminiService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use App\Services\GeminiService;
-use Carbon\Carbon;
-use App\Events\NewTrainerChatMessage;
 
 class UserChatController extends Controller
 {
@@ -44,11 +44,11 @@ class UserChatController extends Controller
         }
 
         // 🔹 Tambah AI Trainer virtual (selalu bisa diakses)
-        $aiTrainer = (object)[
+        $aiTrainer = (object) [
             'id' => 0,
             'name' => 'Muscle AI Trainer',
             'role' => 'ai',
-            'trainerProfile' => (object)[
+            'trainerProfile' => (object) [
                 'speciality' => 'AI Fitness & Nutrition Advisor',
                 'photo' => asset('images/ai-trainer.png'),
             ],
@@ -58,7 +58,7 @@ class UserChatController extends Controller
         // 🔹 Tentukan trainer aktif
         $trainer = null;
         if ($request->has('trainer')) {
-            $trainer = $trainers->firstWhere('id', (int)$request->trainer);
+            $trainer = $trainers->firstWhere('id', (int) $request->trainer);
         } elseif ($trainers->count() === 1) {
             $trainer = $trainers->first();
         }
@@ -79,11 +79,11 @@ class UserChatController extends Controller
                 $yesterday = Carbon::yesterday('Asia/Jakarta')->startOfDay();
 
                 if ($date->equalTo($today)) {
-                    return 'Hari Ini (' . Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y') . ')';
+                    return 'Hari Ini ('.Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y').')';
                 } elseif ($date->equalTo($yesterday)) {
-                    return 'Kemarin (' . Carbon::yesterday('Asia/Jakarta')->translatedFormat('l, d F Y') . ')';
+                    return 'Kemarin ('.Carbon::yesterday('Asia/Jakarta')->translatedFormat('l, d F Y').')';
                 } elseif ($date->greaterThanOrEqualTo(Carbon::now('Asia/Jakarta')->subDays(7)->startOfDay())) {
-                    return 'Minggu Ini (' . $date->translatedFormat('l, d F Y') . ')';
+                    return 'Minggu Ini ('.$date->translatedFormat('l, d F Y').')';
                 } else {
                     return $date->translatedFormat('l, d F Y');
                 }
@@ -95,6 +95,7 @@ class UserChatController extends Controller
         foreach ($trainers as $t) {
             if ($t->id === 0) {
                 $unreadCount[$t->id] = 0;
+
                 continue;
             }
 
@@ -132,7 +133,7 @@ class UserChatController extends Controller
         ]);
 
         $user = Auth::user();
-        $trainerId = (int)$request->trainer_id;
+        $trainerId = (int) $request->trainer_id;
 
         // ================================
         // 🤖 CHAT DENGAN AI TRAINER
@@ -174,7 +175,7 @@ class UserChatController extends Controller
                 return response()->json([
                     'success' => false,
                     'ai_mode' => true,
-                    'error' => 'Gagal memproses pesan AI: ' . $e->getMessage(),
+                    'error' => 'Gagal memproses pesan AI: '.$e->getMessage(),
                 ], 500);
             }
         }
@@ -191,7 +192,7 @@ class UserChatController extends Controller
             })
             ->exists();
 
-        if (!$isConnected) {
+        if (! $isConnected) {
             return response()->json(['error' => 'Anda belum terhubung dengan trainer ini.'], 403);
         }
 
@@ -225,7 +226,7 @@ class UserChatController extends Controller
         $trainerId = $request->input('trainer_id');
         $isTyping = filter_var($request->input('typing'), FILTER_VALIDATE_BOOLEAN);
 
-        if (!$trainerId) {
+        if (! $trainerId) {
             return response()->json(['error' => 'Trainer ID tidak ditemukan'], 400);
         }
 
@@ -273,6 +274,7 @@ class UserChatController extends Controller
         }
 
         $chat->delete();
+
         return response()->json(['success' => true]);
     }
 

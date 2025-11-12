@@ -62,9 +62,9 @@ class WorkoutExerciseSeeder extends Seeder
                     ];
                     break;
 
-                // ========================================
-                // ⚖️ NORMAL (Maintain)
-                // ========================================
+                    // ========================================
+                    // ⚖️ NORMAL (Maintain)
+                    // ========================================
                 case 'normal':
                     $exercises = [
                         [
@@ -105,9 +105,9 @@ class WorkoutExerciseSeeder extends Seeder
                     ];
                     break;
 
-                // ========================================
-                // 🔥 OVERWEIGHT (Cutting)
-                // ========================================
+                    // ========================================
+                    // 🔥 OVERWEIGHT (Cutting)
+                    // ========================================
                 case 'overweight':
                     $exercises = [
                         [
@@ -148,9 +148,9 @@ class WorkoutExerciseSeeder extends Seeder
                     ];
                     break;
 
-                // ========================================
-                // 🩺 OBESE (Low Impact & Safety Focus)
-                // ========================================
+                    // ========================================
+                    // 🩺 OBESE (Low Impact & Safety Focus)
+                    // ========================================
                 case 'obese':
                     $exercises = [
                         [
@@ -191,9 +191,9 @@ class WorkoutExerciseSeeder extends Seeder
                     ];
                     break;
 
-                // ========================================
-                // 🏋️ PLAN KHUSUS TRAINER / ADMIN
-                // ========================================
+                    // ========================================
+                    // 🏋️ PLAN KHUSUS TRAINER / ADMIN
+                    // ========================================
                 default:
                     $exercises = [
                         [

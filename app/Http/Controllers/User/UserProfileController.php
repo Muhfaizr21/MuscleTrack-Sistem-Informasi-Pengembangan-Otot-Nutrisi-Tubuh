@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class UserProfileController extends Controller
 {
@@ -17,6 +17,7 @@ class UserProfileController extends Controller
     public function index()
     {
         $user = Auth::user();
+
         return view('user.profile.index', compact('user'));
     }
 
@@ -26,6 +27,7 @@ class UserProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
+
         return view('user.profile.edit', compact('user'));
     }
 
@@ -37,9 +39,9 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'name'   => 'required|string|max:255',
-            'email'  => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'age'    => 'nullable|integer|min:10|max:100',
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'age' => 'nullable|integer|min:10|max:100',
             'gender' => ['nullable', Rule::in(['male', 'female'])],
             'height' => 'nullable|numeric|min:100|max:250',
             'weight' => 'nullable|numeric|min:30|max:300',
@@ -54,7 +56,7 @@ class UserProfileController extends Controller
             }
 
             $file = $request->file('avatar');
-            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'avatar_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
             $avatarPath = $file->storeAs('avatars', $filename, 'public');
             $user->avatar = $avatarPath;
         }
@@ -84,12 +86,12 @@ class UserProfileController extends Controller
 
             // Store new avatar
             $file = $request->file('avatar');
-            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'avatar_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
             $avatarPath = $file->storeAs('avatars', $filename, 'public');
 
             // Update user avatar
             $user->update([
-                'avatar' => $avatarPath
+                'avatar' => $avatarPath,
             ]);
 
             return redirect()->route('user.profile.index')->with('success', 'Foto profil berhasil diperbarui!');
@@ -119,7 +121,7 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         // Pastikan password lama cocok
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'Password lama tidak sesuai.']);
         }
 

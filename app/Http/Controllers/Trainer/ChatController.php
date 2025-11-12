@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Trainer;
 use App\Http\Controllers\Controller;
 use App\Models\TrainerChat;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class ChatController extends Controller
 {
@@ -26,7 +26,7 @@ class ChatController extends Controller
                     $query->where('trainer_id', $trainer->id)
                         ->where('sender_type', 'user')
                         ->where('read_status', false);
-                }
+                },
             ])
             ->get();
 
@@ -62,7 +62,7 @@ class ChatController extends Controller
 
         // 🔹 Daftar tanggal unik (untuk filter dropdown)
         $availableDates = TrainerChat::where('trainer_id', $trainer->id)
-            ->when($user, fn($q) => $q->where('user_id', $user->id))
+            ->when($user, fn ($q) => $q->where('user_id', $user->id))
             ->selectRaw('DATE(timestamp) as date')
             ->distinct()
             ->orderBy('date', 'desc')
@@ -98,20 +98,20 @@ class ChatController extends Controller
 
         // 🔹 Simpan pesan baru
         $chat = TrainerChat::create([
-            'trainer_id'  => $trainer->id,
-            'user_id'     => $user->id,
-            'message'     => $request->message,
+            'trainer_id' => $trainer->id,
+            'user_id' => $user->id,
+            'message' => $request->message,
             'sender_type' => 'trainer',
-            'timestamp'   => now(), // ⏰ Gunakan waktu real-time server
+            'timestamp' => now(), // ⏰ Gunakan waktu real-time server
             'read_status' => false,
         ]);
 
         return response()->json([
-            'success'   => true,
-            'chat_id'   => $chat->id,
-            'message'   => $chat->message,
+            'success' => true,
+            'chat_id' => $chat->id,
+            'message' => $chat->message,
             'timestamp' => $chat->timestamp->format('H:i'),
-            'date'      => $chat->timestamp->format('Y-m-d'),
+            'date' => $chat->timestamp->format('Y-m-d'),
         ]);
     }
 

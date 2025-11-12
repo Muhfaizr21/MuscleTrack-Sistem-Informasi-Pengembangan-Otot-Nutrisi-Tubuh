@@ -3,10 +3,10 @@
 namespace App\Events;
 
 use App\Models\TrainerChat;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 
 class NewTrainerChatMessage implements ShouldBroadcast
@@ -33,7 +33,7 @@ class NewTrainerChatMessage implements ShouldBroadcast
      */
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel('chat.' . $this->chat->user_id);
+        return new PrivateChannel('chat.'.$this->chat->user_id);
     }
 
     /**

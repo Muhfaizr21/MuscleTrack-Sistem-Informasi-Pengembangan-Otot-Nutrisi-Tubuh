@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 class GeminiService
 {
     protected $client;
+
     protected $apiKey;
+
     protected $modelName;
 
     public function __construct()
@@ -31,11 +33,11 @@ class GeminiService
                     'contents' => [
                         [
                             'parts' => [
-                                ['text' => $prompt]
-                            ]
-                        ]
-                    ]
-                ]
+                                ['text' => $prompt],
+                            ],
+                        ],
+                    ],
+                ],
             ]);
 
             // Mengambil respons JSON dari API
@@ -43,7 +45,8 @@ class GeminiService
 
             // Mengecek apakah ada error dalam respons API
             if (isset($data['error'])) {
-                Log::error('Gemini API returned an error: ' . $data['error']['message']);
+                Log::error('Gemini API returned an error: '.$data['error']['message']);
+
                 return 'Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.';
             }
 
@@ -53,18 +56,21 @@ class GeminiService
             }
 
             // Jika tidak ada konten yang ditemukan
-            Log::warning('Gemini API response missing expected content: ' . json_encode($data));
+            Log::warning('Gemini API response missing expected content: '.json_encode($data));
+
             return 'Maaf, saya tidak dapat memberikan jawaban saat ini.';
         } catch (RequestException $e) {
             // Menangani error yang terjadi saat permintaan API gagal
-            Log::error('Gemini API Request Error: ' . $e->getMessage(), [
+            Log::error('Gemini API Request Error: '.$e->getMessage(), [
                 'request' => $e->getRequest(),
                 'response' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : null,
             ]);
+
             return 'Terjadi kesalahan saat menghubungi server AI. Silakan coba lagi.';
         } catch (\Exception $e) {
             // Menangani error umum lainnya
-            Log::error('Unexpected error in GeminiService: ' . $e->getMessage());
+            Log::error('Unexpected error in GeminiService: '.$e->getMessage());
+
             return 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.';
         }
     }

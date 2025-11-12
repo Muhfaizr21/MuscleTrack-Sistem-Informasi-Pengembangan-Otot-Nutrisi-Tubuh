@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
+use App\Models\TrainerVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\TrainerVerification;
 
 class QualityController extends Controller
 {

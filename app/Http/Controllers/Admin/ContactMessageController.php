@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
-use Illuminate\Http\Request;
 
 class ContactMessageController extends Controller
 {
@@ -14,6 +13,7 @@ class ContactMessageController extends Controller
     public function index()
     {
         $messages = ContactMessage::latest()->paginate(20);
+
         return view('admin.contact.index', compact('messages'));
     }
 
@@ -25,7 +25,7 @@ class ContactMessageController extends Controller
         $message = ContactMessage::findOrFail($id);
 
         // "Jurus Ciamik": 100% Tandai "dibaca" saat dibuka
-        if (!$message->read_status) {
+        if (! $message->read_status) {
             $message->update(['read_status' => true]);
         }
 

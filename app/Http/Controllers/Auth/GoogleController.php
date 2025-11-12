@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Exception;
+use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
@@ -31,7 +31,7 @@ class GoogleController extends Controller
             // Cek apakah user sudah ada
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (!$user) {
+            if (! $user) {
                 // Simpan data sementara di session untuk memilih role
                 session(['google_user' => [
                     'name' => $googleUser->getName(),
@@ -50,7 +50,7 @@ class GoogleController extends Controller
 
         } catch (Exception $e) {
             return redirect()->route('login')
-                ->with('error', 'Login/Register dengan Google gagal! ' . $e->getMessage());
+                ->with('error', 'Login/Register dengan Google gagal! '.$e->getMessage());
         }
     }
 
@@ -59,15 +59,16 @@ class GoogleController extends Controller
      */
     public function showRoleForm()
     {
-        if (!session('google_user')) {
+        if (! session('google_user')) {
             return redirect()->route('register')
                 ->with('error', 'Sesi Google sudah berakhir.');
         }
 
         $googleUser = session('google_user');
+
         return view('auth.register-role', [
             'name' => $googleUser['name'],
-            'email' => $googleUser['email']
+            'email' => $googleUser['email'],
         ]);
     }
 
@@ -82,7 +83,7 @@ class GoogleController extends Controller
 
         $googleData = session('google_user');
 
-        if (!$googleData) {
+        if (! $googleData) {
             return redirect()->route('register')
                 ->with('error', 'Sesi Google sudah berakhir.');
         }
@@ -115,6 +116,7 @@ class GoogleController extends Controller
                 return redirect()->route('user.dashboard');
             default:
                 Auth::logout();
+
                 return redirect()->route('login')->with('error', 'Role pengguna tidak dikenali!');
         }
     }

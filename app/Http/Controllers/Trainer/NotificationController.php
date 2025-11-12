@@ -18,15 +18,15 @@ class NotificationController extends Controller
 
         // Ambil notifikasi (terbaru dulu)
         $notifications = $trainer->notifications()
-                                ->latest()
-                                ->paginate(20);
+            ->latest()
+            ->paginate(20);
 
         // Ambil 5 notifikasi terbaru yang belum dibaca (read_status = 0)
         // dan tandai "dibaca" (read_status = 1)
         $trainer->notifications()
-                ->where('read_status', 0) // <-- Ini sudah perbaikan "ciamik"
-                ->take(5)
-                ->update(['read_status' => 1]); // <-- Ini sudah perbaikan "ciamik"
+            ->where('read_status', 0) // <-- Ini sudah perbaikan "ciamik"
+            ->take(5)
+            ->update(['read_status' => 1]); // <-- Ini sudah perbaikan "ciamik"
 
         return view('trainer.communication.notifications.index', compact('notifications'));
     }
@@ -38,8 +38,8 @@ class NotificationController extends Controller
     public function markAsRead(Request $request, $id)
     {
         $notification = Notification::where('id', $id)
-                                    ->where('user_id', Auth::id()) // Pastikan ini notif milik trainer
-                                    ->firstOrFail();
+            ->where('user_id', Auth::id()) // Pastikan ini notif milik trainer
+            ->firstOrFail();
 
         // Tandai dibaca (jika belum)
         if ($notification->read_status == 0) { // <-- Ini sudah perbaikan "ciamik"

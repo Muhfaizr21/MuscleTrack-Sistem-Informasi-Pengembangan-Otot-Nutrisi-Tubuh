@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\NutritionPlan;
 use App\Models\Supplement;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NutritionManagementController extends Controller
 {
@@ -93,7 +93,7 @@ class NutritionManagementController extends Controller
 
         $nutritionPlan = NutritionPlan::where('user_id', $member->id)->latest()->first();
 
-        if (!$nutritionPlan) {
+        if (! $nutritionPlan) {
             return back()->with('error', '❌ Buat rencana nutrisi terlebih dahulu sebelum menambah suplemen.');
         }
 
@@ -125,7 +125,7 @@ class NutritionManagementController extends Controller
 
         // 🚫 Validasi kepemilikan
         $nutritionPlan = NutritionPlan::where('user_id', $member->id)->first();
-        if (!$nutritionPlan || $supplement->nutrition_plan_id !== $nutritionPlan->id) {
+        if (! $nutritionPlan || $supplement->nutrition_plan_id !== $nutritionPlan->id) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus suplemen ini.');
         }
 

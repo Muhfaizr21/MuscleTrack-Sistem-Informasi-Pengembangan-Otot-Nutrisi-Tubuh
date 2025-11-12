@@ -15,8 +15,9 @@ class NutritionProgramController extends Controller
     {
         // KUNCI: Kita hanya ambil program master (user_id = NULL)
         $programs = NutritionPlan::whereNull('user_id')
-                                 ->latest()
-                                 ->paginate(10);
+            ->latest()
+            ->paginate(10);
+
         return view('admin.nutrition_programs.index', compact('programs'));
     }
 
@@ -51,7 +52,7 @@ class NutritionProgramController extends Controller
         NutritionPlan::create($data);
 
         return redirect()->route('admin.nutrition-programs.index')
-                         ->with('success', 'Program nutrisi baru berhasil dibuat.');
+            ->with('success', 'Program nutrisi baru berhasil dibuat.');
     }
 
     /**
@@ -64,6 +65,7 @@ class NutritionProgramController extends Controller
         if ($nutritionProgram->user_id !== null) {
             abort(404);
         }
+
         return view('admin.nutrition_programs.edit', ['plan' => $nutritionProgram]);
     }
 
@@ -94,7 +96,7 @@ class NutritionProgramController extends Controller
         $nutritionProgram->update($data);
 
         return redirect()->route('admin.nutrition-programs.index')
-                         ->with('success', 'Program nutrisi berhasil diperbarui.');
+            ->with('success', 'Program nutrisi berhasil diperbarui.');
     }
 
     /**
@@ -108,7 +110,8 @@ class NutritionProgramController extends Controller
         }
 
         $nutritionProgram->delete();
+
         return redirect()->route('admin.nutrition-programs.index')
-                         ->with('success', 'Program nutrisi berhasil dihapus.');
+            ->with('success', 'Program nutrisi berhasil dihapus.');
     }
 }

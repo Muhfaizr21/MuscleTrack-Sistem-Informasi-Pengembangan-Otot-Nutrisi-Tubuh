@@ -31,7 +31,7 @@ class AuthenticatedSessionController extends Controller
         $credentials = $request->only('email', 'password');
 
         // Coba login
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => __('Email atau password salah.'),
             ]);

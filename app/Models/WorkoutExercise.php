@@ -35,8 +35,10 @@ class WorkoutExercise extends Model
     {
         if ($this->rest_seconds >= 60) {
             $minutes = floor($this->rest_seconds / 60);
-            return $minutes . ' menit';
+
+            return $minutes.' menit';
         }
-        return $this->rest_seconds . ' detik';
+
+        return $this->rest_seconds.' detik';
     }
 }

@@ -16,8 +16,8 @@ class TrainerMemberController extends Controller
     {
         // Ambil semua data + relasi user dan trainernya
         $memberships = TrainerMembership::with(['user', 'trainer'])
-                                        ->latest()
-                                        ->paginate(15);
+            ->latest()
+            ->paginate(15);
 
         return view('admin.trainer_memberships.index', compact('memberships'));
     }
@@ -45,13 +45,13 @@ class TrainerMemberController extends Controller
             'user_id' => 'required|exists:users,id|unique:trainer_memberships,user_id',
             'trainer_id' => 'required|exists:users,id',
         ], [
-            'user_id.unique' => 'User ini sudah memiliki trainer.'
+            'user_id.unique' => 'User ini sudah memiliki trainer.',
         ]);
 
         TrainerMembership::create($request->all());
 
         return redirect()->route('admin.trainer-memberships.index')
-                         ->with('success', 'User berhasil ditugaskan ke trainer.');
+            ->with('success', 'User berhasil ditugaskan ke trainer.');
     }
 
     /**
@@ -60,7 +60,8 @@ class TrainerMemberController extends Controller
     public function destroy(TrainerMembership $trainerMembership)
     {
         $trainerMembership->delete();
+
         return redirect()->route('admin.trainer-memberships.index')
-                         ->with('success', 'Penugasan user ke trainer berhasil dihapus.');
+            ->with('success', 'Penugasan user ke trainer berhasil dihapus.');
     }
 }

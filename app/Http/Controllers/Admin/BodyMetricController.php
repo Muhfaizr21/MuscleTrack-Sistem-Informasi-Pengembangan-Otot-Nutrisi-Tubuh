@@ -16,8 +16,9 @@ class BodyMetricController extends Controller
     public function index()
     {
         $metrics = BodyMetric::with('user') // Ambil relasi user
-                             ->latest('recorded_at')
-                             ->paginate(15);
+            ->latest('recorded_at')
+            ->paginate(15);
+
         return view('admin.body_metrics.index', compact('metrics'));
     }
 
@@ -27,6 +28,7 @@ class BodyMetricController extends Controller
     public function create()
     {
         $users = User::where('role', 'user')->orderBy('name')->get();
+
         return view('admin.body_metrics.create', compact('users'));
     }
 
@@ -58,7 +60,7 @@ class BodyMetricController extends Controller
         BodyMetric::create($data);
 
         return redirect()->route('admin.body-metrics.index')
-                         ->with('success', 'Data body metric berhasil ditambahkan.');
+            ->with('success', 'Data body metric berhasil ditambahkan.');
     }
 
     /**
@@ -67,6 +69,7 @@ class BodyMetricController extends Controller
     public function edit(BodyMetric $bodyMetric)
     {
         $users = User::where('role', 'user')->orderBy('name')->get();
+
         return view('admin.body_metrics.edit', ['metric' => $bodyMetric, 'users' => $users]);
     }
 
@@ -102,7 +105,7 @@ class BodyMetricController extends Controller
         $bodyMetric->update($data);
 
         return redirect()->route('admin.body-metrics.index')
-                         ->with('success', 'Data body metric berhasil diperbarui.');
+            ->with('success', 'Data body metric berhasil diperbarui.');
     }
 
     /**
@@ -116,7 +119,8 @@ class BodyMetricController extends Controller
         }
 
         $bodyMetric->delete();
+
         return redirect()->route('admin.body-metrics.index')
-                         ->with('success', 'Data body metric berhasil dihapus.');
+            ->with('success', 'Data body metric berhasil dihapus.');
     }
 }

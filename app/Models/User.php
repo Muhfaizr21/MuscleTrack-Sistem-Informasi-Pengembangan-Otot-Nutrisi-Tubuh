@@ -22,7 +22,7 @@ class User extends Authenticatable
         'goal_id',
         'trainer_id',
         'verification_status',
-        'password'
+        'password',
     ];
 
     protected $hidden = [
@@ -111,7 +111,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(TrainerProfile::class, 'user_id', 'id');
     }
-
 
     public function trainerVerification()
     {

@@ -57,7 +57,7 @@ class WorkoutPlanSeeder extends Seeder
         ]);
 
         $foundationId = DB::table('workout_plans')->where('title', 'Full Body Foundation')->value('id');
-        $fatlossId    = DB::table('workout_plans')->where('title', 'Fat Loss Accelerator')->value('id');
+        $fatlossId = DB::table('workout_plans')->where('title', 'Fat Loss Accelerator')->value('id');
 
         // ============================================================
         // 🧠 BMI-Based Plans — Evidence-Based & Goal Specific

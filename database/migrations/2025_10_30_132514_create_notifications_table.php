@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
@@ -21,7 +22,7 @@ return new class extends Migration {
                 'achievement',   // Pencapaian (workout completed, goal reached)
                 'system',        // Dikirim otomatis oleh sistem
                 'trainer',       // Notifikasi dari trainer
-                'nutrition_tip'  // 💡 Rekomendasi nutrisi harian
+                'nutrition_tip',  // 💡 Rekomendasi nutrisi harian
             ])->default('info');
 
             $table->boolean('read_status')->default(false);

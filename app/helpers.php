@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\File;
 
-if (!function_exists('safe_vite')) {
+if (! function_exists('safe_vite')) {
     function safe_vite(array $assets)
     {
         $manifestPath = public_path('build/manifest.json');
@@ -16,12 +16,13 @@ if (!function_exists('safe_vite')) {
         $html = '';
         foreach ($assets as $asset) {
             if (str_ends_with($asset, '.css')) {
-                $html .= '<link rel="stylesheet" href="' . asset('css/app.css') . '">' . PHP_EOL;
+                $html .= '<link rel="stylesheet" href="'.asset('css/app.css').'">'.PHP_EOL;
             }
             if (str_ends_with($asset, '.js')) {
-                $html .= '<script src="' . asset('js/app.js') . '" defer></script>' . PHP_EOL;
+                $html .= '<script src="'.asset('js/app.js').'" defer></script>'.PHP_EOL;
             }
         }
+
         return $html;
     }
 }
