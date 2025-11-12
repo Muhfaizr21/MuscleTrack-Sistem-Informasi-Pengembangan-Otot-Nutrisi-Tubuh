@@ -1,30 +1,29 @@
 <x-layouts.admin>
-
     <x-slot name="title">Admin <span class="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Dashboard</span></x-slot>
 
     <!-- Stats Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <x-admin.stat-card
             title="Total User"
-            value="1,204"
+            value="{{ number_format($totalUsers) }}"
             trend="+12% dari bulan lalu"
             ghostNumber="01" />
 
         <x-admin.stat-card
             title="Total Artikel"
-            value="88"
+            value="{{ number_format($totalArticles) }}"
             trend="+3 baru minggu ini"
             ghostNumber="02" />
 
         <x-admin.stat-card
             title="Pesan Baru"
-            value="14"
+            value="{{ number_format($unreadMessages) }}"
             trend="Belum dibaca"
             ghostNumber="03" />
 
         <x-admin.stat-card
             title="Riwayat Premium"
-            value="72"
+            value="{{ number_format($premiumTransactions) }}"
             trend="Total Transaksi"
             ghostNumber="04" />
     </div>
@@ -73,80 +72,54 @@
             </div>
         </div>
         <div class="divide-y divide-slate-700/50">
-            <!-- Activity Item 1 -->
+            @foreach($recentActivities as $activity)
             <div class="p-6 hover:bg-slate-700/20 transition-colors duration-300">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-10 h-10 bg-{{ $activity['color'] }}-500/10 rounded-xl flex items-center justify-center">
+                            @if($activity['icon'] === 'user')
+                            <svg class="w-5 h-5 text-{{ $activity['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-semibold text-white">User Baru Mendaftar</div>
-                            <div class="text-sm text-slate-400">user@example.com</div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-slate-500">2 menit lalu</div>
-                </div>
-            </div>
-
-            <!-- Activity Item 2 -->
-            <div class="p-6 hover:bg-slate-700/20 transition-colors duration-300">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            @elseif($activity['icon'] === 'payment')
+                            <svg class="w-5 h-5 text-{{ $activity['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v1m0 6v1m0-1v1m6-13a2 2 0 11-4 0 2 2 0 014 0zM6 15a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
-                        </div>
-                        <div>
-                            <div class="text-sm font-semibold text-white">Pembayaran Premium</div>
-                            <div class="text-sm text-slate-400">Dari: Siska Putri (Status: LUNAS)</div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-slate-500">2 jam lalu</div>
-                </div>
-            </div>
-
-            <!-- Activity Item 3 -->
-            <div class="p-6 hover:bg-slate-700/20 transition-colors duration-300">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            @elseif($activity['icon'] === 'article')
+                            <svg class="w-5 h-5 text-{{ $activity['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
+                            @endif
                         </div>
                         <div>
-                            <div class="text-sm font-semibold text-white">Artikel Baru Diposting</div>
-                            <div class="text-sm text-slate-400">"5 Tips Fitness untuk Pemula"</div>
+                            <div class="text-sm font-semibold text-white">{{ $activity['title'] }}</div>
+                            <div class="text-sm text-slate-400">{{ $activity['description'] }}</div>
                         </div>
                     </div>
-                    <div class="text-sm text-slate-500">5 jam lalu</div>
+                    <div class="text-sm text-slate-500">{{ $activity['time'] }}</div>
                 </div>
             </div>
+            @endforeach
         </div>
     </div>
 
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
             Chart.defaults.color = 'rgba(148, 163, 184, 0.8)';
             Chart.defaults.borderColor = 'rgba(71, 85, 105, 0.3)';
 
-            // Chart 1: User Growth
+            // Chart 1: User Growth - Using PHP data
             const ctxGrowth = document.getElementById('userGrowthChart').getContext('2d');
             new Chart(ctxGrowth, {
                 type: 'line',
                 data: {
-                    labels: ['Okt 1', 'Okt 5', 'Okt 10', 'Okt 15', 'Okt 20', 'Okt 25', 'Okt 30'],
+                    labels: @json($userGrowthData['labels']),
                     datasets: [{
                         label: 'User Baru',
-                        data: [12, 19, 25, 30, 45, 50, 65],
+                        data: @json($userGrowthData['data']),
                         fill: true,
-                        borderColor: '#22c55e', // Green-500
+                        borderColor: '#22c55e',
                         backgroundColor: 'rgba(34, 197, 94, 0.1)',
                         tension: 0.4,
                         pointBackgroundColor: '#22c55e',
@@ -179,19 +152,19 @@
                 }
             });
 
-            // Chart 2: User Progress
+            // Chart 2: User Progress - Using PHP data
             const ctxProgress = document.getElementById('userProgressChart').getContext('2d');
             new Chart(ctxProgress, {
                 type: 'bar',
                 data: {
-                    labels: ['Bulking', 'Cutting', 'Maintenance'],
+                    labels: @json($userProgressData['labels']),
                     datasets: [{
                         label: 'Rata-Rata Massa Otot (kg)',
-                        data: [65.2, 61.8, 63.5],
+                        data: @json($userProgressData['data']),
                         backgroundColor: [
-                            'rgba(34, 197, 94, 0.3)', // Green
-                            'rgba(148, 163, 184, 0.3)', // Slate
-                            'rgba(148, 163, 184, 0.3)', // Slate
+                            'rgba(34, 197, 94, 0.3)',
+                            'rgba(148, 163, 184, 0.3)',
+                            'rgba(148, 163, 184, 0.3)',
                         ],
                         borderColor: ['#22c55e', '#94a3b8', '#94a3b8'],
                         borderWidth: 1,
@@ -226,5 +199,4 @@
         });
     </script>
     @endpush
-
 </x-layouts.admin>

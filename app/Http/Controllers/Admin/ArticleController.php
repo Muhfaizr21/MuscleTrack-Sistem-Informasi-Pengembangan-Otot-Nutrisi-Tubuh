@@ -48,11 +48,11 @@ class ArticleController extends Controller
         }
 
         NewsArticle::create([
-            'title' => $request->title,
-            'slug' => Str::slug($request->title) . '-' . uniqid(), // Slug unik
-            'category' => $request->category,
-            'summary' => $request->summary,
-            'content' => $request->content,
+            'title' => $request->input('title'),
+            'slug' => Str::slug($request->input('title')) . '-' . uniqid(), // Slug unik
+            'category' => $request->input('category'),
+            'summary' => $request->input('summary'),
+            'content' => $request->input('content'),
             'image' => $path, // Simpan path gambar
             'author' => Auth::user()->name, // Set author ke admin yang login
         ]);
@@ -83,7 +83,7 @@ class ArticleController extends Controller
         ]);
 
         $data = $request->except('image');
-        $data['slug'] = Str::slug($request->title) . '-' . $article->id; // Slug unik
+        $data['slug'] = Str::slug($request->input('title')) . '-' . $article->id; // Slug unik
 
         if ($request->hasFile('image')) {
             // 1. Hapus gambar lama (jika ada)

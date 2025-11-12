@@ -13,15 +13,16 @@ use App\Http\Controllers\Auth\GoogleRegisterController;
 // ==========================
 // 🌐 PUBLIC/CORE CONTROLLERS
 // ==========================
-use App\Http\Controllers\AdminController;
+
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
-use App\Http\Controllers\Admin\ContactMessageController;
+
 
 // ==========================
 // 🧑‍💼 ADMIN CONTROLLERS
 // ==========================
 use App\Http\Controllers\Admin\{
+    AdminController, // ← PASTIKAN INI
     UserManagementController,
     ArticleController,
     NutritionProgramController,
@@ -30,6 +31,7 @@ use App\Http\Controllers\Admin\{
     GoalController,
     BodyMetricController,
     NotificationBroadcasterController,
+    ContactMessageController, // ← INI JUGA
     ProfileController,
     SettingsController,
     HelpSupportController
@@ -107,7 +109,8 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+        // PERBAIKI: ganti 'index' menjadi 'dashboard'
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
         Route::resources([
             'users' => UserManagementController::class,
@@ -128,11 +131,11 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact.show');
         Route::delete('/contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact.destroy');
 
-          Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
-    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
-    Route::get('/help-support', [HelpSupportController::class, 'index'])->name('help-support.index');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/help-support', [HelpSupportController::class, 'index'])->name('help-support.index');
     });
 
 // ==========================
