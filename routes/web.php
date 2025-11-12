@@ -39,7 +39,7 @@ use App\Http\Controllers\Trainer\{
     DashboardController as TrainerDashboardController,
     MemberController,
     ChatController as TrainerChatController,
-    NotificationController,
+    NotificationController as TrainerNotificationController,
     ProgramController,
     SupplementController,
     QualityController,
@@ -59,9 +59,9 @@ use App\Http\Controllers\User\{
     UserChatController,
     UserProfileController,
     UserArticleController,
-    UserTrainingController
+    UserTrainingController,
+    NotificationController as UserNotificationController
 };
-use App\Http\Controllers\User\NotificationController as UserNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,15 +70,13 @@ use App\Http\Controllers\User\NotificationController as UserNotificationControll
 */
 
 // ==========================
-// 🏠 Halaman Utama
+// 🏠 HALAMAN UTAMA & AUTH
 // ==========================
 Route::get('/', fn() => view('welcome'))->name('home');
+
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
 Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
 
-// ==========================
-// 🔐 AUTH ROUTES
-// ==========================
 Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::get('/login', 'create')->name('login');
     Route::post('/login', 'store');
@@ -97,12 +95,7 @@ Route::controller(GoogleRegisterController::class)->group(function () {
     Route::post('register/google/role', 'storeRole')->name('register.role.store');
 });
 
-// ==========================
-// 🧭 Dashboard umum
-// ==========================
-Route::view('/dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 
 // ==========================
 // 🧑‍💼 ADMIN
@@ -153,8 +146,12 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/chat', [TrainerChatController::class, 'store'])->name('chat.store');
             Route::delete('/chat/{id}', [TrainerChatController::class, 'destroy'])->name('chat.destroy');
             Route::post('/chat/read', [TrainerChatController::class, 'markAllRead'])->name('chat.markAllRead');
-            Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-            Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+
+            // Trainer Notifications
+            Route::get('/notifications', [TrainerNotificationController::class, 'index'])->name('notifications.index');
+            Route::post('/notifications/{id}/read', [TrainerNotificationController::class, 'markAsRead'])->name('notifications.read');
+            Route::post('/notifications/mark-all-read', [TrainerNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+            Route::delete('/notifications/{id}', [TrainerNotificationController::class, 'destroy'])->name('notifications.destroy');
         });
 
         Route::prefix('programs')->name('programs.')->group(function () {
@@ -199,48 +196,66 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
-        // 💬 Chat System
-        Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
-        Route::post('/chat', [UserChatController::class, 'store'])->name('chat.store');
-        Route::post('/chat/read', [UserChatController::class, 'markAllRead'])->name('chat.markAllRead');
-        Route::delete('/chat/{id}', [UserChatController::class, 'destroy'])->name('chat.destroy');
-        Route::post('/chat/typing', [UserChatController::class, 'typing'])->name('chat.typing');
+        // 💬 Chat
+        Route::prefix('chat')->name('chat.')->group(function () {
+            Route::get('/', [UserChatController::class, 'index'])->name('index');
+            Route::post('/', [UserChatController::class, 'store'])->name('store');
+            Route::post('/read', [UserChatController::class, 'markAllRead'])->name('markAllRead');
+            Route::delete('/{id}', [UserChatController::class, 'destroy'])->name('destroy');
+            Route::post('/typing', [UserChatController::class, 'typing'])->name('typing');
+        });
 
-        // 🏋️ Training: Cari & Pesan Trainer
-        Route::get('/training', [UserTrainingController::class, 'index'])->name('training.index');
-        Route::get('/training/{trainerId}', [UserTrainingController::class, 'show'])->name('training.show');
-        Route::post('/training/{trainerId}/order', [UserTrainingController::class, 'order'])->name('training.order');
-        Route::get('/training/payment/{paymentId}', [UserTrainingController::class, 'payment'])->name('training.payment');
-        Route::post('/training/payment/{paymentId}/confirm', [UserTrainingController::class, 'confirmPayment'])->name('training.confirm');
+        // 🏋️ Training
+        Route::prefix('training')->name('training.')->group(function () {
+            Route::get('/', [UserTrainingController::class, 'index'])->name('index');
+            Route::get('/trainer/{trainerId}', [UserTrainingController::class, 'show'])->name('show');
+            Route::post('/order/{trainerId}', [UserTrainingController::class, 'order'])->name('order');
+            Route::get('/payment/{paymentId}', [UserTrainingController::class, 'payment'])->name('payment');
+            Route::post('/confirm-payment/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm-payment');
+            Route::post('/cancel-order/{paymentId}', [UserTrainingController::class, 'cancelOrder'])->name('cancel-order');
+            Route::get('/my-trainer', [UserTrainingController::class, 'myTrainer'])->name('my-trainer');
+            Route::get('/switch-trainer', [UserTrainingController::class, 'showSwitchTrainer'])->name('switch-trainer');
+            Route::post('/switch-trainer/{newTrainerId}', [UserTrainingController::class, 'switchTrainer'])->name('switch-trainer.process');
+            Route::get('/rate/{trainerId}', [UserTrainingController::class, 'createRating'])->name('rate');
+            Route::post('/rate/{trainerId}', [UserTrainingController::class, 'storeRating'])->name('rate.store');
+            Route::put('/rating/{feedbackId}', [UserTrainingController::class, 'updateRating'])->name('rating.update');
+            Route::get('/history', [UserTrainingController::class, 'trainerHistory'])->name('history');
+            Route::get('/my-ratings', [UserTrainingController::class, 'myRatings'])->name('my-ratings');
+            Route::post('/ai-chat', [UserTrainingController::class, 'chatAI'])->name('ai.chat');
+            Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('reset-ai-chat');
+        });
 
-        // 💬 Chat AI Trainer (limit 5 pesan)
-        Route::post('/training/ai-chat', [UserTrainingController::class, 'chatAI'])->name('training.ai.chat');
-
-        // 👤 Profile - DIPERBARUI DENGAN ROUTE AVATAR
+        // 👤 Profile
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');
             Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
             Route::patch('/update', [UserProfileController::class, 'update'])->name('update');
-            Route::put('/avatar', [UserProfileController::class, 'updateAvatar'])->name('avatar.update'); // ROUTE BARU
+            Route::put('/avatar', [UserProfileController::class, 'updateAvatar'])->name('avatar.update');
             Route::get('/password', [UserProfileController::class, 'editPassword'])->name('password.edit');
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
 
-        // 📚 Artikel & Notifikasi
+        // 📚 Artikel
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
-        Route::get('/notifications', [UserNotificationController::class, 'index'])->name('notifications.index');
-        Route::post('/notifications/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('notifications.read');
 
-        // 🔄 Training Management - ROUTE BARU
-        Route::get('/my-trainer', [UserTrainingController::class, 'myTrainer'])->name('training.my-trainer');
-        Route::post('/switch-trainer', [UserTrainingController::class, 'switchTrainer'])->name('training.switch-trainer');
-        Route::post('/cancel-order/{paymentId}', [UserTrainingController::class, 'cancelOrder'])->name('training.cancel-order');
-        Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('training.reset-ai-chat');
+        // 🔔 Notifikasi User (Complete Routes)
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [UserNotificationController::class, 'index'])->name('index');
+            Route::post('/mark-all-read', [UserNotificationController::class, 'markAllRead'])->name('markAllRead');
+            Route::delete('/clear-all', [UserNotificationController::class, 'clearAll'])->name('clearAll');
+            Route::post('/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('read');
+            Route::delete('/{id}', [UserNotificationController::class, 'destroy'])->name('destroy');
+
+            // API Routes for real-time features
+            Route::get('/unread-count', [UserNotificationController::class, 'getUnreadCount'])->name('unreadCount');
+            Route::post('/{id}/read-ajax', [UserNotificationController::class, 'markAsReadAjax'])->name('readAjax');
+            Route::get('/filter', [UserNotificationController::class, 'filter'])->name('filter');
+        });
     });
 
 // ==========================
-// 🌐 Rute Publik
+// 🌐 RUTE PUBLIK (DILUAR LOGIN)
 // ==========================
 Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
@@ -249,6 +264,6 @@ Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.i
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
 // ==========================
-// ⚙️ Default Laravel Auth Routes
+// ⚙️ AUTH LARAVEL DEFAULT
 // ==========================
 require __DIR__ . '/auth.php';

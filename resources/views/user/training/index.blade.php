@@ -21,23 +21,88 @@
                 </div>
                 <div class="text-right">
                     <div class="text-emerald-400 font-bold text-sm uppercase tracking-wider mb-2">Available Now</div>
-                    <p class="text-white font-semibold">{{ $trainers->count() }} certified trainers</p>
+                    <p class="text-white font-semibold">{{ $trainers->total() }} certified trainers</p>
                 </div>
             </div>
         </div>
 
-        {{-- Search Form --}}
+        {{-- Current Trainer Status --}}
+        @if($user->trainer_id)
+        <div class="glass rounded-2xl p-6 border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center">
+                        <span class="text-white text-xl">👨‍🏫</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white">You have an active trainer!</h3>
+                        <p class="text-emerald-400">Continue your journey with personalized guidance</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('user.training.my-trainer') }}" 
+                       class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all duration-300 hover-glow">
+                        View My Trainer
+                    </a>
+                    <a href="{{ route('user.training.switch-trainer') }}" 
+                       class="px-6 py-3 bg-dark-700 hover:bg-dark-600 text-white font-semibold rounded-xl border border-emerald-500/30 hover:border-emerald-400 transition-all duration-300">
+                        Switch Trainer
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- Search and Filter Section --}}
         <div class="glass-dark rounded-2xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10 mb-8">
             <div class="flex items-center gap-3 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                 </svg>
-                <h2 class="text-lg font-bold text-white">Search Trainers</h2>
+                <h2 class="text-lg font-bold text-white">Search & Filter Trainers</h2>
             </div>
-            <form method="GET" class="relative">
-                <input type="text" name="search" placeholder="Search by trainer name, specialty..." value="{{ request('search') }}"
-                    class="w-full glass border border-emerald-500/20 rounded-2xl px-6 py-4 text-white placeholder-emerald-400/60
-                           focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300">
+            
+            <form method="GET" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {{-- Search Input --}}
+                    <div class="relative">
+                        <input type="text" name="search" placeholder="Search by name, specialty..." value="{{ request('search') }}"
+                            class="w-full glass border border-emerald-500/20 rounded-2xl px-6 py-4 text-white placeholder-emerald-400/60
+                                   focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300">
+                        <div class="absolute right-3 top-3 text-emerald-400">
+                            🔍
+                        </div>
+                    </div>
+                    
+                    {{-- Specialization Filter --}}
+                    <select name="specialization" class="w-full glass border border-emerald-500/20 rounded-2xl px-4 py-4 text-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300">
+                        <option value="">All Specializations</option>
+                        <option value="weight_loss" {{ request('specialization') == 'weight_loss' ? 'selected' : '' }}>Weight Loss</option>
+                        <option value="muscle_gain" {{ request('specialization') == 'muscle_gain' ? 'selected' : '' }}>Muscle Gain</option>
+                        <option value="bodybuilding" {{ request('specialization') == 'bodybuilding' ? 'selected' : '' }}>Bodybuilding</option>
+                        <option value="functional_training" {{ request('specialization') == 'functional_training' ? 'selected' : '' }}>Functional Training</option>
+                        <option value="rehabilitation" {{ request('specialization') == 'rehabilitation' ? 'selected' : '' }}>Rehabilitation</option>
+                    </select>
+                    
+                    {{-- Experience Filter --}}
+                    <select name="experience" class="w-full glass border border-emerald-500/20 rounded-2xl px-4 py-4 text-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300">
+                        <option value="">All Experience Levels</option>
+                        <option value="1-3" {{ request('experience') == '1-3' ? 'selected' : '' }}>1-3 Years</option>
+                        <option value="3-5" {{ request('experience') == '3-5' ? 'selected' : '' }}>3-5 Years</option>
+                        <option value="5+" {{ request('experience') == '5+' ? 'selected' : '' }}>5+ Years</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="submit" 
+                            class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all duration-300 hover-glow">
+                        Apply Filters
+                    </button>
+                    <a href="{{ route('user.training.index') }}" 
+                       class="px-6 py-3 bg-dark-700 hover:bg-dark-600 text-white font-semibold rounded-xl border border-emerald-500/30 hover:border-emerald-400 transition-all duration-300">
+                        Clear Filters
+                    </a>
+                </div>
             </form>
         </div>
 
@@ -47,19 +112,17 @@
                 <div class="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/20">
                     <span class="text-4xl">🏋️</span>
                 </div>
-                <h3 class="text-2xl font-black text-white mb-3">No Trainers Available</h3>
+                <h3 class="text-2xl font-black text-white mb-3">No Trainers Found</h3>
                 <p class="text-emerald-400/80 text-lg mb-6 max-w-md mx-auto">
-                    We're working on bringing more certified trainers to our platform. Check back soon!
+                    No trainers match your search criteria. Try adjusting your filters or search terms.
                 </p>
-                <div class="flex items-center justify-center gap-2 text-emerald-400/60">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium">New trainers coming soon</span>
-                </div>
+                <a href="{{ route('user.training.index') }}" 
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all duration-300 hover-glow">
+                    Show All Trainers
+                </a>
             </div>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 @foreach($trainers as $trainer)
                     <div class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
                         {{-- Trainer Header --}}
@@ -75,24 +138,57 @@
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-white font-bold text-lg truncate">{{ $trainer->name }}</h3>
                                 <p class="text-emerald-400 text-sm font-medium">
-                                    {{ $trainer->trainerProfile->speciality ?? 'Professional Trainer' }}
+                                    {{ $trainer->trainerProfile->specialization ?? 'Professional Trainer' }}
                                 </p>
+                                {{-- Rating --}}
+                                @if($trainer->trainerProfile && $trainer->trainerProfile->rating > 0)
+                                <div class="flex items-center gap-1 mt-1">
+                                    <div class="flex">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <span class="text-{{ $i <= $trainer->trainerProfile->rating ? 'yellow' : 'gray' }}-400 text-sm">★</span>
+                                        @endfor
+                                    </div>
+                                    <span class="text-gray-400 text-xs">({{ number_format($trainer->trainerProfile->rating, 1) }})</span>
+                                </div>
+                                @endif
                             </div>
+                        </div>
+
+                        {{-- Experience & Specialization --}}
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center gap-2 text-sm text-gray-300">
+                                <span>🕐</span>
+                                <span>{{ $trainer->trainerProfile->experience_years ?? 0 }}+ years experience</span>
+                            </div>
+                            @if($trainer->trainerProfile && $trainer->trainerProfile->certifications)
+                            <div class="flex items-center gap-2 text-sm text-gray-300">
+                                <span>📜</span>
+                                <span class="truncate">{{ $trainer->trainerProfile->certifications }}</span>
+                            </div>
+                            @endif
                         </div>
 
                         {{-- Bio --}}
                         <p class="text-emerald-400/80 text-sm mb-6 line-clamp-3 leading-relaxed">
-                            {{ $trainer->trainerProfile->bio ?? 'No description available.' }}
+                            {{ $trainer->trainerProfile->bio ?? 'Certified professional trainer ready to help you achieve your fitness goals.' }}
                         </p>
 
-                        {{-- Action Button --}}
-                        <a href="{{ route('user.training.show', $trainer->id) }}"
-                            class="group flex items-center justify-center gap-2 w-full bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 text-white font-bold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
-                            View Profile
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
+                        {{-- Action Buttons --}}
+                        <div class="flex gap-2">
+                            <a href="{{ route('user.training.show', $trainer->id) }}" 
+                               class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-center py-2 px-4 rounded-xl font-semibold transition-all duration-300 hover-glow text-sm">
+                                View Profile
+                            </a>
+                            @if(!$user->trainer_id)
+                            <form action="{{ route('user.training.order', $trainer->id) }}" method="POST" class="flex-1">
+                                @csrf
+                                <button type="submit" 
+                                        class="w-full bg-dark-700 hover:bg-dark-600 border border-emerald-500/30 hover:border-emerald-400 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-300 text-sm">
+                                    Hire
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             </div>
@@ -100,10 +196,38 @@
             {{-- Pagination --}}
             @if($trainers->hasPages())
                 <div class="glass-dark rounded-2xl p-6 border border-emerald-500/20">
-                    {{ $trainers->links('pagination::tailwind') }}
+                    {{ $trainers->links() }}
                 </div>
             @endif
         @endif
+
+        {{-- Features Section --}}
+        <div class="glass-dark rounded-2xl p-8 border border-emerald-500/20 mt-12">
+            <h2 class="text-3xl font-black text-white text-center mb-8">Why Choose Our Trainers?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2">Personalized Programs</h3>
+                    <p class="text-gray-400">Custom workout and nutrition plans tailored to your specific goals and needs.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                        <span class="text-2xl">💬</span>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2">24/7 Support</h3>
+                    <p class="text-gray-400">Get instant answers to your questions and continuous motivation from your trainer.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="text-xl font-black text-white mb-2">Progress Tracking</h3>
+                    <p class="text-gray-400">Monitor your improvements with detailed analytics and regular progress assessments.</p>
+                </div>
+            </div>
+        </div>
 
         {{-- AI Chat Assistant --}}
         <div class="glass-dark rounded-3xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden mt-8">
@@ -242,17 +366,32 @@
             
             document.getElementById(loadingId).remove();
             
-            chatBox.innerHTML += `
-                <div class="flex items-start gap-3 mt-4">
-                    <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                        AI
+            if (data.success) {
+                chatBox.innerHTML += `
+                    <div class="flex items-start gap-3 mt-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                            AI
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white font-medium mb-1">AI Trainer</p>
+                            <p class="text-emerald-400/80 text-sm">${data.reply}</p>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-white font-medium mb-1">AI Trainer</p>
-                        <p class="text-emerald-400/80 text-sm">${data.reply}</p>
+                `;
+                messageCounter.textContent = `${messageCount}/${maxMessages} messages used (${data.remaining_messages} remaining)`;
+            } else {
+                chatBox.innerHTML += `
+                    <div class="flex items-start gap-3 mt-4">
+                        <div class="w-8 h-8 bg-red-500/20 rounded-xl flex items-center justify-center text-red-400 text-sm font-bold flex-shrink-0">
+                            ⚠️
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-red-400 font-medium mb-1">AI Trainer</p>
+                            <p class="text-red-400/80 text-sm">${data.reply}</p>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             chatBox.scrollTop = chatBox.scrollHeight;
         } catch (err) {
             document.getElementById(loadingId).remove();
@@ -302,6 +441,7 @@
 
     .hover-glow:hover {
         box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+        transform: translateY(-2px);
         transition: all 0.3s ease;
     }
 

@@ -6,7 +6,34 @@
             ✏️ Edit <span class="text-amber-400">Jadwal Workout</span>
         </h2>
 
-        <div class="bg-gray-900/50 border border-gray-700/50 rounded-lg p-5 text-white">
+        {{-- Timer Section --}}
+        <div id="liveTimer" class="hidden mb-6 p-4 bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/50 rounded-xl">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                        ⚡ Sedang Berlangsung
+                    </h3>
+                    <p class="text-gray-300 text-sm" id="currentWorkoutTitle">{{ $schedule->workoutplan->title ?? 'Workout' }}</p>
+                </div>
+                <div class="text-right">
+                    <div id="timerDisplay" class="text-2xl font-mono font-bold text-green-400">00:00:00</div>
+                    <div class="text-xs text-gray-400 mt-1" id="timerStatus">Workout dimulai</div>
+                </div>
+            </div>
+            <div class="mt-3 flex gap-2">
+                <button id="pauseTimer" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-400 text-black text-sm rounded-lg transition-all">
+                    ⏸️ Jeda
+                </button>
+                <button id="resumeTimer" class="px-3 py-1 bg-blue-500 hover:bg-blue-400 text-white text-sm rounded-lg transition-all hidden">
+                    ▶️ Lanjutkan
+                </button>
+                <button id="stopTimer" class="px-3 py-1 bg-red-500 hover:bg-red-400 text-white text-sm rounded-lg transition-all">
+                    ⏹️ Selesai
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-gray-900/50 border border-gray-700/50 rounded-lg p-5 text-white mb-6">
             {{-- Info Workout --}}
             <h3 class="text-xl font-semibold">{{ $schedule->workoutplan->title ?? 'Workout Tidak Dikenal' }}</h3>
             <p class="text-gray-400 text-sm italic">
@@ -59,43 +86,327 @@
         </div>
 
         {{-- Form Edit Jadwal --}}
-        <form action="{{ route('user.workouts.update', $schedule->id) }}" method="POST" class="mt-6">
+        <form action="{{ route('user.workouts.update', $schedule->id) }}" method="POST" id="workoutForm">
             @csrf
             @method('PUT')
 
             <div class="space-y-4">
                 <div>
-                    <label for="scheduled_date" class="block text-sm text-gray-400 mb-1">📅 Tanggal</label>
+                    <label for="scheduled_date" class="block text-sm text-amber-400 mb-1">📅 Tanggal</label>
                     <input type="date" id="scheduled_date" name="scheduled_date"
                         value="{{ $schedule->scheduled_date }}"
-                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400" required>
+                        min="{{ now()->format('Y-m-d') }}"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400 transition-all duration-150" required>
                 </div>
 
                 <div>
-                    <label for="scheduled_time" class="block text-sm text-gray-400 mb-1">⏰ Waktu</label>
+                    <label for="scheduled_time" class="block text-sm text-amber-400 mb-1">⏰ Waktu Mulai</label>
                     <input type="time" id="scheduled_time" name="scheduled_time"
                         value="{{ $schedule->scheduled_time }}"
-                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400" required>
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400 transition-all duration-150" required>
+                    
+                    {{-- Estimasi waktu selesai --}}
+                    <p id="endTimeDisplay" class="text-xs text-gray-400 mt-2">
+                        ⏳ Perkiraan selesai: <span class="text-amber-300 font-semibold" id="endTimeText">
+                            {{ calculateEndTime($schedule->scheduled_time, $schedule->workoutplan->duration_minutes ?? 30) }}
+                        </span>
+                    </p>
                 </div>
 
                 <div>
-                    <label for="notes" class="block text-sm text-gray-400 mb-1">📝 Catatan (Opsional)</label>
+                    <label for="notes" class="block text-sm text-amber-400 mb-1">📝 Catatan (Opsional)</label>
                     <textarea id="notes" name="notes" rows="3"
-                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400">{{ $schedule->notes }}</textarea>
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-amber-400 focus:border-amber-400 transition-all duration-150 placeholder-gray-500"
+                        placeholder="Tambahkan catatan tentang workout ini...">{{ $schedule->notes }}</textarea>
+                </div>
+
+                {{-- Status Workout --}}
+                <div>
+                    <label class="block text-sm text-amber-400 mb-1">📊 Status Workout</label>
+                    <div class="flex gap-4 mt-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="status" value="pending" 
+                                {{ $schedule->status === 'pending' ? 'checked' : '' }}
+                                class="text-amber-400 bg-gray-800 border-gray-700 focus:ring-amber-400">
+                            <span class="ml-2 text-white">⏳ Tertunda</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="status" value="completed" 
+                                {{ $schedule->status === 'completed' ? 'checked' : '' }}
+                                class="text-amber-400 bg-gray-800 border-gray-700 focus:ring-amber-400">
+                            <span class="ml-2 text-white">✅ Selesai</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center mt-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-6">
                 <a href="{{ route('user.workouts.index') }}"
-                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium text-sm transition-all">
+                    class="w-full sm:w-auto px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium text-sm transition-all duration-150 text-center">
                     ⬅️ Kembali
                 </a>
 
-                <button type="submit"
-                    class="px-5 py-2.5 rounded-md text-sm font-bold text-black bg-amber-400 hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20">
-                    💾 Simpan Perubahan
-                </button>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button type="button" id="startNowBtn"
+                        class="flex-1 px-4 py-2.5 rounded-md text-sm font-bold text-white bg-green-600 hover:bg-green-500 active:bg-green-700
+                               transition-all duration-150 shadow-lg shadow-green-500/20 flex items-center justify-center gap-2">
+                        ⚡ Mulai Sekarang
+                    </button>
+
+                    <button type="submit" 
+                        class="flex-1 px-4 py-2.5 rounded-md text-sm font-bold text-black bg-amber-400 hover:bg-amber-300 active:bg-amber-500
+                               transition-all duration-150 shadow-lg shadow-amber-500/20">
+                        💾 Simpan Perubahan
+                    </button>
+                </div>
             </div>
         </form>
     </div>
+
+    {{-- 🔢 Script Timer dan Waktu --}}
+    <script>
+        // Elements
+        const scheduledDateInput = document.getElementById('scheduled_date');
+        const scheduledTimeInput = document.getElementById('scheduled_time');
+        const notesInput = document.getElementById('notes');
+        const endTimeDisplay = document.getElementById('endTimeDisplay');
+        const endTimeText = document.getElementById('endTimeText');
+        const startNowBtn = document.getElementById('startNowBtn');
+        const liveTimer = document.getElementById('liveTimer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerStatus = document.getElementById('timerStatus');
+        const currentWorkoutTitle = document.getElementById('currentWorkoutTitle');
+        const pauseTimerBtn = document.getElementById('pauseTimer');
+        const resumeTimerBtn = document.getElementById('resumeTimer');
+        const stopTimerBtn = document.getElementById('stopTimer');
+        const statusRadios = document.querySelectorAll('input[name="status"]');
+
+        // Workout duration from PHP
+        const workoutDuration = {{ $schedule->workoutplan->duration_minutes ?? 30 }};
+
+        // Timer variables
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let isTimerRunning = false;
+        let isTimerPaused = false;
+
+        // Set current date and time as default
+        function setCurrentDateTime() {
+            const now = new Date();
+            const dateString = now.toISOString().split('T')[0];
+            const timeString = now.toTimeString().split(' ')[0].substring(0, 5);
+            
+            scheduledDateInput.value = dateString;
+            scheduledTimeInput.value = timeString;
+            
+            updateEndTime();
+        }
+
+        // Update end time calculation
+        function updateEndTime() {
+            if (!scheduledTimeInput.value) return;
+
+            const [hours, minutes] = scheduledTimeInput.value.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(hours);
+            startDate.setMinutes(minutes);
+
+            const endDate = new Date(startDate.getTime() + workoutDuration * 60000);
+            const endHours = String(endDate.getHours()).padStart(2, '0');
+            const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+
+            endTimeText.textContent = `${endHours}:${endMinutes} (${workoutDuration} menit)`;
+        }
+
+        // Timer functions
+        function startTimer() {
+            if (isTimerRunning) return;
+
+            // Show live timer
+            liveTimer.classList.remove('hidden');
+            
+            // Set status to in_progress
+            setStatus('in_progress');
+            
+            // Start timer
+            isTimerRunning = true;
+            isTimerPaused = false;
+            timerSeconds = 0;
+            
+            timerInterval = setInterval(() => {
+                if (!isTimerPaused) {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+            
+            updateTimerButtons();
+            
+            // Auto-add note if empty
+            if (!notesInput.value.trim()) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                notesInput.value = `Workout dimulai pada ${timeString} - ${currentWorkoutTitle.textContent}`;
+            }
+        }
+
+        function pauseTimer() {
+            isTimerPaused = true;
+            timerStatus.textContent = 'Dijeda';
+            updateTimerButtons();
+        }
+
+        function resumeTimer() {
+            isTimerPaused = false;
+            timerStatus.textContent = 'Berjalan';
+            updateTimerButtons();
+        }
+
+        function stopTimer() {
+            if (confirm('Apakah Anda yakin ingin menghentikan workout?')) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                isTimerPaused = false;
+                
+                // Calculate calories burned (simple estimation)
+                const minutes = Math.floor(timerSeconds / 60);
+                const calories = Math.round(minutes * 8); // ~8 calories per minute for moderate exercise
+                
+                // Show summary
+                timerDisplay.textContent = `Selesai!`;
+                timerStatus.textContent = `Durasi: ${formatTime(timerSeconds)} • Perkiraan kalori terbakar: ${calories} kal`;
+                
+                // Set status to completed
+                setStatus('completed');
+                
+                // Add completion note
+                const completionNote = `\n\n[Workout selesai] Durasi: ${formatTime(timerSeconds)}, Perkiraan kalori terbakar: ${calories} kal`;
+                notesInput.value += completionNote;
+                
+                // Hide controls
+                pauseTimerBtn.classList.add('hidden');
+                resumeTimerBtn.classList.add('hidden');
+                stopTimerBtn.textContent = '✓ Selesai';
+                stopTimerBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+                stopTimerBtn.classList.remove('bg-red-500', 'hover:bg-red-400');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    liveTimer.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        function setStatus(status) {
+            statusRadios.forEach(radio => {
+                if (status === 'in_progress') {
+                    // Create in_progress radio if not exists
+                    if (!document.querySelector('input[value="in_progress"]')) {
+                        const newRadio = document.createElement('label');
+                        newRadio.className = 'inline-flex items-center';
+                        newRadio.innerHTML = `
+                            <input type="radio" name="status" value="in_progress" checked 
+                                class="text-amber-400 bg-gray-800 border-gray-700 focus:ring-amber-400">
+                            <span class="ml-2 text-white">⚡ Sedang Berlangsung</span>
+                        `;
+                        document.querySelector('.flex.gap-4.mt-2').appendChild(newRadio);
+                    }
+                }
+                radio.checked = radio.value === status;
+            });
+        }
+
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timerSeconds);
+        }
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateTimerButtons() {
+            if (isTimerPaused) {
+                pauseTimerBtn.classList.add('hidden');
+                resumeTimerBtn.classList.remove('hidden');
+            } else {
+                pauseTimerBtn.classList.remove('hidden');
+                resumeTimerBtn.classList.add('hidden');
+            }
+        }
+
+        // Event listeners
+        scheduledTimeInput.addEventListener('input', updateEndTime);
+        
+        startNowBtn.addEventListener('click', function() {
+            setCurrentDateTime();
+            startTimer();
+        });
+
+        pauseTimerBtn.addEventListener('click', pauseTimer);
+        resumeTimerBtn.addEventListener('click', resumeTimer);
+        stopTimerBtn.addEventListener('click', stopTimer);
+
+        // Auto-update end time when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateEndTime();
+            
+            // Show timer if workout is in progress
+            @if($schedule->status === 'in_progress')
+                liveTimer.classList.remove('hidden');
+                startTimer(); // You might want to load existing timer state from backend
+            @endif
+        });
+
+        // Prevent form submission if timer is running
+        document.getElementById('workoutForm').addEventListener('submit', function(e) {
+            if (isTimerRunning && !confirm('Timer masih berjalan. Yakin ingin menyimpan?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <style>
+        #liveTimer {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(147, 51, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0); }
+        }
+        
+        #timerDisplay {
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+        
+        input[type="radio"] {
+            border-color: #6b7280;
+        }
+        
+        input[type="radio"]:checked {
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+        }
+    </style>
 @endsection
+
+@php
+    function calculateEndTime($startTime, $duration) {
+        if (!$startTime) return '-';
+        
+        $start = DateTime::createFromFormat('H:i:s', $startTime);
+        if (!$start) $start = DateTime::createFromFormat('H:i', $startTime);
+        
+        if ($start) {
+            $end = clone $start;
+            $end->modify("+{$duration} minutes");
+            return $end->format('H:i') . " ({$duration} menit)";
+        }
+        
+        return '-';
+    }
+@endphp

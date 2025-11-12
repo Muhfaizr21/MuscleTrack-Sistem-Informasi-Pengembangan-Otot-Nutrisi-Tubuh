@@ -11,29 +11,48 @@ class TrainerProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'avatar',            // 🖼️ Foto profil pelatih
         'certifications',
         'experience_years',
         'specialization',
         'rating',
         'bio',
         'verified',
+        'price',             // 💰 Harga jasa pelatih
     ];
 
-    // Trainer Profile dimiliki oleh 1 user (trainer)
+    /**
+     * Relasi: TrainerProfile dimiliki oleh 1 user (trainer)
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Trainer punya banyak feedback dari user
+    /**
+     * Relasi: Trainer punya banyak feedback dari user
+     */
     public function feedbacks()
     {
         return $this->hasMany(Feedback::class, 'trainer_id');
     }
 
-    // Trainer menerima banyak pembayaran dari user (premium access)
+    /**
+     * Relasi: Trainer menerima banyak pembayaran dari user (premium access)
+     */
     public function payments()
     {
         return $this->hasMany(Payment::class, 'trainer_id');
+    }
+
+    /**
+     * Accessor: Dapatkan URL lengkap avatar
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return asset('images/default-trainer.png');
     }
 }

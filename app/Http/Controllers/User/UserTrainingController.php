@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Models\User;
 use App\Models\TrainerProfile;
 use App\Models\Payment;
@@ -13,6 +14,7 @@ use App\Models\PremiumAccessLog;
 use App\Models\TrainerChat;
 use App\Models\TrainerMembership;
 use App\Models\ProgramRequest;
+use App\Models\Feedback;
 use App\Services\GeminiService;
 use Carbon\Carbon;
 
@@ -23,23 +25,46 @@ class UserTrainingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::where('role', 'trainer')
+        $user = Auth::user();
+
+        $query = User::query()
+            ->where('role', 'trainer')
             ->where('verification_status', 'approved')
             ->with(['trainerProfile', 'trainerVerification']);
 
+        // Filter pencarian
         if ($search = $request->input('search')) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('trainerProfile', function ($q2) use ($search) {
+                        $q2->where('specialization', 'like', "%{$search}%")
+                            ->orWhere('bio', 'like', "%{$search}%");
+                    });
+            });
         }
 
+        // Filter spesialisasi
         if ($specialization = $request->input('specialization')) {
             $query->whereHas('trainerProfile', function ($q) use ($specialization) {
                 $q->where('specialization', 'like', "%{$specialization}%");
             });
         }
 
+        // Filter pengalaman
+        if ($experience = $request->input('experience')) {
+            $query->whereHas('trainerProfile', function ($q) use ($experience) {
+                match ($experience) {
+                    '1-3' => $q->whereBetween('experience_years', [1, 3]),
+                    '3-5' => $q->whereBetween('experience_years', [3, 5]),
+                    '5+' => $q->where('experience_years', '>=', 5),
+                    default => null,
+                };
+            });
+        }
+
         $trainers = $query->paginate(8);
 
-        return view('user.training.index', compact('trainers'));
+        return view('user.training.index', compact('trainers', 'user'));
     }
 
     /**
@@ -50,12 +75,33 @@ class UserTrainingController extends Controller
         $trainer = User::with(['trainerProfile', 'trainerVerification'])
             ->where('id', $trainerId)
             ->where('role', 'trainer')
-            ->firstOrFail();
+            ->first();
+
+        if (!$trainer) {
+            return redirect()->route('user.training.index')
+                ->with('error', 'Trainer tidak ditemukan.');
+        }
 
         $currentUser = Auth::user();
-        $hasActiveTrainer = $currentUser->trainer_id !== null;
+        $hasActiveTrainer = !empty($currentUser->trainer_id);
+        $hasRated = false;
 
-        return view('user.training.show', compact('trainer', 'hasActiveTrainer'));
+        if ($currentUser->trainer_id === $trainerId) {
+            $hasRated = Feedback::where('user_id', $currentUser->id)
+                ->where('trainer_id', $trainerId)
+                ->exists();
+        }
+
+        $averageRating = Feedback::where('trainer_id', $trainerId)->avg('rating') ?? 0;
+        $ratingCount = Feedback::where('trainer_id', $trainerId)->count();
+
+        return view('user.training.show', compact(
+            'trainer',
+            'hasActiveTrainer',
+            'hasRated',
+            'averageRating',
+            'ratingCount'
+        ));
     }
 
     /**
@@ -65,14 +111,18 @@ class UserTrainingController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->trainer_id !== null) {
+        if (!empty($user->trainer_id)) {
             return back()->with('error', 'Anda sudah memiliki trainer aktif.');
         }
 
         $trainer = User::where('id', $trainerId)
             ->where('role', 'trainer')
             ->where('verification_status', 'approved')
-            ->firstOrFail();
+            ->first();
+
+        if (!$trainer) {
+            return back()->with('error', 'Trainer tidak ditemukan atau belum disetujui.');
+        }
 
         $payment = Payment::create([
             'user_id' => $user->id,
@@ -87,7 +137,7 @@ class UserTrainingController extends Controller
             'trainer_id' => $trainer->id,
             'user_id' => $user->id,
             'status' => 'pending',
-            'note' => 'Permintaan program training dari user ' . $user->name,
+            'note' => 'Permintaan program training dari user ' . e($user->name),
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
@@ -102,7 +152,12 @@ class UserTrainingController extends Controller
         $payment = Payment::with(['trainer', 'trainer.trainerProfile'])
             ->where('id', $paymentId)
             ->where('user_id', Auth::id())
-            ->firstOrFail();
+            ->first();
+
+        if (!$payment) {
+            return redirect()->route('user.training.index')
+                ->with('error', 'Data pembayaran tidak ditemukan.');
+        }
 
         return view('user.training.payment', compact('payment'));
     }
@@ -115,7 +170,11 @@ class UserTrainingController extends Controller
         $payment = Payment::where('id', $paymentId)
             ->where('user_id', Auth::id())
             ->where('status', 'pending')
-            ->firstOrFail();
+            ->first();
+
+        if (!$payment) {
+            return back()->with('error', 'Pembayaran tidak valid atau sudah dikonfirmasi.');
+        }
 
         $payment->update(['status' => 'paid']);
 
@@ -125,8 +184,8 @@ class UserTrainingController extends Controller
         PremiumAccessLog::create([
             'user_id' => $user->id,
             'trainer_id' => $payment->trainer_id,
-            'start_date' => Carbon::today(),
-            'end_date' => Carbon::today()->addDays(30),
+            'start_date' => now(),
+            'end_date' => now()->addDays(30),
             'payment_status' => 'paid',
         ]);
 
@@ -140,13 +199,12 @@ class UserTrainingController extends Controller
             ->where('status', 'pending')
             ->update(['status' => 'approved']);
 
-        // Chat pertama dari trainer (terenkripsi otomatis)
         TrainerChat::create([
             'trainer_id' => $payment->trainer_id,
             'user_id' => $user->id,
             'message' => 'Halo! Selamat bergabung di program training saya. Mari kita mulai perjalanan fitness Anda!',
             'sender_type' => 'trainer',
-            'timestamp' => now('Asia/Jakarta'),
+            'timestamp' => now(),
             'read_status' => false,
         ]);
 
@@ -162,7 +220,11 @@ class UserTrainingController extends Controller
         $payment = Payment::where('id', $paymentId)
             ->where('user_id', Auth::id())
             ->where('status', 'pending')
-            ->firstOrFail();
+            ->first();
+
+        if (!$payment) {
+            return back()->with('error', 'Pesanan tidak ditemukan atau sudah diproses.');
+        }
 
         ProgramRequest::where('trainer_id', $payment->trainer_id)
             ->where('user_id', Auth::id())
@@ -181,7 +243,7 @@ class UserTrainingController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->trainer_id) {
+        if (empty($user->trainer_id)) {
             return redirect()->route('user.training.index')
                 ->with('info', 'Anda belum memiliki trainer.');
         }
@@ -195,19 +257,221 @@ class UserTrainingController extends Controller
             ->latest()
             ->first();
 
-        return view('user.training.my-trainer', compact('trainer', 'premiumAccess'));
+        $hasRated = Feedback::where('user_id', $user->id)
+            ->where('trainer_id', $user->trainer_id)
+            ->exists();
+
+        return view('user.training.my-trainer', compact('trainer', 'premiumAccess', 'hasRated'));
     }
 
     /**
-     * Ganti trainer.
+     * Halaman untuk mengganti trainer
      */
-    public function switchTrainer()
+    public function showSwitchTrainer()
     {
         $user = Auth::user();
-        $user->update(['trainer_id' => null]);
 
-        return redirect()->route('user.training.index')
-            ->with('success', 'Anda dapat memilih trainer baru sekarang.');
+        if (empty($user->trainer_id)) {
+            return redirect()->route('user.training.index')
+                ->with('info', 'Anda belum memiliki trainer.');
+        }
+
+        $currentTrainer = User::with(['trainerProfile'])->find($user->trainer_id);
+
+        $trainers = User::where('role', 'trainer')
+            ->where('verification_status', 'approved')
+            ->where('id', '!=', $user->trainer_id)
+            ->with(['trainerProfile'])
+            ->get();
+
+        return view('user.training.switch-trainer', compact('currentTrainer', 'trainers'));
+    }
+
+    /**
+     * Proses mengganti trainer
+     */
+    public function switchTrainer(Request $request, $newTrainerId)
+    {
+        $user = Auth::user();
+
+        if (empty($user->trainer_id)) {
+            return redirect()->route('user.training.index')
+                ->with('error', 'Anda belum memiliki trainer.');
+        }
+
+        $newTrainer = User::where('id', $newTrainerId)
+            ->where('role', 'trainer')
+            ->where('verification_status', 'approved')
+            ->first();
+
+        if (!$newTrainer) {
+            return back()->with('error', 'Trainer tidak ditemukan atau belum disetujui.');
+        }
+
+        // Buat pembayaran untuk trainer baru
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'trainer_id' => $newTrainer->id,
+            'amount' => 150000,
+            'method' => $request->input('method', 'transfer'),
+            'status' => 'pending',
+            'transaction_id' => 'SWITCH-' . strtoupper(uniqid()),
+        ]);
+
+        return redirect()->route('user.training.payment', $payment->id)
+            ->with('success', 'Silakan lanjutkan pembayaran untuk trainer baru.');
+    }
+
+    /**
+     * Menampilkan form untuk memberikan rating
+     */
+    public function createRating($trainerId)
+    {
+        $user = Auth::user();
+
+        // Cek apakah user memiliki trainer ini
+        if ($user->trainer_id != $trainerId) {
+            return redirect()->route('user.training.my-trainer')
+                ->with('error', 'Anda hanya dapat memberikan rating untuk trainer yang sedang melatih Anda.');
+        }
+
+        $trainer = User::where('id', $trainerId)
+            ->where('role', 'trainer')
+            ->first();
+
+        if (!$trainer) {
+            return redirect()->route('user.training.my-trainer')
+                ->with('error', 'Trainer tidak ditemukan.');
+        }
+
+        // Cek apakah sudah memberikan rating untuk trainer ini
+        $existingFeedback = Feedback::where('user_id', $user->id)
+            ->where('trainer_id', $trainerId)
+            ->first();
+
+        return view('user.training.rating', compact('trainer', 'existingFeedback'));
+    }
+
+    /**
+     * Menyimpan rating trainer
+     */
+    public function storeRating(Request $request, $trainerId)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'rating' => 'required|integer|between:1,5',
+            'comment' => 'nullable|string|max:1000'
+        ]);
+
+        // Cek apakah user memiliki trainer ini
+        if ($user->trainer_id != $trainerId) {
+            return back()->with('error', 'Anda hanya dapat memberikan rating untuk trainer yang sedang melatih Anda.');
+        }
+
+        // Cek apakah sudah memberikan rating untuk trainer ini
+        $existingFeedback = Feedback::where('user_id', $user->id)
+            ->where('trainer_id', $trainerId)
+            ->first();
+
+        if ($existingFeedback) {
+            return back()->with('error', 'Anda sudah memberikan rating untuk trainer ini.');
+        }
+
+        try {
+            // Simpan feedback
+            Feedback::create([
+                'user_id' => $user->id,
+                'trainer_id' => $trainerId,
+                'rating' => $request->rating,
+                'comment' => $request->comment
+            ]);
+
+            // Update rating rata-rata trainer
+            $this->updateTrainerAverageRating($trainerId);
+
+            return redirect()->route('user.training.my-trainer')
+                ->with('success', 'Terima kasih! Rating Anda telah berhasil disimpan.');
+        } catch (\Exception $e) {
+            Log::error('Error storing rating: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan rating. Silakan coba lagi.');
+        }
+    }
+
+    /**
+     * Update rating trainer
+     */
+    public function updateRating(Request $request, $feedbackId)
+    {
+        $feedback = Feedback::where('id', $feedbackId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$feedback) {
+            return back()->with('error', 'Rating tidak ditemukan.');
+        }
+
+        $request->validate([
+            'rating' => 'required|integer|between:1,5',
+            'comment' => 'nullable|string|max:1000'
+        ]);
+
+        $feedback->update([
+            'rating' => $request->rating,
+            'comment' => $request->comment
+        ]);
+
+        // Update rating rata-rata trainer
+        $this->updateTrainerAverageRating($feedback->trainer_id);
+
+        return back()->with('success', 'Rating berhasil diperbarui.');
+    }
+
+    /**
+     * Menghitung dan memperbarui rating rata-rata trainer
+     */
+    private function updateTrainerAverageRating($trainerId)
+    {
+        $averageRating = Feedback::where('trainer_id', $trainerId)->avg('rating');
+
+        // Update di trainer_profile
+        $trainerProfile = TrainerProfile::where('user_id', $trainerId)->first();
+        if ($trainerProfile) {
+            $trainerProfile->update([
+                'rating' => round($averageRating, 2)
+            ]);
+        }
+    }
+
+    /**
+     * Menampilkan riwayat trainer
+     */
+    public function trainerHistory()
+    {
+        $user = Auth::user();
+
+        $premiumAccessLogs = PremiumAccessLog::with(['trainer', 'trainer.trainerProfile'])
+            ->where('user_id', $user->id)
+            ->where('payment_status', 'paid')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('user.training.history', compact('premiumAccessLogs'));
+    }
+
+    /**
+     * Menampilkan semua rating yang diberikan user
+     */
+    public function myRatings()
+    {
+        $user = Auth::user();
+
+        $feedbacks = Feedback::with(['trainer', 'trainer.trainerProfile'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('user.training.my-ratings', compact('feedbacks'));
     }
 
     /**
@@ -217,7 +481,7 @@ class UserTrainingController extends Controller
     {
         $user = Auth::user();
         $cacheKey = "ai_chat_count_user_{$user->id}";
-        $chatCount = cache()->get($cacheKey, 0);
+        $chatCount = Cache::get($cacheKey, 0);
 
         if ($chatCount >= 5) {
             return response()->json([
@@ -229,13 +493,12 @@ class UserTrainingController extends Controller
         $request->validate(['message' => 'required|string|max:500']);
         $userMessage = trim($request->message);
 
-        // Simpan pesan user (terenkripsi otomatis)
         TrainerChat::create([
             'user_id' => $user->id,
             'trainer_id' => null,
-            'message' => $userMessage,
+            'message' => e($userMessage),
             'sender_type' => 'user',
-            'timestamp' => now('Asia/Jakarta'),
+            'timestamp' => now(),
             'read_status' => true,
         ]);
 
@@ -245,28 +508,26 @@ class UserTrainingController extends Controller
             Topik: fitness, nutrisi, latihan, dan kesehatan.
             Pesan pengguna: {$userMessage}";
 
-            $reply = $gemini->generateText($prompt);
+            $reply = $gemini->generateText($prompt) ?? 'Saya tidak bisa menjawab pertanyaan itu saat ini.';
 
-            // Simpan balasan AI (terenkripsi otomatis)
             TrainerChat::create([
                 'user_id' => $user->id,
                 'trainer_id' => null,
                 'message' => $reply,
                 'sender_type' => 'ai',
-                'timestamp' => now('Asia/Jakarta'),
+                'timestamp' => now(),
                 'read_status' => true,
             ]);
 
-            cache()->put($cacheKey, $chatCount + 1, now()->addHours(1));
+            Cache::put($cacheKey, $chatCount + 1, now()->addHour());
 
             return response()->json([
                 'success' => true,
                 'reply' => $reply,
-                'remaining_messages' => 5 - ($chatCount + 1),
+                'remaining_messages' => max(0, 5 - ($chatCount + 1)),
             ]);
         } catch (\Throwable $e) {
             Log::error('AI Chat Error: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'reply' => '⚠️ Maaf, sistem AI sedang mengalami gangguan. Coba lagi nanti.',
@@ -280,7 +541,7 @@ class UserTrainingController extends Controller
     public function resetAIChatCount()
     {
         $user = Auth::user();
-        cache()->forget("ai_chat_count_user_{$user->id}");
+        Cache::forget("ai_chat_count_user_{$user->id}");
 
         return response()->json([
             'success' => true,

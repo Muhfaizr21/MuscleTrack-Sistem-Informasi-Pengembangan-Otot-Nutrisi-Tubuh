@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('trainer_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('avatar')->nullable(); // 🖼️ Foto profil pelatih
             $table->text('certifications')->nullable();
             $table->integer('experience_years')->default(0);
             $table->string('specialization')->nullable();
@@ -24,6 +25,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('trainer_profiles');

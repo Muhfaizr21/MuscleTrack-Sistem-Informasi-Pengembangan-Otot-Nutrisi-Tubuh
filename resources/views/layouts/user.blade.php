@@ -208,6 +208,7 @@
                                 ['route' => 'user.progress.index', 'label' => 'My Progress', 'icon' => '📊'],
                                 ['route' => 'user.workouts.index', 'label' => 'Workout Plans', 'icon' => '💪'],
                                 ['route' => 'user.nutrition.index', 'label' => 'Nutrition', 'icon' => '🥗'],
+                                ['route' => 'user.training.index', 'label' => 'Training', 'icon' => '🏋️'],
                                 ['route' => 'user.articles.index', 'label' => 'Articles', 'icon' => '📚']
                             ];
                         @endphp
@@ -282,6 +283,7 @@
                                     $profileItems = [
                                         ['route' => 'user.weekly-summary.index', 'label' => 'Weekly Summary', 'icon' => '📈'],
                                         ['route' => 'user.chat.index', 'label' => 'Trainer Chat', 'icon' => '💬'],
+                                        ['route' => 'user.training.my-trainer', 'label' => 'My Trainer', 'icon' => '👨‍🏫'],
                                         ['route' => 'user.profile.index', 'label' => 'My Profile', 'icon' => '👤']
                                     ];
                                 @endphp

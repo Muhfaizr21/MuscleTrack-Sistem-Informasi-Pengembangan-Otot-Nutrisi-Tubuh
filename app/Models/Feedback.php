@@ -9,6 +9,9 @@ class Feedback extends Model
 {
     use HasFactory;
 
+    // Tentukan nama tabel secara eksplisit
+    protected $table = 'feedbacks';
+
     protected $fillable = [
         'user_id',
         'trainer_id',
@@ -16,7 +19,11 @@ class Feedback extends Model
         'comment',
     ];
 
-    public $timestamps = false; // karena kita hanya pakai created_at
+    // Karena migration hanya menggunakan created_at, kita set timestamps false
+    public $timestamps = false;
+
+    // Tentukan kolom created_at
+    const CREATED_AT = 'created_at';
 
     // Feedback diberikan oleh user
     public function user()
