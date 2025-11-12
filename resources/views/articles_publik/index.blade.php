@@ -15,7 +15,7 @@
             </div>
 
             <h1 class="text-5xl sm:text-7xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent drop-shadow-lg">
-                MuscleXpert</span> Journal
+                MuscleXpert Journal
             </h1>
             <p class="mt-6 text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
                 Bangun tubuh dan pikiran tangguh. Jelajahi arsip sains kebugaran, nutrisi, dan gaya hidup performa tinggi.
@@ -49,9 +49,9 @@
                     @foreach($articles as $article)
                         <div class="group relative rounded-3xl overflow-hidden backdrop-blur-xl bg-slate-800/40 border border-slate-700/30 shadow-2xl shadow-black/30 hover:shadow-green-500/10 transition-all duration-500 transform hover:-translate-y-2">
                             <!-- Article Image -->
-                            <a href="{{ route('public.articles.show', $article) }}" class="block relative overflow-hidden">
+                            <a href="/articles_publik/{{ $article->slug }}" class="block relative overflow-hidden">
                                 <img
-                                    src="{{ Storage::url($article->image_url) ?? 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop' }}"
+                                    src="{{ Storage::url($article->image) ?? ($article->image_url ?? 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop') }}"
                                     alt="{{ $article->title }}"
                                     class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
                                 >
@@ -59,20 +59,20 @@
                                 <!-- Category Badge -->
                                 <div class="absolute top-4 left-4">
                                     <span class="px-3 py-1 text-xs font-semibold tracking-widest uppercase bg-green-500/20 backdrop-blur-sm text-green-400 border border-green-500/30 rounded-full">
-                                        {{ $article->category }}
+                                        {{ $article->category ?? 'Fitness' }}
                                     </span>
                                 </div>
                             </a>
 
                             <!-- Article Content -->
                             <div class="p-6">
-                                <a href="{{ route('public.articles.show', $article) }}" class="block">
+                                <a href="/articles_publik/{{ $article->slug }}" class="block">
                                     <h3 class="text-xl font-bold text-white group-hover:text-green-400 transition-colors duration-300 line-clamp-2">
                                         {{ $article->title }}
                                     </h3>
                                 </a>
                                 <p class="mt-3 text-slate-400 text-sm leading-relaxed line-clamp-3">
-                                    {{ Str::limit(strip_tags($article->content), 120) }}
+                                    {{ $article->summary ?? Str::limit(strip_tags($article->content ?? ''), 120) }}
                                 </p>
 
                                 <!-- Article Meta -->
@@ -83,7 +83,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                             </svg>
                                         </div>
-                                        <span>by Admin</span>
+                                        <span>by {{ $article->author ?? 'Admin' }}</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +95,7 @@
 
                                 <!-- Read More -->
                                 <div class="mt-4 pt-4 border-t border-slate-700/50">
-                                    <a href="{{ route('public.articles.show', $article) }}"
+                                    <a href="/articles_publik/{{ $article->slug }}"
                                        class="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-semibold text-sm transition-colors duration-300 group/read">
                                         <span>Baca Selengkapnya</span>
                                         <svg class="w-4 h-4 transform group-hover/read:translate-x-1 transition-transform duration-300"
@@ -113,8 +113,8 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="mt-20 text-center">
-                    {{ $articles->links('') }}
+                <div class="mt-20">
+                    {{ $articles->links() }}
                 </div>
             @else
                 <!-- Empty State -->
@@ -131,6 +131,27 @@
                 </div>
             @endif
 
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative bg-gradient-to-b from-slate-800 to-slate-900 py-20">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.1),transparent)]"></div>
+        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center relative z-10">
+            <h2 class="text-4xl font-bold text-white mb-6">
+                Siap <span class="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Transformasi</span>?
+            </h2>
+            <p class="text-xl text-slate-300 mb-8 leading-relaxed">
+                Bergabunglah dengan ribuan anggota komunitas MuscleXpert yang telah mencapai target fitness mereka.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="/register" class="px-8 py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
+                    Mulai Sekarang - Gratis
+                </a>
+                <a href="/about" class="px-8 py-4 rounded-xl border border-slate-600 text-slate-300 hover:bg-slate-700/50 backdrop-blur-md transition-all duration-300">
+                    Pelajari Lebih Lanjut
+                </a>
+            </div>
         </div>
     </section>
 

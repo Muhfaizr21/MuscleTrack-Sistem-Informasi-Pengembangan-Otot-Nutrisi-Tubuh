@@ -12,18 +12,22 @@ class NewsArticleController extends Controller
      */
     public function index()
     {
-        // Ambil semua artikel, 9 per halaman
-        $articles = NewsArticle::latest()->paginate(9);
+        // Ambil semua artikel dengan slug yang tidak null, 9 per halaman
+        $articles = NewsArticle::whereNotNull('slug')
+                              ->latest()
+                              ->paginate(9);
 
         return view('articles_publik.index', compact('articles'));
     }
 
     /**
-     * Menampilkan satu artikel secara penuh.
+     * Menampilkan satu artikel secara penuh berdasarkan slug.
      */
-    public function show(NewsArticle $article)
+    public function show($slug)
     {
-        // Laravel akan otomatis mencari artikel berdasarkan ID/slug
+        // Cari artikel berdasarkan slug
+        $article = NewsArticle::where('slug', $slug)->firstOrFail();
+
         return view('articles_publik.show', compact('article'));
     }
 }
