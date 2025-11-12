@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\TrainerProfile;
 use App\Models\Payment;
@@ -18,7 +19,7 @@ use Carbon\Carbon;
 class UserTrainingController extends Controller
 {
     /**
-     * 🏋️ Menampilkan daftar trainer yang sudah disetujui (approved)
+     * Menampilkan daftar trainer yang sudah disetujui.
      */
     public function index(Request $request)
     {
@@ -26,12 +27,10 @@ class UserTrainingController extends Controller
             ->where('verification_status', 'approved')
             ->with(['trainerProfile', 'trainerVerification']);
 
-        // 🔍 Pencarian nama trainer
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%");
         }
 
-        // Filter berdasarkan spesialisasi
         if ($specialization = $request->input('specialization')) {
             $query->whereHas('trainerProfile', function ($q) use ($specialization) {
                 $q->where('specialization', 'like', "%{$specialization}%");
@@ -44,7 +43,7 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * 🔍 Menampilkan detail trainer
+     * Menampilkan detail trainer.
      */
     public function show($trainerId)
     {
@@ -53,7 +52,6 @@ class UserTrainingController extends Controller
             ->where('role', 'trainer')
             ->firstOrFail();
 
-        // Cek apakah user sudah memiliki trainer yang aktif
         $currentUser = Auth::user();
         $hasActiveTrainer = $currentUser->trainer_id !== null;
 
@@ -61,16 +59,14 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * 🧾 Membuat pesanan / pembayaran ke trainer
+     * Membuat pesanan / pembayaran ke trainer.
      */
     public function order(Request $request, $trainerId)
     {
         $user = Auth::user();
 
-        // Cek apakah user sudah memiliki trainer aktif
         if ($user->trainer_id !== null) {
-            return redirect()->back()
-                ->with('error', 'Anda sudah memiliki trainer aktif. Silakan selesaikan program dengan trainer saat ini terlebih dahulu.');
+            return back()->with('error', 'Anda sudah memiliki trainer aktif.');
         }
 
         $trainer = User::where('id', $trainerId)
@@ -78,19 +74,15 @@ class UserTrainingController extends Controller
             ->where('verification_status', 'approved')
             ->firstOrFail();
 
-        $amount = 150000;
-        $method = $request->input('method', 'transfer');
-
         $payment = Payment::create([
             'user_id' => $user->id,
             'trainer_id' => $trainer->id,
-            'amount' => $amount,
-            'method' => $method,
+            'amount' => 150000,
+            'method' => $request->input('method', 'transfer'),
             'status' => 'pending',
             'transaction_id' => 'TRX-' . strtoupper(uniqid()),
         ]);
 
-        // Buat program request
         ProgramRequest::create([
             'trainer_id' => $trainer->id,
             'user_id' => $user->id,
@@ -99,11 +91,11 @@ class UserTrainingController extends Controller
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
-            ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan ke pembayaran.');
+            ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
     }
 
     /**
-     * 💳 Halaman detail pembayaran
+     * Halaman detail pembayaran.
      */
     public function payment($paymentId)
     {
@@ -116,7 +108,7 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * ✅ Konfirmasi setelah pembayaran sukses
+     * Konfirmasi pembayaran sukses.
      */
     public function confirmPayment($paymentId)
     {
@@ -125,14 +117,11 @@ class UserTrainingController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        // Update status pembayaran
         $payment->update(['status' => 'paid']);
 
-        // Update user dengan trainer_id
         $user = Auth::user();
         $user->update(['trainer_id' => $payment->trainer_id]);
 
-        // Buat premium access log
         PremiumAccessLog::create([
             'user_id' => $user->id,
             'trainer_id' => $payment->trainer_id,
@@ -141,34 +130,32 @@ class UserTrainingController extends Controller
             'payment_status' => 'paid',
         ]);
 
-        // Buat trainer membership
         TrainerMembership::create([
             'trainer_id' => $payment->trainer_id,
             'user_id' => $user->id,
         ]);
 
-        // Update program request menjadi approved
         ProgramRequest::where('trainer_id', $payment->trainer_id)
             ->where('user_id', $user->id)
             ->where('status', 'pending')
             ->update(['status' => 'approved']);
 
-        // Kirim pesan selamat datang dari trainer
+        // Chat pertama dari trainer (terenkripsi otomatis)
         TrainerChat::create([
             'trainer_id' => $payment->trainer_id,
             'user_id' => $user->id,
-            'message' => 'Halo! Selamat bergabung dalam program training saya. Mari kita diskusikan goals dan program yang sesuai untuk Anda. 💪',
+            'message' => 'Halo! Selamat bergabung di program training saya. Mari kita mulai perjalanan fitness Anda!',
             'sender_type' => 'trainer',
             'timestamp' => now('Asia/Jakarta'),
             'read_status' => false,
         ]);
 
         return redirect()->route('user.dashboard')
-            ->with('success', 'Pembayaran berhasil! Anda sekarang memiliki akses ke trainer selama 30 hari.');
+            ->with('success', 'Pembayaran berhasil! Anda memiliki akses ke trainer selama 30 hari.');
     }
 
     /**
-     * ❌ Batalkan pesanan
+     * Batalkan pesanan.
      */
     public function cancelOrder($paymentId)
     {
@@ -177,7 +164,6 @@ class UserTrainingController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        // Hapus payment dan program request
         ProgramRequest::where('trainer_id', $payment->trainer_id)
             ->where('user_id', Auth::id())
             ->delete();
@@ -189,7 +175,7 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * 👥 Trainer yang sedang diikuti
+     * Trainer yang sedang diikuti user.
      */
     public function myTrainer()
     {
@@ -197,12 +183,11 @@ class UserTrainingController extends Controller
 
         if (!$user->trainer_id) {
             return redirect()->route('user.training.index')
-                ->with('info', 'Anda belum memiliki trainer. Silakan pilih trainer terlebih dahulu.');
+                ->with('info', 'Anda belum memiliki trainer.');
         }
 
         $trainer = User::with(['trainerProfile', 'trainerVerification'])
-            ->where('id', $user->trainer_id)
-            ->first();
+            ->find($user->trainer_id);
 
         $premiumAccess = PremiumAccessLog::where('user_id', $user->id)
             ->where('trainer_id', $user->trainer_id)
@@ -214,13 +199,11 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * 🔄 Ganti trainer
+     * Ganti trainer.
      */
     public function switchTrainer()
     {
         $user = Auth::user();
-
-        // Reset trainer_id user
         $user->update(['trainer_id' => null]);
 
         return redirect()->route('user.training.index')
@@ -228,27 +211,25 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * 🤖 Chat AI Trainer (dibatasi 5 pesan)
+     * Chat dengan AI trainer (maksimal 5 pesan per jam).
      */
     public function chatAI(Request $request, GeminiService $gemini)
     {
         $user = Auth::user();
-
-        // Cek jumlah pesan AI terakhir dalam 1 sesi
         $cacheKey = "ai_chat_count_user_{$user->id}";
         $chatCount = cache()->get($cacheKey, 0);
 
         if ($chatCount >= 5) {
             return response()->json([
                 'success' => false,
-                'reply' => '🚫 Batas 5 pesan AI telah tercapai. Silakan pesan trainer premium untuk bimbingan lebih lanjut.',
+                'reply' => '🚫 Batas 5 pesan AI telah tercapai. Silakan upgrade untuk akses tanpa batas.',
             ]);
         }
 
         $request->validate(['message' => 'required|string|max:500']);
         $userMessage = trim($request->message);
 
-        // Simpan pesan user
+        // Simpan pesan user (terenkripsi otomatis)
         TrainerChat::create([
             'user_id' => $user->id,
             'trainer_id' => null,
@@ -259,15 +240,14 @@ class UserTrainingController extends Controller
         ]);
 
         try {
-            // Prompt AI yang ramah & relevan dengan fitness
-            $prompt = "Kamu adalah Muscle AI Trainer, pelatih kebugaran dan nutrisi tubuh profesional.
-            Jawablah dengan gaya ramah, singkat, dan informatif dalam bahasa Indonesia.
-            Fokus pada topik fitness, nutrisi, latihan, dan kesehatan.
+            $prompt = "Kamu adalah Muscle AI Trainer, pelatih fitness dan nutrisi profesional. 
+            Jawab dengan bahasa Indonesia yang singkat, ramah, dan akurat.
+            Topik: fitness, nutrisi, latihan, dan kesehatan.
             Pesan pengguna: {$userMessage}";
 
             $reply = $gemini->generateText($prompt);
 
-            // Simpan balasan AI
+            // Simpan balasan AI (terenkripsi otomatis)
             TrainerChat::create([
                 'user_id' => $user->id,
                 'trainer_id' => null,
@@ -277,7 +257,6 @@ class UserTrainingController extends Controller
                 'read_status' => true,
             ]);
 
-            // Naikkan counter
             cache()->put($cacheKey, $chatCount + 1, now()->addHours(1));
 
             return response()->json([
@@ -286,23 +265,22 @@ class UserTrainingController extends Controller
                 'remaining_messages' => 5 - ($chatCount + 1),
             ]);
         } catch (\Throwable $e) {
-            \Log::error('AI Chat Error: ' . $e->getMessage());
+            Log::error('AI Chat Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'reply' => '⚠️ Maaf, sedang ada gangguan pada sistem AI. Silakan coba lagi nanti.',
+                'reply' => '⚠️ Maaf, sistem AI sedang mengalami gangguan. Coba lagi nanti.',
             ], 500);
         }
     }
 
     /**
-     * 📊 Reset counter chat AI (untuk testing)
+     * Reset counter chat AI (khusus testing).
      */
     public function resetAIChatCount()
     {
         $user = Auth::user();
-        $cacheKey = "ai_chat_count_user_{$user->id}";
-        cache()->forget($cacheKey);
+        cache()->forget("ai_chat_count_user_{$user->id}");
 
         return response()->json([
             'success' => true,

@@ -22,4 +22,13 @@ class ProgramRequest extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function member()
+    {
+        return $this->belongsTo(User::class, 'member_id');
+    }
+
+    /**
+     * Relasi ke model User (trainer)
+     */
+    
 }

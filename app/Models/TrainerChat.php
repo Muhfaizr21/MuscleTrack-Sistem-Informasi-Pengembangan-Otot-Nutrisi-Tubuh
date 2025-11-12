@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Database\Eloquent\Builder;
 
 class TrainerChat extends Model
 {
@@ -27,13 +29,10 @@ class TrainerChat extends Model
         'read_status' => 'boolean',
     ];
 
-    /**
-     * 🚫 Nonaktifkan timestamps Laravel bawaan
-     */
     public $timestamps = false;
 
     /**
-     * 🕒 Accessor untuk format waktu otomatis Carbon
+     * Format timestamp otomatis.
      */
     public function getTimestampAttribute($value)
     {
@@ -41,7 +40,7 @@ class TrainerChat extends Model
     }
 
     /**
-     * 🔗 Relasi ke Trainer
+     * Relasi ke trainer.
      */
     public function trainer()
     {
@@ -49,7 +48,7 @@ class TrainerChat extends Model
     }
 
     /**
-     * 🔗 Relasi ke Member/User
+     * Relasi ke user.
      */
     public function user()
     {
@@ -57,17 +56,22 @@ class TrainerChat extends Model
     }
 
     /**
-     * 🧩 Scope untuk ambil chat antara trainer dan user tertentu
+     * Scope: ambil chat antara trainer dan user tertentu.
+     *
+     * @param Builder $query
+     * @param int $trainerId
+     * @param int $userId
+     * @return Builder
      */
-    public function scopeBetween($query, $trainerId, $userId)
+    public function scopeBetween(Builder $query, int $trainerId, int $userId): Builder
     {
         return $query->where('trainer_id', $trainerId)
-                     ->where('user_id', $userId)
-                     ->orderBy('timestamp', 'asc');
+            ->where('user_id', $userId)
+            ->orderBy('timestamp', 'asc');
     }
 
     /**
-     * 🧠 Event boot — otomatis isi sender_type
+     * Event boot.
      */
     protected static function boot()
     {
@@ -76,9 +80,28 @@ class TrainerChat extends Model
         static::creating(function ($chat) {
             if (Auth::check()) {
                 $user = Auth::user();
-                // Isi sender_type berdasarkan role yang login
                 $chat->sender_type = $user->role === 'trainer' ? 'trainer' : 'user';
             }
         });
+    }
+
+    /**
+     * Enkripsi pesan sebelum disimpan.
+     */
+    public function setMessageAttribute($value): void
+    {
+        $this->attributes['message'] = Crypt::encryptString($value);
+    }
+
+    /**
+     * Dekripsi pesan saat diambil.
+     */
+    public function getMessageAttribute($value): string
+    {
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return $value;
+        }
     }
 }

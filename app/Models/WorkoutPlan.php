@@ -10,12 +10,8 @@ class WorkoutPlan extends Model
 {
     use HasFactory;
 
-    // Tentukan nama tabelnya (jika nama file model beda)
     protected $table = 'workout_plans';
 
-    /**
-     * Kolom yang boleh diisi (sesuai migrasi BARU Anda)
-     */
     protected $fillable = [
         'title',
         'level',
@@ -27,23 +23,38 @@ class WorkoutPlan extends Model
         'difficulty_level',
         'duration_weeks',
         'duration_minutes',
-        'user_id', // pembuat (admin)
+        'user_id',
         'trainer_id',
         'recommended_by',
     ];
 
-    /**
-     * Boot "ciamik" untuk otomatis mengisi user_id (pembuat)
-     */
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function ($plan) {
-            // Otomatis set pembuatnya adalah admin/trainer yang sedang login
             if (Auth::check()) {
                 $plan->user_id = Auth::id();
-                $plan->recommended_by = Auth::user()->role; // misal 'admin' atau 'trainer'
+                $plan->recommended_by = Auth::user()->role;
             }
         });
+    }
+
+    // 🔹 Relasi ke pembuat plan (admin/trainer)
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // 🔹 Relasi ke pelatih yang ditugaskan
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    // 🔹 Jika ada member (peserta plan)
+    public function member()
+    {
+        return $this->belongsTo(User::class, 'member_id');
     }
 }
