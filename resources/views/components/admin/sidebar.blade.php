@@ -191,44 +191,7 @@
             </li>
 
             <!-- Divider dengan Glass Effect -->
-            <li class="relative py-2">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-700/50"></div>
-                </div>
-                <div class="relative flex justify-center text-xs">
-                    <span class="px-2 bg-slate-800/80 text-slate-400 backdrop-blur-sm rounded-lg">Account</span>
-                </div>
-            </li>
 
-            <!-- Profil Anda -->
-            <li>
-                <a href="#"
-                   class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105">
-                    <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-slate-500/20 to-slate-600/20 flex items-center justify-center group-hover:from-slate-500/30 group-hover:to-slate-600/30 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <span class="font-semibold">Profil Anda</span>
-                </a>
-            </li>
-
-            <!-- Log Out -->
-            <li>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <a href="{{ route('logout') }}"
-                       onclick="event.preventDefault(); this.closest('form').submit();"
-                       class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300 text-slate-400 hover:text-white hover:bg-red-500/10 hover:shadow-lg hover:scale-105 border border-transparent hover:border-red-500/20">
-                        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-red-500/20 to-pink-600/20 flex items-center justify-center group-hover:from-red-500/30 group-hover:to-pink-600/30 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                            </svg>
-                        </div>
-                        <span class="font-semibold">Log Out</span>
-                    </a>
-                </form>
-            </li>
         </ul>
     </nav>
 

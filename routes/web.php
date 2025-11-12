@@ -29,7 +29,10 @@ use App\Http\Controllers\Admin\{
     WorkoutPlanController,
     GoalController,
     BodyMetricController,
-    NotificationBroadcasterController
+    NotificationBroadcasterController,
+    ProfileController,
+    SettingsController,
+    HelpSupportController
 };
 
 // ==========================
@@ -124,6 +127,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact.index');
         Route::get('/contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact.show');
         Route::delete('/contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact.destroy');
+
+          Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/help-support', [HelpSupportController::class, 'index'])->name('help-support.index');
     });
 
 // ==========================
