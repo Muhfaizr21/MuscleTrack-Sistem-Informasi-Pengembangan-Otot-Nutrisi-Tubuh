@@ -300,6 +300,124 @@
                         </div>
                     </div>
 
+                    {{-- Fitness Profile Section --}}
+                    @if($user->fitnessProfile)
+                        <div
+                            class="mt-6 glass-dark rounded-3xl border border-emerald-500/20 shadow-xl shadow-emerald-500/10 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-emerald-500/20 bg-gray-900/50">
+                                <h2 class="text-xl font-black text-white flex items-center gap-3">
+                                    <span class="text-gradient">Fitness Profile</span>
+                                </h2>
+                            </div>
+
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- Activity Level --}}
+                                    <div
+                                        class="glass rounded-xl p-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-emerald-400/80 text-sm font-medium mb-1">Activity Level</p>
+                                                <p class="text-white text-xl font-bold capitalize">
+                                                    {{ $user->fitnessProfile->activity_level ?? 'Not set' }}
+                                                </p>
+                                            </div>
+                                            <div
+                                                class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <span class="text-emerald-400 text-lg">🏃‍♂️</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-emerald-400/60 text-xs mt-2">Daily activity intensity</p>
+                                    </div>
+
+                                    {{-- Daily Calorie Target --}}
+                                    <div
+                                        class="glass rounded-xl p-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-emerald-400/80 text-sm font-medium mb-1">Daily Calories</p>
+                                                <p class="text-white text-xl font-bold">
+                                                    {{ $user->fitnessProfile->daily_calorie_target ? $user->fitnessProfile->daily_calorie_target . ' kcal' : 'Not set' }}
+                                                </p>
+                                            </div>
+                                            <div
+                                                class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <span class="text-emerald-400 text-lg">🔥</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-emerald-400/60 text-xs mt-2">Daily calorie target</p>
+                                    </div>
+
+                                    {{-- Activity Description --}}
+                                    <div
+                                        class="glass rounded-xl p-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group md:col-span-2">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-emerald-400/80 text-sm font-medium mb-1">Activity Description</p>
+                                                <p class="text-white text-lg font-bold">
+                                                    {{ $user->fitnessProfile->activity_description ?? 'Not set' }}
+                                                </p>
+                                            </div>
+                                            <div
+                                                class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <span class="text-emerald-400 text-lg">📝</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-emerald-400/60 text-xs mt-2">Description of daily activities</p>
+                                    </div>
+
+                                    {{-- Preferred Muscle Groups --}}
+                                    @if($user->fitnessProfile->preferred_muscle_groups)
+                                        <div
+                                            class="glass rounded-xl p-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group md:col-span-2">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex-1">
+                                                    <p class="text-emerald-400/80 text-sm font-medium mb-1">Preferred Muscle Groups
+                                                    </p>
+                                                    <div class="flex flex-wrap gap-2 mt-2">
+                                                        @foreach(json_decode($user->fitnessProfile->preferred_muscle_groups) as $muscle)
+                                                            <span
+                                                                class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/20">
+                                                                {{ ucfirst($muscle) }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                    <span class="text-emerald-400 text-lg">💪</span>
+                                                </div>
+                                            </div>
+                                            <p class="text-emerald-400/60 text-xs mt-2">Muscle groups to focus on</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div
+                            class="mt-6 glass-dark rounded-3xl border border-amber-500/20 shadow-xl shadow-amber-500/10 overflow-hidden">
+                            <div class="p-6 text-center">
+                                <div
+                                    class="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+                                    <span class="text-2xl">💪</span>
+                                </div>
+                                <h3 class="text-lg font-black text-white mb-2">Complete Your Fitness Profile</h3>
+                                <p class="text-amber-400/80 mb-4">Tell us more about your fitness goals and preferences to get
+                                    personalized recommendations.</p>
+                                <a href="{{ route('user.profile.edit') }}"
+                                    class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-500/25">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path
+                                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                    Set Up Fitness Profile
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Action Buttons --}}
                     <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-end">
                         <a href="{{ route('user.profile.password.edit') }}"

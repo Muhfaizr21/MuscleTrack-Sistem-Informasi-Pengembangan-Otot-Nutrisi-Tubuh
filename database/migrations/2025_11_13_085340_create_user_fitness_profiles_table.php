@@ -7,18 +7,47 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
         Schema::create('user_fitness_profiles', function (Blueprint $table) {
             $table->id();
+
+            // 🔗 Relasi ke tabel users & goals
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            $table->foreignId('goal_id')
+                ->nullable()
+                ->constrained('goals')
+                ->onDelete('set null');
+
+            // ⚙️ Atribut aktivitas & deskripsi pekerjaan
+            $table->enum('activity_level', ['light', 'moderate', 'heavy'])
+                ->nullable()
+                ->comment('Tingkat aktivitas harian: ringan, sedang, berat');
+
+            $table->string('activity_description')
+                ->nullable()
+                ->comment('Contoh pekerjaan: kantor, teknisi, pekerja konstruksi, dll');
+
+            // 💪 Fokus otot & target kalori
+            $table->json('preferred_muscle_groups')
+                ->nullable()
+                ->comment('Daftar otot yang ingin difokuskan: chest, arms, legs, dll');
+
+            $table->integer('daily_calorie_target')
+                ->nullable()
+                ->comment('Target kalori harian user (opsional)');
+
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Rollback migrasi.
      */
     public function down(): void
     {

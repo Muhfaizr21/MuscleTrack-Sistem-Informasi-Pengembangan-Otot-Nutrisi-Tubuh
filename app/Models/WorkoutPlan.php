@@ -62,9 +62,9 @@ class WorkoutPlan extends Model
     public function exercises()
     {
         return $this->belongsToMany(Exercise::class, 'exercise_workout_plan')
-                    ->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval')
-                    ->withTimestamps()
-                    ->orderBy('order');
+            ->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval')
+            ->withTimestamps()
+            ->orderBy('order');
     }
 
     // 🔹 Relasi ke workout sessions (one-to-many)
@@ -107,5 +107,9 @@ class WorkoutPlan extends Model
             'order' => $data['order'] ?? 0,
             'rest_interval' => $data['rest_interval'] ?? 60,
         ]);
+    }
+    public function workoutExercises()
+    {
+        return $this->hasMany(WorkoutExercise::class, 'workout_plan_id');
     }
 }

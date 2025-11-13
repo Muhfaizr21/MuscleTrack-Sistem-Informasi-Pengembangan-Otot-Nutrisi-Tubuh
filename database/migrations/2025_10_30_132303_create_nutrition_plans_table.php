@@ -1,6 +1,6 @@
-    <?php
+<?php
 
-    use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,6 +16,8 @@ return new class extends Migration
             $table->float('protein')->default(0); // gram protein
             $table->float('carbs')->default(0); // gram karbohidrat
             $table->float('fat')->default(0); // gram lemak
+            $table->float('water_intake')->default(0); // jumlah air (ml)
+            $table->float('hydrogen_level')->nullable()->default(0); // kadar hidrogen (ppm atau mg/L)
             $table->string('day_of_week')->nullable(); // Senin, Selasa, dst
             $table->string('target_fitness')->nullable(); // 'fat_loss', 'muscle_gain', 'maintenance'
             $table->enum('type', ['breakfast', 'lunch', 'dinner', 'snack'])->nullable();

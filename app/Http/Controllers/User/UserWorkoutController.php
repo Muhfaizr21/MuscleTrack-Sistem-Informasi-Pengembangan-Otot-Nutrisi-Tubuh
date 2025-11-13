@@ -18,7 +18,7 @@ class UserWorkoutController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('fitnessProfile');
 
         // 🧮 Hitung BMI (hanya jika tinggi & berat tersedia)
         $bmi = null;
@@ -54,6 +54,12 @@ class UserWorkoutController extends Controller
                 ->get();
         }
 
+        // 🏋️‍♂️ Rekomendasi berdasarkan Fitness Profile
+        $fitnessProfilePlans = collect();
+        if ($user->fitnessProfile) {
+            $fitnessProfilePlans = $this->getWorkoutsByFitnessProfile($user->fitnessProfile);
+        }
+
         // 🧑‍🏫 Workout dari trainer user (jika ada)
         $trainerWorkouts = collect();
         if ($user->trainer_id) {
@@ -71,9 +77,10 @@ class UserWorkoutController extends Controller
             })
             ->get();
 
-        // 🧩 Gabungkan semua sumber plan
-        $workouts = $recommendedPlans
+        // 🧩 Gabungkan semua sumber plan dengan prioritas
+        $workouts = $fitnessProfilePlans
             ->merge($trainerWorkouts)
+            ->merge($recommendedPlans)
             ->merge($adminWorkouts)
             ->unique('id')
             ->sortBy('difficulty_level')
@@ -85,8 +92,9 @@ class UserWorkoutController extends Controller
             ->exists();
 
         // 🔁 Auto assign plan pertama kali jika belum punya
-        if (! $hasActiveSchedule) {
-            $selectedPlan = $trainerWorkouts->first()
+        if (! $hasActiveSchedule && $workouts->count() > 0) {
+            $selectedPlan = $fitnessProfilePlans->first()
+                ?? $trainerWorkouts->first()
                 ?? $recommendedPlans->first()
                 ?? $adminWorkouts->first();
 
@@ -102,9 +110,9 @@ class UserWorkoutController extends Controller
                 Notification::create([
                     'user_id' => $user->id,
                     'title' => 'Workout Plan Otomatis 💪',
-                    'message' => "Sistem menyiapkan rencana '{$selectedPlan->title}' berdasarkan BMI kamu"
-                        .($bmiCategory ? " ({$bmiCategory})" : '')
-                        .($user->trainer_id ? ' dan bimbingan trainer kamu.' : '.'),
+                    'message' => "Sistem menyiapkan rencana '{$selectedPlan->title}' berdasarkan profile fitness kamu"
+                        . ($bmiCategory ? " dan BMI ({$bmiCategory})" : '')
+                        . ($user->trainer_id ? ' serta bimbingan trainer kamu.' : '.'),
                     'type' => 'reminder',
                     'read_status' => false,
                 ]);
@@ -116,7 +124,75 @@ class UserWorkoutController extends Controller
             ->orderBy('scheduled_date')
             ->get();
 
-        return view('user.workouts.index', compact('workouts', 'schedules', 'bmi', 'bmiCategory'));
+        return view('user.workouts.index', compact('workouts', 'schedules', 'bmi', 'bmiCategory', 'user'));
+    }
+
+    /**
+     * 🎯 Dapatkan workout berdasarkan fitness profile user
+     */
+    private function getWorkoutsByFitnessProfile($fitnessProfile)
+    {
+        $query = WorkoutPlan::where('status', 'active');
+
+        // Filter berdasarkan activity level
+        if ($fitnessProfile->activity_level) {
+            $difficultyMap = [
+                'light' => 'beginner',
+                'moderate' => 'intermediate',
+                'heavy' => 'advanced'
+            ];
+
+            if (isset($difficultyMap[$fitnessProfile->activity_level])) {
+                $query->where('difficulty_level', $difficultyMap[$fitnessProfile->activity_level]);
+            }
+        }
+
+        // Filter berdasarkan preferred muscle groups
+        if ($fitnessProfile->preferred_muscle_groups) {
+            $muscleGroups = json_decode($fitnessProfile->preferred_muscle_groups);
+
+            $focusAreaMap = [
+                'chest' => 'upper_body',
+                'back' => 'upper_body',
+                'arms' => 'upper_body',
+                'shoulders' => 'upper_body',
+                'legs' => 'lower_body',
+                'core' => 'core',
+                'glutes' => 'lower_body',
+                'full_body' => 'full_body'
+            ];
+
+            $focusAreas = collect($muscleGroups)
+                ->map(fn($group) => $focusAreaMap[$group] ?? null)
+                ->filter()
+                ->unique()
+                ->toArray();
+
+            if (!empty($focusAreas)) {
+                $query->where(function ($q) use ($focusAreas) {
+                    foreach ($focusAreas as $area) {
+                        $q->orWhere('focus_area', 'like', "%{$area}%")
+                            ->orWhere('target_fitness', 'like', "%{$area}%");
+                    }
+                });
+            }
+        }
+
+        // Filter berdasarkan daily calorie target untuk menentukan intensitas
+        if ($fitnessProfile->daily_calorie_target) {
+            if ($fitnessProfile->daily_calorie_target > 2500) {
+                // High calorie target - muscle gain focus
+                $query->whereIn('target_fitness', ['muscle_gain', 'bulking', 'strength']);
+            } elseif ($fitnessProfile->daily_calorie_target < 1800) {
+                // Low calorie target - fat loss focus
+                $query->whereIn('target_fitness', ['fat_loss', 'cutting', 'endurance']);
+            } else {
+                // Moderate calorie target - maintenance
+                $query->whereIn('target_fitness', ['maintain', 'endurance', 'toning']);
+            }
+        }
+
+        return $query->orderBy('difficulty_level')->get();
     }
 
     /**
@@ -124,7 +200,13 @@ class UserWorkoutController extends Controller
      */
     public function create(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('fitnessProfile');
+
+        // Dapatkan rekomendasi berdasarkan fitness profile
+        $fitnessProfilePlans = collect();
+        if ($user->fitnessProfile) {
+            $fitnessProfilePlans = $this->getWorkoutsByFitnessProfile($user->fitnessProfile);
+        }
 
         $trainerWorkouts = collect();
         if ($user->trainer_id) {
@@ -141,10 +223,15 @@ class UserWorkoutController extends Controller
             })
             ->get();
 
-        $workouts = $trainerWorkouts->merge($adminWorkouts)->unique('id')->values();
+        $workouts = $fitnessProfilePlans
+            ->merge($trainerWorkouts)
+            ->merge($adminWorkouts)
+            ->unique('id')
+            ->values();
+
         $selectedWorkout = $request->workout_id ? WorkoutPlan::find($request->workout_id) : null;
 
-        return view('user.workouts.create', compact('workouts', 'selectedWorkout'));
+        return view('user.workouts.create', compact('workouts', 'selectedWorkout', 'user'));
     }
 
     /**
@@ -200,7 +287,7 @@ class UserWorkoutController extends Controller
         Notification::create([
             'user_id' => $user->id,
             'title' => 'Workout Completed 🎉',
-            'message' => "Hebat! Kamu telah menyelesaikan latihan '{$schedule->workoutPlan->title}' pada ".
+            'message' => "Hebat! Kamu telah menyelesaikan latihan '{$schedule->workoutPlan->title}' pada " .
                 Carbon::now()->translatedFormat('l, d F Y H:i'),
             'type' => 'achievement',
             'read_status' => false,
@@ -232,15 +319,58 @@ class UserWorkoutController extends Controller
     }
 
     /**
-     * 🔍 Lihat detail workout plan + daftar latihan (WorkoutExercise)
+     * 🔍 Lihat detail workout plan + daftar latihan (Exercises) dengan tutorial
      */
     public function show($id)
     {
-        $workout = WorkoutPlan::with(['exercises', 'trainer:id,name'])->findOrFail($id);
+        $user = Auth::user();
+        $workout = WorkoutPlan::with([
+            'exercises' => function ($query) {
+                $query->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval');
+            }, 
+            'trainer:id,name',
+            'workoutExercises'
+        ])->findOrFail($id);
 
         $trainerName = $workout->trainer?->name ?? 'Admin / Sistem';
-        $exerciseCount = $workout->exercises->count();
+        $exerciseCount = $workout->exercises->count() + $workout->workoutExercises->count();
 
-        return view('user.workouts.show', compact('workout', 'trainerName', 'exerciseCount'));
+        // Hitung total estimasi durasi dan kalori
+        $totalDuration = $workout->duration_minutes ?? 0;
+        $totalCalories = 0;
+
+        // Hitung kalori dari exercises
+        foreach ($workout->exercises as $exercise) {
+            $exerciseDuration = $exercise->pivot->duration ?? $exercise->duration ?? 0;
+            if ($exercise->calories_burned && $exerciseDuration) {
+                $totalCalories += $exercise->calories_burned * ($exerciseDuration / 60);
+            }
+        }
+
+        // Hitung BMI untuk rekomendasi
+        $bmi = null;
+        $bmiCategory = null;
+        if (! empty($user->weight) && ! empty($user->height)) {
+            $heightInMeter = $user->height / 100;
+            $bmi = round($user->weight / ($heightInMeter ** 2), 1);
+            $bmiCategory = match (true) {
+                $bmi < 18.5 => 'underweight',
+                $bmi < 25 => 'normal',
+                $bmi < 30 => 'overweight',
+                $bmi >= 30 => 'obese',
+                default => null,
+            };
+        }
+
+        return view('user.workouts.show', compact(
+            'workout', 
+            'trainerName', 
+            'exerciseCount',
+            'totalDuration',
+            'totalCalories',
+            'bmi',
+            'bmiCategory',
+            'user'
+        ));
     }
 }

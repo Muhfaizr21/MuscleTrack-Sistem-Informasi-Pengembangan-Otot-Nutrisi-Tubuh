@@ -32,17 +32,18 @@
                 </div>
             </div>
 
-            {{-- 🧮 Info BMI --}}
-            @if(isset($bmi) && $bmi)
-                <div class="glass-dark rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10 mb-8">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-4 mb-3">
+            {{-- 🧮 Info BMI & Fitness Profile --}}
+            <div class="glass-dark rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10 mb-8">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        {{-- BMI Info --}}
+                        @if(isset($bmi) && $bmi)
+                            <div class="flex items-center gap-4 mb-4">
                                 <p class="text-lg font-semibold text-white">
                                     <span class="font-bold">Your BMI:</span> {{ number_format($bmi, 1) }}
                                     (<span class="capitalize font-medium text-emerald-400">{{ $bmiCategory }}</span>)
@@ -51,11 +52,142 @@
                                     {{ strtoupper($bmiCategory) }}
                                 </span>
                             </div>
-                            <p class="text-emerald-400/80 text-sm mb-4">
-                                Workout recommendations below are customized for your body condition
-                            </p>
+                        @endif
 
-                            <div class="space-y-3">
+                        {{-- Fitness Profile Info --}}
+                        @if($user->fitnessProfile)
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                                        <span class="text-emerald-400 text-sm">🏃</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Activity Level</p>
+                                        <p class="text-emerald-400 text-sm font-bold capitalize">{{ $user->fitnessProfile->activity_level }}</p>
+                                    </div>
+                                </div>
+
+                                @if($user->fitnessProfile->daily_calorie_target)
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                                        <span class="text-emerald-400 text-sm">🔥</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Daily Calories</p>
+                                        <p class="text-emerald-400 text-sm font-bold">{{ $user->fitnessProfile->daily_calorie_target }} kcal</p>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($user->fitnessProfile->preferred_muscle_groups)
+                                <div class="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                                        <span class="text-emerald-400 text-sm">💪</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Focus Areas</p>
+                                        <p class="text-emerald-400 text-sm font-bold">
+                                            {{ collect(json_decode($user->fitnessProfile->preferred_muscle_groups))->count() }} areas
+                                        </p>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <p class="text-emerald-400/80 text-sm mb-4">
+                            @if($user->fitnessProfile)
+                                Workout recommendations are personalized based on your fitness profile
+                                @if(isset($bmi) && $bmi)
+                                    and body condition
+                                @endif
+                            @elseif(isset($bmi) && $bmi)
+                                Workout recommendations below are customized for your body condition
+                            @else
+                                Complete your fitness profile for personalized workout recommendations
+                            @endif
+                        </p>
+
+                        {{-- Recommendations based on profile --}}
+                        <div class="space-y-3">
+                            @if($user->fitnessProfile)
+                                {{-- Recommendations based on activity level --}}
+                                @switch($user->fitnessProfile->activity_level)
+                                    @case('light')
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                                            <div class="w-6 h-6 bg-blue-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-blue-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Beginner-friendly workouts</p>
+                                                <p class="text-blue-400/70 text-sm">Focus on proper form and gradual progression</p>
+                                            </div>
+                                        </div>
+                                        @break
+
+                                    @case('moderate')
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                                            <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-amber-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Intermediate intensity programs</p>
+                                                <p class="text-amber-400/70 text-sm">Balanced mix of strength and cardio</p>
+                                            </div>
+                                        </div>
+                                        @break
+
+                                    @case('heavy')
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/10">
+                                            <div class="w-6 h-6 bg-red-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-red-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Advanced training protocols</p>
+                                                <p class="text-red-400/70 text-sm">High-intensity and specialized programs</p>
+                                            </div>
+                                        </div>
+                                        @break
+                                @endswitch
+
+                                {{-- Recommendations based on calorie target --}}
+                                @if($user->fitnessProfile->daily_calorie_target)
+                                    @if($user->fitnessProfile->daily_calorie_target > 2500)
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-purple-500/5 border border-purple-500/10">
+                                            <div class="w-6 h-6 bg-purple-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-purple-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Muscle Building Focus</p>
+                                                <p class="text-purple-400/70 text-sm">Strength training with progressive overload</p>
+                                            </div>
+                                        </div>
+                                    @elseif($user->fitnessProfile->daily_calorie_target < 1800)
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/10">
+                                            <div class="w-6 h-6 bg-green-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-green-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Fat Loss Focus</p>
+                                                <p class="text-green-400/70 text-sm">HIIT and metabolic conditioning</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-emerald-400 text-sm">•</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-medium">Maintenance & Toning</p>
+                                                <p class="text-emerald-400/70 text-sm">Balanced workouts for sustained fitness</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endif
+                            @endif
+
+                            {{-- BMI-based recommendations --}}
+                            @if(isset($bmiCategory) && $bmiCategory)
                                 @switch($bmiCategory)
                                     @case('underweight')
                                         <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
@@ -63,26 +195,32 @@
                                                 <span class="text-emerald-400 text-sm">•</span>
                                             </div>
                                             <div>
-                                                <p class="text-white font-medium">Focus on compound exercises</p>
-                                                <p class="text-emerald-400/70 text-sm">Bench press, squat, deadlift to build muscle mass</p>
+                                                <p class="text-white font-medium">Muscle Mass Building</p>
+                                                <p class="text-emerald-400/70 text-sm">Compound exercises with calorie surplus</p>
                                             </div>
                                         </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
+                                        @break
+
+                                    @case('overweight')
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                                            <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-amber-400 text-sm">•</span>
                                             </div>
                                             <div>
-                                                <p class="text-white font-medium">Combine with calorie surplus & high protein</p>
-                                                <p class="text-emerald-400/70 text-sm">Minimum 1.6g/kg body weight protein intake</p>
+                                                <p class="text-white font-medium">Fat Burning Focus</p>
+                                                <p class="text-amber-400/70 text-sm">HIIT and full-body workouts</p>
                                             </div>
                                         </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
+                                        @break
+
+                                    @case('obese')
+                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/10">
+                                            <div class="w-6 h-6 bg-red-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                                <span class="text-red-400 text-sm">•</span>
                                             </div>
                                             <div>
-                                                <p class="text-white font-medium">Prioritize sleep for optimal recovery</p>
-                                                <p class="text-emerald-400/70 text-sm">7-9 hours of quality sleep nightly</p>
+                                                <p class="text-white font-medium">Low-Impact Start</p>
+                                                <p class="text-red-400/70 text-sm">Gradual progression with joint-friendly exercises</p>
                                             </div>
                                         </div>
                                         @break
@@ -93,102 +231,37 @@
                                                 <span class="text-emerald-400 text-sm">•</span>
                                             </div>
                                             <div>
-                                                <p class="text-white font-medium">Maintain balanced training pattern</p>
-                                                <p class="text-emerald-400/70 text-sm">3-4x/week full-body or upper/lower split</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Ensure adequate protein & hydration</p>
-                                                <p class="text-emerald-400/70 text-sm">Proper nutrition for sustained performance</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Use progressive overload</p>
-                                                <p class="text-emerald-400/70 text-sm">Gradually increase intensity for continuous improvement</p>
+                                                <p class="text-white font-medium">Performance & Maintenance</p>
+                                                <p class="text-emerald-400/70 text-sm">Balanced training for sustained results</p>
                                             </div>
                                         </div>
                                         @break
-
-                                    @case('overweight')
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Focus on HIIT and circuit training</p>
-                                                <p class="text-emerald-400/70 text-sm">Full-body movements for calorie burning</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Combine with mild calorie deficit</p>
-                                                <p class="text-emerald-400/70 text-sm">High fiber intake for satiety</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Maintain workout consistency</p>
-                                                <p class="text-emerald-400/70 text-sm">4-5 times per week minimum</p>
-                                            </div>
-                                        </div>
-                                        @break
-
-                                    @case('obese')
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Start with low-impact exercises</p>
-                                                <p class="text-emerald-400/70 text-sm">Brisk walking, stationary bike, or swimming</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Focus on consistency & balanced nutrition</p>
-                                                <p class="text-emerald-400/70 text-sm">Low saturated fat intake</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">Regular progress evaluation</p>
-                                                <p class="text-emerald-400/70 text-sm">Bi-weekly assessment with trainer or system</p>
-                                            </div>
-                                        </div>
-                                        @break
-
-                                    @default
-                                        <div class="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                            <div class="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center mt-0.5">
-                                                <span class="text-emerald-400 text-sm">•</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-white font-medium">No BMI data available</p>
-                                                <p class="text-emerald-400/70 text-sm">Please update your weight and height in your profile</p>
-                                            </div>
-                                        </div>
                                 @endswitch
-                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Call to Action for Incomplete Profile --}}
+            @if(!$user->fitnessProfile)
+                <div class="glass-dark rounded-3xl p-6 border border-amber-500/20 shadow-xl shadow-amber-500/10 mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
+                            <span class="text-amber-400 text-xl">💡</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-white mb-2">Complete Your Fitness Profile</h3>
+                            <p class="text-amber-400/80 text-sm mb-4">
+                                Get personalized workout recommendations by completing your fitness profile. Tell us about your activity level, goals, and preferred focus areas.
+                            </p>
+                            <a href="{{ route('user.profile.edit') }}" 
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                                Complete Profile
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -215,18 +288,45 @@
                         @php
                             $sourceLabel = 'Sistem Otomatis';
                             $sourceClass = 'text-emerald-400';
+                            $sourceIcon = '🔧';
+                            
                             if ($workout->recommended_by === 'trainer' && $workout->trainer_id) {
                                 $trainerName = $workout->trainer->name ?? 'Trainer Tidak Dikenal';
                                 $sourceLabel = 'Trainer: ' . $trainerName;
                                 $sourceClass = 'text-blue-400';
+                                $sourceIcon = '👨‍🏫';
                             } elseif (in_array($workout->recommended_by, ['admin', 'system']) || $workout->recommended_by === null) {
                                 $sourceLabel = 'Admin / Sistem';
                                 $sourceClass = 'text-emerald-400';
+                                $sourceIcon = '🔧';
                             }
+                            
+                            // Check if this workout matches user's fitness profile
+                            $isPersonalized = false;
+                            if ($user->fitnessProfile) {
+                                $difficultyMap = [
+                                    'light' => 'beginner',
+                                    'moderate' => 'intermediate', 
+                                    'heavy' => 'advanced'
+                                ];
+                                $expectedDifficulty = $difficultyMap[$user->fitnessProfile->activity_level] ?? null;
+                                $isPersonalized = $workout->difficulty_level === $expectedDifficulty;
+                            }
+                            
                             $userSchedule = $schedules->firstWhere('workout_plan_id', $workout->id);
                         @endphp
 
-                        <div class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow relative">
+                            {{-- Personalized Badge --}}
+                            @if($isPersonalized)
+                                <div class="absolute -top-2 -right-2">
+                                    <span class="bg-gradient-to-r from-purple-500 to-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-full border border-purple-500/30 shadow-lg flex items-center gap-1">
+                                        <span class="text-xs">🎯</span>
+                                        Personalized
+                                    </span>
+                                </div>
+                            @endif
+
                             {{-- Judul & Status --}}
                             <div class="flex justify-between items-start mb-4">
                                 <div>
@@ -256,12 +356,42 @@
                             {{-- Info Pembuat --}}
                             <div class="flex items-center gap-2 text-xs mb-5">
                                 <div class="bg-emerald-500/10 p-1.5 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 {{ $sourceClass }}" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                                    </svg>
+                                    <span class="{{ $sourceClass }} text-sm">{{ $sourceIcon }}</span>
                                 </div>
                                 <span class="{{ $sourceClass }}">Created by <span class="font-semibold">{{ $sourceLabel }}</span></span>
                             </div>
+
+                            {{-- Match Indicators --}}
+                            @if($user->fitnessProfile)
+                                <div class="flex items-center gap-2 mb-4">
+                                    @if($isPersonalized)
+                                        <span class="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full border border-purple-500/20">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            Matches your activity level
+                                        </span>
+                                    @endif
+                                    
+                                    @if($user->fitnessProfile->preferred_muscle_groups)
+                                        @php
+                                            $userMuscleGroups = json_decode($user->fitnessProfile->preferred_muscle_groups);
+                                            $matchingGroups = collect($userMuscleGroups)->filter(function($group) use ($workout) {
+                                                return stripos($workout->focus_area ?? '', $group) !== false || 
+                                                       stripos($workout->target_fitness ?? '', $group) !== false;
+                                            });
+                                        @endphp
+                                        @if($matchingGroups->count() > 0)
+                                            <span class="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                                                Focuses on {{ $matchingGroups->first() }}
+                                            </span>
+                                        @endif
+                                    @endif
+                                </div>
+                            @endif
 
                             {{-- Jadwal Workout User --}}
                             <div class="glass-dark rounded-xl p-4 border border-emerald-500/20 mb-4">
@@ -290,6 +420,20 @@
                                         </div>
                                         
                                         <div class="flex gap-3">
+                                            @if($userSchedule->status === 'pending')
+                                                <form action="{{ route('user.workouts.update', $userSchedule->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" 
+                                                            class="text-green-400 text-sm font-bold hover:text-green-300 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/30">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        Complete
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                             <a href="{{ route('user.workouts.edit', $userSchedule->id) }}"
                                                class="text-emerald-400 text-sm font-bold hover:text-white transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

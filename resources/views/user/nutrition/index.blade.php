@@ -31,6 +31,65 @@
             </div>
         </div>
 
+        {{-- ✅ Fitness Profile Info --}}
+        @if($fitnessProfile)
+        <div class="glass-dark rounded-2xl p-6 border border-blue-500/20 shadow-xl shadow-blue-500/10 mb-8">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
+                    <span class="text-xl">💪</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Personalized Nutrition Based on Your Profile</h3>
+                    <p class="text-blue-400/80">Recommendations tailored to your activity level and goals</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                    <div class="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                        <span class="text-blue-400 text-sm">⚡</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Activity Level</p>
+                        <p class="text-blue-400/70 capitalize">{{ $fitnessProfile->activity_level ?? 'Not set' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                    <div class="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                        <span class="text-blue-400 text-sm">🎯</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Daily Target</p>
+                        <p class="text-blue-400/70">{{ $fitnessProfile->daily_calorie_target ?? 'Custom' }} kcal</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                    <div class="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                        <span class="text-blue-400 text-sm">💧</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Water Needs</p>
+                        <p class="text-blue-400/70">{{ $nutritionTargets['water_intake'] }} ml/day</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @else
+        <div class="glass rounded-2xl p-6 border border-amber-500/20 bg-amber-500/10 mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
+                    <span class="text-xl">📝</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-amber-400">Complete Your Fitness Profile</h3>
+                    <p class="text-amber-400/80">Get personalized nutrition recommendations by setting up your fitness profile</p>
+                </div>
+                <a href="{{ route('user.profile.edit') }}" class="ml-auto px-6 py-3 rounded-xl text-sm font-bold text-amber-400 hover:text-white hover:bg-amber-500/10 transition-all duration-300 border border-amber-500/30 hover:border-amber-500/50">
+                    Setup Profile
+                </a>
+            </div>
+        </div>
+        @endif
+
         {{-- ✅ Flash Message --}}
         @if(session('success'))
             <div class="glass rounded-2xl p-4 mb-6 border border-emerald-500/30 bg-emerald-500/10">
@@ -86,8 +145,8 @@
                     <p class="text-3xl font-black text-white mb-2">
                         {{ $dailyTotals['calories'] ?? 0 }}<span class="text-lg text-emerald-400 ml-1">kcal</span>
                     </p>
-                    <p class="text-sm {{ $compare($dailyTotals['calories'] ?? 0, $adminTargets['calories'] ?? 0) }}">
-                        Target: {{ $adminTargets['calories'] ?? 0 }} kcal
+                    <p class="text-sm {{ $compare($dailyTotals['calories'] ?? 0, $nutritionTargets['calories'] ?? 0) }}">
+                        Target: {{ $nutritionTargets['calories'] ?? 0 }} kcal
                     </p>
                 </div>
             </div>
@@ -104,8 +163,8 @@
                     <p class="text-3xl font-black text-white mb-2">
                         {{ $dailyTotals['protein'] ?? 0 }}<span class="text-lg text-blue-400 ml-1">g</span>
                     </p>
-                    <p class="text-sm {{ $compare($dailyTotals['protein'] ?? 0, $adminTargets['protein'] ?? 0) }}">
-                        Target: {{ $adminTargets['protein'] ?? 0 }} g
+                    <p class="text-sm {{ $compare($dailyTotals['protein'] ?? 0, $nutritionTargets['protein'] ?? 0) }}">
+                        Target: {{ $nutritionTargets['protein'] ?? 0 }} g
                     </p>
                 </div>
             </div>
@@ -122,8 +181,8 @@
                     <p class="text-3xl font-black text-white mb-2">
                         {{ $dailyTotals['carbs'] ?? 0 }}<span class="text-lg text-amber-400 ml-1">g</span>
                     </p>
-                    <p class="text-sm {{ $compare($dailyTotals['carbs'] ?? 0, $adminTargets['carbs'] ?? 0) }}">
-                        Target: {{ $adminTargets['carbs'] ?? 0 }} g
+                    <p class="text-sm {{ $compare($dailyTotals['carbs'] ?? 0, $nutritionTargets['carbs'] ?? 0) }}">
+                        Target: {{ $nutritionTargets['carbs'] ?? 0 }} g
                     </p>
                 </div>
             </div>
@@ -140,8 +199,51 @@
                     <p class="text-3xl font-black text-white mb-2">
                         {{ $dailyTotals['fat'] ?? 0 }}<span class="text-lg text-purple-400 ml-1">g</span>
                     </p>
-                    <p class="text-sm {{ $compare($dailyTotals['fat'] ?? 0, $adminTargets['fat'] ?? 0) }}">
-                        Target: {{ $adminTargets['fat'] ?? 0 }} g
+                    <p class="text-sm {{ $compare($dailyTotals['fat'] ?? 0, $nutritionTargets['fat'] ?? 0) }}">
+                        Target: {{ $nutritionTargets['fat'] ?? 0 }} g
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {{-- ✅ Water & Hydrogen Level Cards --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {{-- Water Intake Card --}}
+            <div class="glass rounded-2xl p-6 border border-blue-500/10 hover:border-blue-500/30 transition-all duration-300 group hover-glow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-blue-400">Water Intake</h3>
+                    <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <span class="text-blue-400 text-lg">💧</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-black text-white mb-2">
+                        {{ $dailyTotals['water_intake'] ?? 0 }}<span class="text-lg text-blue-400 ml-1">ml</span>
+                    </p>
+                    <p class="text-sm {{ $compare($dailyTotals['water_intake'] ?? 0, $nutritionTargets['water_intake'] ?? 0) }}">
+                        Target: {{ $nutritionTargets['water_intake'] ?? 0 }} ml
+                    </p>
+                </div>
+            </div>
+
+            {{-- Hydrogen Level Card --}}
+            <div class="glass rounded-2xl p-6 border border-purple-500/10 hover:border-purple-500/30 transition-all duration-300 group hover-glow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-purple-400">Hydrogen Level</h3>
+                    <div class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <span class="text-purple-400 text-lg">⚗️</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-black text-white mb-2">
+                        {{ round($dailyTotals['hydrogen_level'] ?? 0, 1) }}<span class="text-lg text-purple-400 ml-1">pH</span>
+                    </p>
+                    <p class="text-sm {{ 
+                        ($dailyTotals['hydrogen_level'] ?? 0) < 6.5 ? 'text-red-400' : 
+                        (($dailyTotals['hydrogen_level'] ?? 0) > 8.5 ? 'text-amber-400' : 'text-emerald-400') 
+                    }}">
+                        {{ ($dailyTotals['hydrogen_level'] ?? 0) < 6.5 ? 'Asam' : 
+                           (($dailyTotals['hydrogen_level'] ?? 0) > 8.5 ? 'Basa' : 'Optimal') }}
                     </p>
                 </div>
             </div>
@@ -212,6 +314,7 @@
                             <th class="px-8 py-4 text-center text-sm font-bold text-emerald-400 uppercase tracking-wider">Protein</th>
                             <th class="px-8 py-4 text-center text-sm font-bold text-emerald-400 uppercase tracking-wider">Carbs</th>
                             <th class="px-8 py-4 text-center text-sm font-bold text-emerald-400 uppercase tracking-wider">Fat</th>
+                            <th class="px-8 py-4 text-center text-sm font-bold text-emerald-400 uppercase tracking-wider">Water</th>
                             <th class="px-8 py-4 text-right text-sm font-bold text-emerald-400 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -225,6 +328,7 @@
                                         </div>
                                         <div>
                                             <p class="text-white font-bold">{{ $meal->meal_name }}</p>
+                                            <p class="text-emerald-400/70 text-sm capitalize">{{ $meal->type }}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -240,6 +344,12 @@
                                 <td class="px-8 py-4 text-center">
                                     <p class="text-lg font-bold text-white">{{ $meal->fat }}<span class="text-sm text-purple-400 ml-1">g</span></p>
                                 </td>
+                                <td class="px-8 py-4 text-center">
+                                    <p class="text-lg font-bold text-white">{{ $meal->water_intake }}<span class="text-sm text-blue-400 ml-1">ml</span></p>
+                                    @if($meal->hydrogen_level)
+                                        <p class="text-xs text-purple-400/70">pH: {{ $meal->hydrogen_level }}</p>
+                                    @endif
+                                </td>
                                 <td class="px-8 py-4 text-right">
                                     <a href="{{ route('user.nutrition.edit', $meal->id) }}"
                                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30 group/edit">
@@ -253,7 +363,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-8 py-16 text-center">
+                                <td colspan="7" class="px-8 py-16 text-center">
                                     <div class="w-20 h-20 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                                         <span class="text-2xl">🍽️</span>
                                     </div>
@@ -274,14 +384,15 @@
         {{-- ✅ Daily Recommendations --}}
         @php
             $deficit = [
-                'calories' => max(0, ($adminTargets['calories'] ?? 0) - ($dailyTotals['calories'] ?? 0)),
-                'protein'  => max(0, ($adminTargets['protein']  ?? 0) - ($dailyTotals['protein']  ?? 0)),
-                'carbs'    => max(0, ($adminTargets['carbs']    ?? 0) - ($dailyTotals['carbs']    ?? 0)),
-                'fat'      => max(0, ($adminTargets['fat']      ?? 0) - ($dailyTotals['fat']      ?? 0)),
+                'calories' => max(0, ($nutritionTargets['calories'] ?? 0) - ($dailyTotals['calories'] ?? 0)),
+                'protein'  => max(0, ($nutritionTargets['protein']  ?? 0) - ($dailyTotals['protein']  ?? 0)),
+                'carbs'    => max(0, ($nutritionTargets['carbs']    ?? 0) - ($dailyTotals['carbs']    ?? 0)),
+                'fat'      => max(0, ($nutritionTargets['fat']      ?? 0) - ($dailyTotals['fat']      ?? 0)),
+                'water_intake' => max(0, ($nutritionTargets['water_intake'] ?? 0) - ($dailyTotals['water_intake'] ?? 0)),
             ];
         @endphp
 
-        @if($deficit['calories'] > 0)
+        @if($deficit['calories'] > 0 || $deficit['water_intake'] > 0)
             <div class="glass rounded-2xl p-6 border border-amber-500/20 bg-amber-500/10 mb-8">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
@@ -289,11 +400,18 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-amber-400">Additional Food Recommendations</h3>
-                        <p class="text-amber-400/80">Your calories are deficit by {{ $deficit['calories'] }} kcal</p>
+                        <p class="text-amber-400/80">
+                            @if($deficit['calories'] > 0)
+                                Your calories are deficit by {{ $deficit['calories'] }} kcal
+                            @endif
+                            @if($deficit['water_intake'] > 0)
+                                • Water intake deficit by {{ $deficit['water_intake'] }} ml
+                            @endif
+                        </p>
                     </div>
                 </div>
                 
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @if($deficit['protein'] > 0)
                         <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
                             <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
@@ -329,6 +447,18 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($deficit['water_intake'] > 0)
+                        <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                            <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                                <span class="text-amber-400 text-sm">💧</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium">Increase Water Intake</p>
+                                <p class="text-amber-400/70 text-sm">Drink more water, herbal tea, or infused water</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -358,13 +488,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     'rgba(16, 185, 129, 0.8)',
                     'rgba(59, 130, 246, 0.8)',
                     'rgba(245, 158, 11, 0.8)',
-                    'rgba(139, 92, 246, 0.8)'
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(59, 130, 246, 0.6)'
                 ],
                 borderColor: [
                     'rgb(16, 185, 129)',
                     'rgb(59, 130, 246)',
                     'rgb(245, 158, 11)',
-                    'rgb(139, 92, 246)'
+                    'rgb(139, 92, 246)',
+                    'rgb(59, 130, 246)'
                 ],
                 borderWidth: 2,
                 borderRadius: 8,

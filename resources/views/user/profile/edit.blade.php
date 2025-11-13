@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="min-h-screen py-8">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Header Section --}}
             <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
@@ -21,7 +21,8 @@
                         <h1 class="text-3xl sm:text-4xl font-black text-white">
                             Edit <span class="text-gradient">Profile</span>
                         </h1>
-                        <p class="text-emerald-400/80 text-lg mt-2">Update your personal information and preferences</p>
+                        <p class="text-emerald-400/80 text-lg mt-2">Update your personal information and fitness preferences
+                        </p>
                     </div>
                 </div>
             </div>
@@ -75,7 +76,8 @@
                     @method('PATCH')
 
                     <div class="p-8">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {{-- Personal Information Section --}}
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                             {{-- Left Column - Personal Information --}}
                             <div class="space-y-6">
                                 <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -92,8 +94,8 @@
                                     <label for="name" class="block text-sm font-medium text-emerald-400">Full Name</label>
                                     <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
                                         class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300">
+                                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300">
                                     @error('name')
                                         <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                                     @enderror
@@ -105,8 +107,8 @@
                                         Address</label>
                                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
                                         required class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300">
+                                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300">
                                     @error('email')
                                         <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                                     @enderror
@@ -116,8 +118,9 @@
                                 <div class="space-y-2">
                                     <label for="age" class="block text-sm font-medium text-gray-300">Age</label>
                                     <input type="number" name="age" id="age" value="{{ old('age', $user->age) }}" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300" min="10" max="100">
+                                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300" min="10"
+                                        max="100">
                                     @error('age')
                                         <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                                     @enderror
@@ -139,8 +142,8 @@
                                 <div class="space-y-2">
                                     <label for="gender" class="block text-sm font-medium text-gray-300">Gender</label>
                                     <select name="gender" id="gender" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300">
+                                                   focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300">
                                         <option value="">Select Gender</option>
                                         <option value="male" {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>
                                             Male</option>
@@ -157,9 +160,9 @@
                                     <label for="height" class="block text-sm font-medium text-gray-300">Height (cm)</label>
                                     <input type="number" name="height" id="height"
                                         value="{{ old('height', $user->height) }}" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300" min="100" max="250"
-                                        step="0.1">
+                                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300" min="100"
+                                        max="250" step="0.1">
                                     @error('height')
                                         <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
                                     @enderror
@@ -170,8 +173,8 @@
                                     <label for="weight" class="block text-sm font-medium text-gray-300">Weight (kg)</label>
                                     <input type="number" name="weight" id="weight"
                                         value="{{ old('weight', $user->weight) }}" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
-                                               placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
-                                               focus:border-transparent transition-all duration-300" min="30" max="300"
+                                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                   focus:border-transparent transition-all duration-300" min="30" max="300"
                                         step="0.1">
                                     @error('weight')
                                         <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
@@ -180,8 +183,115 @@
                             </div>
                         </div>
 
+                        {{-- Fitness Profile Section --}}
+                        <div class="mb-8 pt-8 border-t border-gray-700/50">
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                Fitness Profile
+                            </h3>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {{-- Left Column - Fitness Preferences --}}
+                                <div class="space-y-6">
+                                    {{-- Activity Level --}}
+                                    <div class="space-y-2">
+                                        <label for="activity_level" class="block text-sm font-medium text-gray-300">Activity
+                                            Level</label>
+                                        <select name="activity_level" id="activity_level" class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
+                                                       focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                       focus:border-transparent transition-all duration-300">
+                                            <option value="">Select Activity Level</option>
+                                            <option value="light"
+                                                {{ old('activity_level', $user->fitnessProfile->activity_level ?? '') == 'light' ? 'selected' : '' }}>
+                                                Light (Mostly sedentary, office work)
+                                            </option>
+                                            <option value="moderate"
+                                                {{ old('activity_level', $user->fitnessProfile->activity_level ?? '') == 'moderate' ? 'selected' : '' }}>
+                                                Moderate (Light exercise 1-3 days/week)
+                                            </option>
+                                            <option value="heavy"
+                                                {{ old('activity_level', $user->fitnessProfile->activity_level ?? '') == 'heavy' ? 'selected' : '' }}>
+                                                Heavy (Intense exercise 4-5 days/week)
+                                            </option>
+                                        </select>
+                                        @error('activity_level')
+                                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Daily Calorie Target --}}
+                                    <div class="space-y-2">
+                                        <label for="daily_calorie_target"
+                                            class="block text-sm font-medium text-gray-300">Daily Calorie Target</label>
+                                        <input type="number" name="daily_calorie_target" id="daily_calorie_target"
+                                            value="{{ old('daily_calorie_target', $user->fitnessProfile->daily_calorie_target ?? '') }}"
+                                            class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
+                                                       placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                       focus:border-transparent transition-all duration-300" min="1000"
+                                            max="5000" step="50" placeholder="e.g., 2000">
+                                        @error('daily_calorie_target')
+                                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                        <p class="text-gray-500 text-xs mt-1">Recommended daily calorie intake based on your
+                                            goals</p>
+                                    </div>
+                                </div>
+
+                                {{-- Right Column - Additional Fitness Info --}}
+                                <div class="space-y-6">
+                                    {{-- Activity Description --}}
+                                    <div class="space-y-2">
+                                        <label for="activity_description"
+                                            class="block text-sm font-medium text-gray-300">Activity Description</label>
+                                        <input type="text" name="activity_description" id="activity_description"
+                                            value="{{ old('activity_description', $user->fitnessProfile->activity_description ?? '') }}"
+                                            class="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white 
+                                                       placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                                                       focus:border-transparent transition-all duration-300"
+                                            placeholder="e.g., Office worker, Construction, Student, etc.">
+                                        @error('activity_description')
+                                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Preferred Muscle Groups --}}
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Preferred Muscle
+                                            Groups</label>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            @php
+                                                $muscleGroups = ['chest', 'back', 'arms', 'shoulders', 'legs', 'core', 'glutes', 'full_body'];
+                                                $selectedMuscles = old('preferred_muscle_groups', json_decode($user->fitnessProfile->preferred_muscle_groups ?? '[]') ?? []);
+                                            @endphp
+
+                                            @foreach($muscleGroups as $muscle)
+                                                <label class="flex items-center space-x-3 cursor-pointer group">
+                                                    <input type="checkbox" name="preferred_muscle_groups[]"
+                                                        value="{{ $muscle }}"
+                                                        {{ in_array($muscle, $selectedMuscles) ? 'checked' : '' }}
+                                                        class="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-700 rounded focus:ring-emerald-500 focus:ring-2">
+                                                    <span
+                                                        class="text-gray-300 group-hover:text-white transition-colors duration-200 capitalize">
+                                                        {{ str_replace('_', ' ', $muscle) }}
+                                                    </span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                        @error('preferred_muscle_groups')
+                                            <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                        <p class="text-gray-500 text-xs mt-2">Select muscle groups you want to focus on</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Avatar Upload Section --}}
-                        <div class="mt-8 pt-8 border-t border-gray-700/50">
+                        <div class="mb-8 pt-8 border-t border-gray-700/50">
                             <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -247,7 +357,7 @@
 
                         {{-- Action Buttons --}}
                         <div
-                            class="mt-8 pt-6 border-t border-gray-700/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                            class="pt-6 border-t border-gray-700/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
                             <a href="{{ route('user.profile.index') }}"
                                 class="group flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white transition-all duration-300 border border-gray-600 hover:bg-gray-700/50 w-full sm:w-auto">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -264,7 +374,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                Save Changes
+                                Save All Changes
                             </button>
                         </div>
                     </div>
@@ -339,6 +449,62 @@
             if (this.files && this.files[0]) {
                 document.getElementById('fileName').textContent = this.files[0].name;
             }
+        });
+
+        // Auto-calculate calorie target based on activity level and physical stats
+        document.addEventListener('DOMContentLoaded', function () {
+            const activityLevel = document.getElementById('activity_level');
+            const height = document.getElementById('height');
+            const weight = document.getElementById('weight');
+            const age = document.getElementById('age');
+            const gender = document.getElementById('gender');
+            const calorieTarget = document.getElementById('daily_calorie_target');
+
+            function calculateCalories() {
+                if (!height.value || !weight.value || !age.value || !gender.value || !activityLevel.value) {
+                    return;
+                }
+
+                // Basic BMR calculation (Mifflin-St Jeor Equation)
+                let bmr;
+                if (gender.value === 'male') {
+                    bmr = 10 * weight.value + 6.25 * height.value - 5 * age.value + 5;
+                } else {
+                    bmr = 10 * weight.value + 6.25 * height.value - 5 * age.value - 161;
+                }
+
+                // Activity multiplier
+                let activityMultiplier = 1.2;
+                switch (activityLevel.value) {
+                    case 'light':
+                        activityMultiplier = 1.375;
+                        break;
+                    case 'moderate':
+                        activityMultiplier = 1.55;
+                        break;
+                    case 'heavy':
+                        activityMultiplier = 1.725;
+                        break;
+                }
+
+                const maintenanceCalories = Math.round(bmr * activityMultiplier);
+
+                // Only set if the field is empty or if we're changing activity level
+                if (!calorieTarget.value || calorieTarget.dataset.autoCalculated === 'true') {
+                    calorieTarget.value = maintenanceCalories;
+                    calorieTarget.dataset.autoCalculated = 'true';
+                }
+            }
+
+            // Add event listeners
+            [activityLevel, height, weight, age, gender].forEach(element => {
+                element?.addEventListener('change', calculateCalories);
+            });
+
+            // Manual input removes auto-calculated flag
+            calorieTarget?.addEventListener('input', function () {
+                this.dataset.autoCalculated = 'false';
+            });
         });
     </script>
 @endsection

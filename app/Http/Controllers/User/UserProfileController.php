@@ -16,7 +16,7 @@ class UserProfileController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('fitnessProfile');
 
         return view('user.profile.index', compact('user'));
     }
@@ -26,7 +26,7 @@ class UserProfileController extends Controller
      */
     public function edit()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('fitnessProfile');
 
         return view('user.profile.edit', compact('user'));
     }
@@ -46,6 +46,11 @@ class UserProfileController extends Controller
             'height' => 'nullable|numeric|min:100|max:250',
             'weight' => 'nullable|numeric|min:30|max:300',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'activity_level' => 'nullable|in:light,moderate,heavy',
+            'activity_description' => 'nullable|string|max:255',
+            'daily_calorie_target' => 'nullable|integer|min:1000|max:5000',
+            'preferred_muscle_groups' => 'nullable|array',
+            'preferred_muscle_groups.*' => 'in:chest,back,arms,shoulders,legs,core,glutes,full_body',
         ]);
 
         // Jika ada file avatar
@@ -56,13 +61,27 @@ class UserProfileController extends Controller
             }
 
             $file = $request->file('avatar');
-            $filename = 'avatar_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $avatarPath = $file->storeAs('avatars', $filename, 'public');
             $user->avatar = $avatarPath;
         }
 
         // Update data user
         $user->update($request->only('name', 'email', 'age', 'gender', 'height', 'weight'));
+
+        // Update atau create fitness profile
+        $fitnessData = [
+            'activity_level' => $request->activity_level,
+            'activity_description' => $request->activity_description,
+            'daily_calorie_target' => $request->daily_calorie_target,
+            'preferred_muscle_groups' => $request->preferred_muscle_groups ? json_encode($request->preferred_muscle_groups) : null,
+        ];
+
+        if ($user->fitnessProfile) {
+            $user->fitnessProfile->update($fitnessData);
+        } else {
+            $user->fitnessProfile()->create($fitnessData);
+        }
 
         return redirect()->route('user.profile.index')->with('success', 'Profil berhasil diperbarui!');
     }
@@ -86,7 +105,7 @@ class UserProfileController extends Controller
 
             // Store new avatar
             $file = $request->file('avatar');
-            $filename = 'avatar_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $avatarPath = $file->storeAs('avatars', $filename, 'public');
 
             // Update user avatar

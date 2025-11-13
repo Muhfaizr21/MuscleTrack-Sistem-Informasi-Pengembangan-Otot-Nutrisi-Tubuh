@@ -149,4 +149,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(AiRecommendation::class, 'user_id');
     }
+    public function fitnessProfile()
+    {
+        return $this->hasOne(UserFitnessProfile::class);
+    }
 }

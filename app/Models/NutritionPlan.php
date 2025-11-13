@@ -16,6 +16,8 @@ class NutritionPlan extends Model
         'protein',
         'carbs',
         'fat',
+        'water_intake',
+        'hydrogen_level',
         'day_of_week',
         'target_fitness',
         'type',
@@ -30,7 +32,7 @@ class NutritionPlan extends Model
     }
 
     /**
-     * Ambil total makronutrien dalam satu hari (untuk dashboard harian)
+     * Ambil total makronutrien & cairan dalam satu hari (untuk dashboard harian)
      */
     public static function dailyTotal($userId, $day)
     {
@@ -40,8 +42,29 @@ class NutritionPlan extends Model
                 SUM(calories) as total_calories,
                 SUM(protein) as total_protein,
                 SUM(carbs) as total_carbs,
-                SUM(fat) as total_fat
+                SUM(fat) as total_fat,
+                SUM(water_intake) as total_water,
+                AVG(hydrogen_level) as avg_hydrogen
             ')
             ->first();
+    }
+
+    /**
+     * Dapatkan total asupan air per minggu
+     */
+    public static function weeklyWaterIntake($userId)
+    {
+        return self::where('user_id', $userId)
+            ->selectRaw('SUM(water_intake) as total_water')
+            ->value('total_water');
+    }
+
+    /**
+     * Scope untuk rekomendasi berdasarkan target fitness
+     */
+    public function scopeForTarget($query, $target)
+    {
+        return $query->where('target_fitness', $target)
+            ->orWhereNull('target_fitness');
     }
 }
