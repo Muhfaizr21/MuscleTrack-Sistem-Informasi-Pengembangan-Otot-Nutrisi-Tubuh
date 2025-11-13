@@ -34,7 +34,8 @@ use App\Http\Controllers\Admin\{
     ContactMessageController, // ← INI JUGA
     ProfileController,
     SettingsController,
-    HelpSupportController
+    HelpSupportController,
+    TrainerManagementController
 };
 
 // ==========================
@@ -135,6 +136,16 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::get('/help-support', [HelpSupportController::class, 'index'])->name('help-support.index');
+
+        // Trainer Management Routes
+Route::prefix('trainers')->name('trainers.')->group(function () {
+    Route::get('/', [TrainerManagementController::class, 'index'])->name('index');
+    Route::get('/{trainer}', [TrainerManagementController::class, 'show'])->name('show');
+    Route::get('/{trainer}/verification', [TrainerManagementController::class, 'editVerification'])->name('verification.edit');
+    Route::put('/{trainer}/verification', [TrainerManagementController::class, 'updateVerification'])->name('verification.update');
+    Route::put('/{trainer}/toggle-status', [TrainerManagementController::class, 'toggleStatus'])->name('toggle-status');
+    Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
+});
     });
 
 // ==========================

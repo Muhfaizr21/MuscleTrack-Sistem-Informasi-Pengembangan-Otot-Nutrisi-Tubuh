@@ -13,15 +13,36 @@ use Illuminate\Validation\Rule;
 class UserManagementController extends Controller
 {
     /**
-     * Menampilkan daftar semua user & trainer (READ)
+     * Menampilkan daftar semua user & trainer (READ) - DIPERBAIKI DENGAN SEARCH
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua user, urutkan dari yang terbaru, 10 per halaman
-        $users = User::latest()->paginate(10);
+        $search = $request->get('search');
+        $role = $request->get('role');
+        $status = $request->get('status');
 
-        // Kirim data users ke view 'admin.users.index'
-        return view('admin.users.index', compact('users'));
+        // Query dengan filter search dan filter lainnya
+        $users = User::when($search, function($query) use ($search) {
+                return $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($role, function($query) use ($role) {
+                return $query->where('role', $role);
+            })
+            ->when($status, function($query) use ($status) {
+                if ($status === 'active') {
+                    return $query->where('verification_status', 'approved');
+                } elseif ($status === 'inactive') {
+                    return $query->where('verification_status', '!=', 'approved');
+                }
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString(); // Pertahankan parameter di pagination
+
+        return view('admin.users.index', compact('users', 'search', 'role', 'status'));
     }
 
     /**
@@ -29,7 +50,6 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        // Hanya menampilkan view 'admin.users.create'
         return view('admin.users.create');
     }
 
@@ -38,7 +58,6 @@ class UserManagementController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi data (sesuai migrasi Anda)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -51,12 +70,10 @@ class UserManagementController extends Controller
             'goal_id' => 'nullable|integer',
         ]);
 
-        // Hash password sebelum disimpan
         $validated['password'] = Hash::make($validated['password']);
 
         User::create($validated);
 
-        // ✅ AUDIT LOG: Admin membuat user baru
         Log::info('Admin created new user', [
             'admin_id' => Auth::id(),
             'admin_email' => Auth::user()->email,
@@ -73,7 +90,6 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        // Mengirim data $user yang dipilih ke view 'admin.users.edit'
         return view('admin.users.edit', compact('user'));
     }
 
@@ -82,7 +98,6 @@ class UserManagementController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Validasi data (Email unik tapi abaikan diri sendiri)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -95,12 +110,10 @@ class UserManagementController extends Controller
             'goal_id' => 'nullable|integer',
         ]);
 
-        // ✅ PROTECTION: Admin tidak bisa mengubah role sendiri
         if (Auth::id() == $user->id && $request->role != Auth::user()->role) {
             return back()->with('error', 'Anda tidak bisa mengubah role akun Anda sendiri.');
         }
 
-        // Cek jika admin mengisi password baru
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
@@ -109,7 +122,6 @@ class UserManagementController extends Controller
 
         $user->update($validated);
 
-        // ✅ AUDIT LOG: Admin mengupdate user
         Log::info('Admin updated user', [
             'admin_id' => Auth::id(),
             'admin_email' => Auth::user()->email,
@@ -123,21 +135,18 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Menghapus user dari database (DELETE) - DIPERBAIKI
+     * Menghapus user dari database (DELETE)
      */
     public function destroy(User $user)
     {
-        // ✅ PROTECTION: Admin tidak bisa menghapus diri sendiri
         if (Auth::id() == $user->id) {
             return back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
         }
 
-        // ✅ PROTECTION: Admin tidak bisa menghapus sesama admin
         if ($user->role === 'admin' && Auth::user()->role === 'admin') {
             return back()->with('error', 'Admin tidak bisa menghapus admin lainnya.');
         }
 
-        // ✅ AUDIT LOG: Sebelum menghapus
         Log::warning('Admin deleting user', [
             'admin_id' => Auth::id(),
             'admin_email' => Auth::user()->email,
@@ -154,11 +163,10 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Menampilkan detail user (SHOW) - TAMBAHAN UNTUK SECURITY
+     * Menampilkan detail user (SHOW)
      */
     public function show(User $user)
     {
-        // ✅ Authorization implicit dengan route model binding
-        return view('admin.users.index', compact('user'));
+        return view('admin.users.show', compact('user'));
     }
 }

@@ -24,6 +24,45 @@
             </div>
         </div>
 
+        <!-- Search Section -->
+        <div class="p-6 border-b border-slate-700/50 bg-slate-800/30">
+            <form action="{{ route('admin.trainer-memberships.index') }}" method="GET" class="max-w-md">
+                <div class="relative">
+                    <input type="text"
+                           name="search"
+                           value="{{ request('search') }}"
+                           placeholder="Cari member atau trainer..."
+                           class="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl py-3 px-4 pl-12 text-slate-200 placeholder-slate-500 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-300">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    @if(request('search'))
+                        <a href="{{ route('admin.trainer-memberships.index') }}"
+                           class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-400 transition-colors duration-300"
+                           title="Clear search">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </form>
+
+            <!-- Search Results Info -->
+            @if(request('search'))
+                <div class="mt-3 flex items-center gap-2 text-sm text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Menampilkan hasil untuk: <strong>"{{ request('search') }}"</strong></span>
+                    <span class="text-slate-500">•</span>
+                    <span>{{ $memberships->total() }} hasil ditemukan</span>
+                </div>
+            @endif
+        </div>
+
         <!-- Success Message -->
         @if(session('success'))
             <div class="p-4 bg-green-500/15 backdrop-blur-sm text-green-400 border-b border-green-500/20">
@@ -32,6 +71,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="p-4 bg-red-500/15 backdrop-blur-sm text-red-400 border-b border-red-500/20">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ session('error') }}
                 </div>
             </div>
         @endif
@@ -132,15 +182,24 @@
                                 <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-1.657-.672-3.157-1.757-4.243M17 20h-2m2-2v-2a3 3 0 00-3-3h-2a3 3 0 00-3 3v2m2 4v-4m4 4v-4m-4 4H7m0 0v-2a3 3 0 013-3h2a3 3 0 013 3v2m0 4v-4m-4 4H7m0 0H3v-2a3 3 0 015.356-1.857M3 20v-2c0-1.657.672-3.157 1.757-4.243M3 20h2M3 18v-2a3 3 0 013-3h2a3 3 0 013 3v2m-4 4v-4"/>
                                 </svg>
-                                <p class="text-lg font-semibold">Belum ada penugasan trainer</p>
-                                <p class="text-sm mt-1">Mulai dengan menugaskan trainer ke member</p>
-                                <a href="{{ route('admin.trainer-memberships.create') }}"
-                                   class="mt-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                    </svg>
-                                    Tugaskan Trainer Pertama
-                                </a>
+                                @if(request('search'))
+                                    <p class="text-lg font-semibold">Tidak ada hasil pencarian</p>
+                                    <p class="text-sm mt-1">Tidak ditemukan penugasan untuk "<strong>{{ request('search') }}</strong>"</p>
+                                    <a href="{{ route('admin.trainer-memberships.index') }}"
+                                       class="mt-4 px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2">
+                                        Tampilkan Semua
+                                    </a>
+                                @else
+                                    <p class="text-lg font-semibold">Belum ada penugasan trainer</p>
+                                    <p class="text-sm mt-1">Mulai dengan menugaskan trainer ke member</p>
+                                    <a href="{{ route('admin.trainer-memberships.create') }}"
+                                       class="mt-4 px-6 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                        Tugaskan Trainer Pertama
+                                    </a>
+                                @endif
                             </div>
                         </td>
                     </tr>
