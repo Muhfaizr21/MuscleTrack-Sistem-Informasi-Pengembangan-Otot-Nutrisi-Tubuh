@@ -234,6 +234,8 @@ Route::middleware(['auth', 'role:user'])
             Route::get('/my-ratings', [UserTrainingController::class, 'myRatings'])->name('my-ratings');
             Route::post('/ai-chat', [UserTrainingController::class, 'chatAI'])->name('ai.chat');
             Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('reset-ai-chat');
+            Route::post('/confirm/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm');
+
         });
 
         // 👤 Profile
