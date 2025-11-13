@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - NeoFit AI</title>
+    <title>Daftar - MuscleXpert</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -166,9 +166,8 @@
 
                 <h1 class="font-bold text-4xl sm:text-5xl text-white mb-3">
                     <span class="bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                        NeoFit
+                        MuscleXpert
                     </span>
-                    <span class="text-white">AI</span>
                 </h1>
                 <p class="text-lg text-slate-400">Mulai Perjalanan Fitness Anda!</p>
             </div>
