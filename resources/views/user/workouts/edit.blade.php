@@ -163,7 +163,7 @@
         </form>
     </div>
 
-    {{-- 🔢 Script Timer dan Waktu --}}
+    {{-- 🔢 Script Timer dan Waktu dengan LocalStorage --}}
     <script>
         // Elements
         const scheduledDateInput = document.getElementById('scheduled_date');
@@ -183,12 +183,87 @@
 
         // Workout duration from PHP
         const workoutDuration = {{ $schedule->workoutplan->duration_minutes ?? 30 }};
+        const scheduleId = {{ $schedule->id }};
 
         // Timer variables
         let timerInterval = null;
         let timerSeconds = 0;
         let isTimerRunning = false;
         let isTimerPaused = false;
+        let timerStartTime = null;
+
+        // LocalStorage keys
+        const TIMER_KEY = `workout_timer_${scheduleId}`;
+        const TIMER_START_KEY = `workout_start_${scheduleId}`;
+        const TIMER_PAUSED_KEY = `workout_paused_${scheduleId}`;
+
+        // Initialize timer from localStorage
+        function initializeTimerFromStorage() {
+            const savedTimer = localStorage.getItem(TIMER_KEY);
+            const savedStartTime = localStorage.getItem(TIMER_START_KEY);
+            const savedPaused = localStorage.getItem(TIMER_PAUSED_KEY);
+
+            if (savedTimer && savedStartTime) {
+                timerSeconds = parseInt(savedTimer);
+                timerStartTime = parseInt(savedStartTime);
+                
+                if (savedPaused === 'true') {
+                    // Timer was paused
+                    isTimerRunning = true;
+                    isTimerPaused = true;
+                    showTimer();
+                    updateTimerDisplay();
+                    updateTimerButtons();
+                    timerStatus.textContent = 'Dijeda - Sesi disimpan';
+                } else {
+                    // Timer was running - calculate elapsed time
+                    const now = Math.floor(Date.now() / 1000);
+                    const elapsedSeconds = now - timerStartTime;
+                    timerSeconds += elapsedSeconds;
+                    
+                    isTimerRunning = true;
+                    isTimerPaused = false;
+                    showTimer();
+                    startTimerInterval();
+                    timerStatus.textContent = 'Berjalan - Dilanjutkan dari sesi sebelumnya';
+                }
+                
+                // Set status to in_progress
+                setStatus('in_progress');
+            }
+        }
+
+        // Save timer state to localStorage
+        function saveTimerState() {
+            if (isTimerRunning) {
+                localStorage.setItem(TIMER_KEY, timerSeconds.toString());
+                
+                if (!isTimerPaused) {
+                    localStorage.setItem(TIMER_START_KEY, Math.floor(Date.now() / 1000).toString());
+                } else {
+                    localStorage.removeItem(TIMER_START_KEY);
+                }
+                
+                localStorage.setItem(TIMER_PAUSED_KEY, isTimerPaused.toString());
+            }
+        }
+
+        // Clear timer state from localStorage
+        function clearTimerState() {
+            localStorage.removeItem(TIMER_KEY);
+            localStorage.removeItem(TIMER_START_KEY);
+            localStorage.removeItem(TIMER_PAUSED_KEY);
+        }
+
+        // Show timer UI
+        function showTimer() {
+            liveTimer.classList.remove('hidden');
+        }
+
+        // Hide timer UI
+        function hideTimer() {
+            liveTimer.classList.add('hidden');
+        }
 
         // Set current date and time as default
         function setCurrentDateTime() {
@@ -223,7 +298,7 @@
             if (isTimerRunning) return;
 
             // Show live timer
-            liveTimer.classList.remove('hidden');
+            showTimer();
             
             // Set status to in_progress
             setStatus('in_progress');
@@ -231,14 +306,10 @@
             // Start timer
             isTimerRunning = true;
             isTimerPaused = false;
-            timerSeconds = 0;
+            timerStartTime = Math.floor(Date.now() / 1000);
             
-            timerInterval = setInterval(() => {
-                if (!isTimerPaused) {
-                    timerSeconds++;
-                    updateTimerDisplay();
-                }
-            }, 1000);
+            startTimerInterval();
+            saveTimerState();
             
             updateTimerButtons();
             
@@ -250,16 +321,32 @@
             }
         }
 
+        function startTimerInterval() {
+            timerInterval = setInterval(() => {
+                if (!isTimerPaused) {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                    saveTimerState(); // Save every second for accuracy
+                }
+            }, 1000);
+        }
+
         function pauseTimer() {
             isTimerPaused = true;
+            clearInterval(timerInterval);
+            timerInterval = null;
             timerStatus.textContent = 'Dijeda';
             updateTimerButtons();
+            saveTimerState();
         }
 
         function resumeTimer() {
             isTimerPaused = false;
+            timerStartTime = Math.floor(Date.now() / 1000);
+            startTimerInterval();
             timerStatus.textContent = 'Berjalan';
             updateTimerButtons();
+            saveTimerState();
         }
 
         function stopTimer() {
@@ -290,9 +377,12 @@
                 stopTimerBtn.classList.add('bg-green-600', 'hover:bg-green-500');
                 stopTimerBtn.classList.remove('bg-red-500', 'hover:bg-red-400');
                 
+                // Clear localStorage
+                clearTimerState();
+                
                 // Auto-hide after 5 seconds
                 setTimeout(() => {
-                    liveTimer.classList.add('hidden');
+                    hideTimer();
                 }, 5000);
             }
         }
@@ -310,6 +400,8 @@
                             <span class="ml-2 text-white">⚡ Sedang Berlangsung</span>
                         `;
                         document.querySelector('.flex.gap-4.mt-2').appendChild(newRadio);
+                    } else {
+                        document.querySelector('input[value="in_progress"]').checked = true;
                     }
                 }
                 radio.checked = radio.value === status;
@@ -349,14 +441,29 @@
         resumeTimerBtn.addEventListener('click', resumeTimer);
         stopTimerBtn.addEventListener('click', stopTimer);
 
+        // Save timer state before page unload
+        window.addEventListener('beforeunload', function() {
+            if (isTimerRunning) {
+                saveTimerState();
+            }
+        });
+
         // Auto-update end time when page loads
         document.addEventListener('DOMContentLoaded', function() {
             updateEndTime();
             
-            // Show timer if workout is in progress
+            // Initialize timer from localStorage
+            initializeTimerFromStorage();
+            
+            // Show timer if workout is in progress in database
             @if($schedule->status === 'in_progress')
-                liveTimer.classList.remove('hidden');
-                startTimer(); // You might want to load existing timer state from backend
+                if (!isTimerRunning) {
+                    // If not running from localStorage, show the option to continue
+                    liveTimer.classList.remove('hidden');
+                    timerDisplay.textContent = '00:00:00';
+                    timerStatus.textContent = 'Siap untuk melanjutkan?';
+                    setStatus('in_progress');
+                }
             @endif
         });
 
@@ -364,6 +471,11 @@
         document.getElementById('workoutForm').addEventListener('submit', function(e) {
             if (isTimerRunning && !confirm('Timer masih berjalan. Yakin ingin menyimpan?')) {
                 e.preventDefault();
+            } else {
+                // Clear timer state on form submit if timer is not running
+                if (!isTimerRunning) {
+                    clearTimerState();
+                }
             }
         });
     </script>

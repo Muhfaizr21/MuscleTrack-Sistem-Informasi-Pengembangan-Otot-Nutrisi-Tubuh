@@ -33,14 +33,48 @@
                 </div>
             </div>
 
+            {{-- Fitness Profile Overview --}}
+            @if($fitnessProfile)
+                <div class="glass-dark rounded-3xl p-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
+                    <h2 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
+                        <span class="text-gradient">Fitness Profile</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-sm mb-1">Goal</p>
+                            <p class="text-white font-semibold capitalize">{{ $fitnessProfile->goal->name ?? 'Not Set' }}</p>
+                        </div>
+                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-sm mb-1">Activity Level</p>
+                            <p class="text-white font-semibold capitalize">{{ $fitnessProfile->activity_level ?? 'Not Set' }}
+                            </p>
+                        </div>
+                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-sm mb-1">Daily Calories</p>
+                            <p class="text-white font-semibold">{{ $fitnessProfile->daily_calorie_target ?? 'Not Set' }}</p>
+                        </div>
+                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-sm mb-1">Focus Areas</p>
+                            <p class="text-white font-semibold text-sm">
+                                @if($fitnessProfile->preferred_muscle_groups)
+                                    {{ implode(', ', json_decode($fitnessProfile->preferred_muscle_groups)) }}
+                                @else
+                                    Not Set
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- Stats Overview --}}
             @if($progress->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    @php
-                        $latest = $progress->first();
-                        $previous = $progress->skip(1)->first();
-                    @endphp
+                @php
+                    $latest = $progress->first();
+                    $previous = $progress->skip(1)->first();
+                @endphp
 
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {{-- Weight Stat --}}
                     <div
                         class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
@@ -64,6 +98,35 @@
                                     <span>{{ $weightIcon }}</span>
                                     <span>{{ $weightDiff > 0 ? '+' : '' }}{{ number_format($weightDiff, 1) }}kg</span>
                                     <span class="text-gray-500">from last</span>
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Body Fat Stat --}}
+                    <div
+                        class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-purple-400">Body Fat</h3>
+                            <div
+                                class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-purple-400 text-lg">🔥</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-4xl font-black text-white mb-2">
+                                {{ $latest->body_fat ? number_format($latest->body_fat, 1) : '--' }}<span
+                                    class="text-2xl text-purple-400">%</span>
+                            </p>
+                            @if($previous && $latest->body_fat && $previous->body_fat)
+                                @php
+                                    $fatDiff = $latest->body_fat - $previous->body_fat;
+                                    $fatIcon = $fatDiff < 0 ? '📈' : ($fatDiff > 0 ? '📉' : '➡️');
+                                    $fatColor = $fatDiff < 0 ? 'text-emerald-400' : ($fatDiff > 0 ? 'text-red-400' : 'text-gray-400');
+                                @endphp
+                                <p class="text-sm {{ $fatColor }} flex items-center justify-center gap-1">
+                                    <span>{{ $fatIcon }}</span>
+                                    <span>{{ $fatDiff > 0 ? '+' : '' }}{{ number_format($fatDiff, 1) }}%</span>
                                 </p>
                             @endif
                         </div>
@@ -98,30 +161,31 @@
                         </div>
                     </div>
 
-                    {{-- Body Fat Stat --}}
+                    {{-- BMI Stat --}}
                     <div
                         class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-purple-400">Body Fat</h3>
+                            <h3 class="text-lg font-semibold text-orange-400">BMI</h3>
                             <div
-                                class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <span class="text-purple-400 text-lg">🔥</span>
+                                class="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-orange-400 text-lg">📐</span>
                             </div>
                         </div>
                         <div class="text-center">
+                            @php
+                                $heightInMeter = $latest->height / 100;
+                                $bmi = $heightInMeter > 0 ? $latest->weight / ($heightInMeter * $heightInMeter) : 0;
+                            @endphp
                             <p class="text-4xl font-black text-white mb-2">
-                                {{ $latest->body_fat ? number_format($latest->body_fat, 1) : '--' }}<span
-                                    class="text-2xl text-purple-400">%</span>
+                                {{ $bmi > 0 ? number_format($bmi, 1) : '--' }}
                             </p>
-                            @if($previous && $latest->body_fat && $previous->body_fat)
+                            @if($bmi > 0)
                                 @php
-                                    $fatDiff = $latest->body_fat - $previous->body_fat;
-                                    $fatIcon = $fatDiff < 0 ? '📈' : ($fatDiff > 0 ? '📉' : '➡️');
-                                    $fatColor = $fatDiff < 0 ? 'text-emerald-400' : ($fatDiff > 0 ? 'text-red-400' : 'text-gray-400');
+                                    $bmiStatus = $bmi < 18.5 ? 'Underweight' : ($bmi < 25 ? 'Normal' : ($bmi < 30 ? 'Overweight' : 'Obese'));
+                                    $bmiColor = $bmi < 18.5 ? 'text-blue-400' : ($bmi < 25 ? 'text-emerald-400' : ($bmi < 30 ? 'text-orange-400' : 'text-red-400'));
                                 @endphp
-                                <p class="text-sm {{ $fatColor }} flex items-center justify-center gap-1">
-                                    <span>{{ $fatIcon }}</span>
-                                    <span>{{ $fatDiff > 0 ? '+' : '' }}{{ number_format($fatDiff, 1) }}%</span>
+                                <p class="text-sm {{ $bmiColor }} font-semibold">
+                                    {{ $bmiStatus }}
                                 </p>
                             @endif
                         </div>
@@ -140,6 +204,13 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                                 <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                                <span>Weight</span>
+                            </div>
+                        @endif
+                        @if($progress->whereNotNull('muscle_mass')->count() > 0)
+                            <div
+                                class="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                                <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
                                 <span>Muscle Mass</span>
                             </div>
                         @endif
@@ -196,16 +267,27 @@
                                 <th
                                     class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Weight</th>
-                                @if($progress->whereNotNull('muscle_mass')->count() > 0)
-                                    <th
-                                        class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
-                                        Muscle Mass</th>
-                                @endif
-                                @if($progress->whereNotNull('body_fat')->count() > 0)
-                                    <th
-                                        class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
-                                        Body Fat</th>
-                                @endif
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Height</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Body Fat</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Muscle</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Waist</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Chest</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Arm</th>
+                                <th
+                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    Photo</th>
                                 <th
                                     class="px-8 py-4 text-right text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Actions</th>
@@ -233,36 +315,74 @@
                                         <p class="text-2xl font-black text-white">{{ number_format($p->weight, 1) }}<span
                                                 class="text-lg text-emerald-400">kg</span></p>
                                     </td>
-                                    @if($progress->whereNotNull('muscle_mass')->count() > 0)
-                                        <td class="px-8 py-4">
-                                            <p class="text-xl font-semibold text-white">
-                                                {{ $p->muscle_mass ? number_format($p->muscle_mass, 1) : '--' }}<span
-                                                    class="text-sm text-blue-400">kg</span>
-                                            </p>
-                                        </td>
-                                    @endif
-                                    @if($progress->whereNotNull('body_fat')->count() > 0)
-                                        <td class="px-8 py-4">
-                                            <p class="text-xl font-semibold text-white">
-                                                {{ $p->body_fat ? number_format($p->body_fat, 1) : '--' }}<span
-                                                    class="text-sm text-purple-400">%</span>
-                                            </p>
-                                        </td>
-                                    @endif
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->height ? number_format($p->height, 1) : '--' }}<span
+                                                class="text-sm text-blue-400">cm</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->body_fat ? number_format($p->body_fat, 1) : '--' }}<span
+                                                class="text-sm text-purple-400">%</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->muscle_mass ? number_format($p->muscle_mass, 1) : '--' }}<span
+                                                class="text-sm text-blue-400">kg</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->waist ? number_format($p->waist, 1) : '--' }}<span
+                                                class="text-sm text-emerald-400">cm</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->chest ? number_format($p->chest, 1) : '--' }}<span
+                                                class="text-sm text-emerald-400">cm</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        <p class="text-xl font-semibold text-white">
+                                            {{ $p->arm ? number_format($p->arm, 1) : '--' }}<span
+                                                class="text-sm text-emerald-400">cm</span></p>
+                                    </td>
+                                    <td class="px-8 py-4">
+                                        @if($p->photo_progress)
+                                            <img src="{{ asset('storage/' . $p->photo_progress) }}" alt="Progress Photo"
+                                                class="w-12 h-12 rounded-xl object-cover border border-emerald-500/20">
+                                        @else
+                                            <span class="text-emerald-400/60">--</span>
+                                        @endif
+                                    </td>
                                     <td class="px-8 py-4 text-right">
-                                        <a href="{{ route('user.progress.edit', $p->id) }}"
-                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30 group/edit">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                            Edit
-                                        </a>
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ route('user.progress.edit', $p->id) }}"
+                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30 group/edit">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('user.progress.destroy', $p->id) }}" method="POST"
+                                                class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-400 hover:text-white hover:bg-red-500/10 transition-all duration-300 border border-transparent hover:border-red-500/30"
+                                                    onclick="return confirm('Are you sure you want to delete this progress?')">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-8 py-16 text-center">
+                                    <td colspan="10" class="px-8 py-16 text-center">
                                         <div
                                             class="w-20 h-20 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                                             <span class="text-2xl">📝</span>
@@ -293,7 +413,7 @@
             Chart.defaults.borderColor = 'rgba(16, 185, 129, 0.1)';
             Chart.defaults.font.family = 'Inter, sans-serif';
 
-            const progress = @json($progress);
+            const progress = @json($progress->reverse()->values());
             const labels = progress.map(p =>
                 new Date(p.recorded_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
