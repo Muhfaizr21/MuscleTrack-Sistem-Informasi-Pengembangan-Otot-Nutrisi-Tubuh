@@ -32,8 +32,8 @@ class UserSeeder extends Seeder
         // =============================
         $adminId = DB::table('users')->insertGetId([
             'name' => 'Admin Master',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password123'),
+            'email' => 'admin@email.com',
+            'password' => Hash::make('password1234'),
             'role' => 'admin',
             'age' => 30,
             'gender' => 'male',

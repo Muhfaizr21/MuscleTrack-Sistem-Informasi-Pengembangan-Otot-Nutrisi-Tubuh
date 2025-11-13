@@ -85,6 +85,9 @@
                             </svg>
                             Terapkan Filter
                         </button>
+
+                        <!-- Reset Button hanya muncul jika ada filter aktif -->
+                        @if(request()->hasAny(['search', 'role', 'status']))
                         <a href="{{ route('admin.users.index') }}"
                            class="px-6 py-2 rounded-xl border border-slate-600/50 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,6 +95,7 @@
                             </svg>
                             Reset
                         </a>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -126,6 +130,7 @@
                     <tr>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">User</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Data Fisik</th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Bergabung</th>
                         <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
@@ -162,6 +167,21 @@
                                 </span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($user->verification_status == 'approved')
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                                    Aktif
+                                </span>
+                            @elseif($user->verification_status == 'pending')
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                    Pending
+                                </span>
+                            @else
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                                    Ditolak
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
                             {{ $user->age ?? '-' }} Thn, {{ $user->gender ?? '-' }} ({{ $user->weight ?? '-' }}kg / {{ $user->height ?? '-' }}cm)
                         </td>
@@ -178,7 +198,7 @@
                                     Edit
                                 </a>
 
-                                @if(Auth::id() != $user->id)
+                                @if(Auth::id() != $user->id && !($user->role === 'admin' && Auth::user()->role === 'admin'))
                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -197,7 +217,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-8 text-center">
+                        <td colspan="6" class="px-6 py-8 text-center">
                             <div class="flex flex-col items-center justify-center text-slate-500">
                                 <svg class="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>

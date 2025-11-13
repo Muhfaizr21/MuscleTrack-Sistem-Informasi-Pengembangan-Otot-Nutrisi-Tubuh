@@ -7,7 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // Penting untuk validasi Enum
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
@@ -41,19 +42,28 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed', // 'confirmed' akan cek 'password_confirmation'
-            'role' => ['required', Rule::in(['admin', 'user', 'trainer'])], // Validasi Enum Role
+            'password' => 'required|string|min:8|confirmed',
+            'role' => ['required', Rule::in(['admin', 'user', 'trainer'])],
             'age' => 'nullable|integer|min:15',
-            'gender' => ['nullable', Rule::in(['male', 'female'])], // Validasi Enum Gender
+            'gender' => ['nullable', Rule::in(['male', 'female'])],
             'height' => 'nullable|numeric|min:100',
             'weight' => 'nullable|numeric|min:30',
-            'goal_id' => 'nullable|integer', // Sesuai migrasi (tanpa foreign key check)
+            'goal_id' => 'nullable|integer',
         ]);
 
         // Hash password sebelum disimpan
         $validated['password'] = Hash::make($validated['password']);
 
         User::create($validated);
+
+        // ✅ AUDIT LOG: Admin membuat user baru
+        Log::info('Admin created new user', [
+            'admin_id' => Auth::id(),
+            'admin_email' => Auth::user()->email,
+            'new_user_email' => $validated['email'],
+            'new_user_role' => $validated['role'],
+            'created_at' => now()
+        ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User baru berhasil ditambahkan.');
     }
@@ -76,7 +86,7 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed', // Password opsional saat update
+            'password' => 'nullable|string|min:8|confirmed',
             'role' => ['required', Rule::in(['admin', 'user', 'trainer'])],
             'age' => 'nullable|integer|min:15',
             'gender' => ['nullable', Rule::in(['male', 'female'])],
@@ -85,31 +95,70 @@ class UserManagementController extends Controller
             'goal_id' => 'nullable|integer',
         ]);
 
+        // ✅ PROTECTION: Admin tidak bisa mengubah role sendiri
+        if (Auth::id() == $user->id && $request->role != Auth::user()->role) {
+            return back()->with('error', 'Anda tidak bisa mengubah role akun Anda sendiri.');
+        }
+
         // Cek jika admin mengisi password baru
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
-            // Jika tidak, hapus password dari array agar tidak menimpa yg lama
             unset($validated['password']);
         }
 
         $user->update($validated);
 
+        // ✅ AUDIT LOG: Admin mengupdate user
+        Log::info('Admin updated user', [
+            'admin_id' => Auth::id(),
+            'admin_email' => Auth::user()->email,
+            'updated_user_id' => $user->id,
+            'updated_user_email' => $user->email,
+            'changes' => $validated,
+            'updated_at' => now()
+        ]);
+
         return redirect()->route('admin.users.index')->with('success', 'Data user berhasil diperbarui.');
     }
 
     /**
-     * Menghapus user dari database (DELETE)
+     * Menghapus user dari database (DELETE) - DIPERBAIKI
      */
     public function destroy(User $user)
     {
-        // Proteksi agar admin tidak bisa menghapus diri sendiri
+        // ✅ PROTECTION: Admin tidak bisa menghapus diri sendiri
         if (Auth::id() == $user->id) {
             return back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
         }
 
+        // ✅ PROTECTION: Admin tidak bisa menghapus sesama admin
+        if ($user->role === 'admin' && Auth::user()->role === 'admin') {
+            return back()->with('error', 'Admin tidak bisa menghapus admin lainnya.');
+        }
+
+        // ✅ AUDIT LOG: Sebelum menghapus
+        Log::warning('Admin deleting user', [
+            'admin_id' => Auth::id(),
+            'admin_email' => Auth::user()->email,
+            'admin_role' => Auth::user()->role,
+            'deleted_user_id' => $user->id,
+            'deleted_user_email' => $user->email,
+            'deleted_user_role' => $user->role,
+            'deleted_at' => now()
+        ]);
+
         $user->delete();
 
         return back()->with('success', 'User berhasil dihapus.');
+    }
+
+    /**
+     * Menampilkan detail user (SHOW) - TAMBAHAN UNTUK SECURITY
+     */
+    public function show(User $user)
+    {
+        // ✅ Authorization implicit dengan route model binding
+        return view('admin.users.index', compact('user'));
     }
 }
