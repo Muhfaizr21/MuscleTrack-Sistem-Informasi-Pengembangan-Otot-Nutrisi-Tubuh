@@ -88,7 +88,7 @@
             <div class="w-1 h-6 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full"></div>
             Menu Utama
         </h2>
-        
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
 
             {{-- Card: Member Management --}}
@@ -133,7 +133,7 @@
 
             {{-- Card: Program & Nutrition --}}
             @if($firstMember)
-                <a href="{{ route('trainer.programs.edit', ['memberId' => $firstMember->id]) }}"
+                <a href="{{ route('trainer.programs.index', ['memberId' => $firstMember->id]) }}"
                     class="group glass-card rounded-2xl p-6 smooth-transition hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
                     <div class="flex items-start gap-4">
                         <div class="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 smooth-transition">

@@ -3,53 +3,66 @@
 @section('title', 'Daftar Member')
 
 @section('content')
-    {{-- 🏋️ Header (Style "Dark Premium") --}}
-    <h1 class="font-serif text-3xl font-bold text-white mb-6">
-        👥 Daftar <span class="text-amber-400">Member</span>
-    </h1>
+<div class="relative max-w-5xl mx-auto p-6 md:p-8 rounded-2xl border border-gray-800
+    bg-gradient-to-br from-gray-950 via-gray-900 to-gray-900
+    backdrop-blur-sm shadow-inner shadow-black/30">
 
-    {{-- Logika @if Anda aman --}}
+    {{-- 👥 Header: Deep Dark --}}
+    <div class="flex items-center mb-6">
+        <div class="w-2 h-10 bg-emerald-600/60 rounded-full mr-3"></div>
+        <h1 class="text-3xl font-semibold text-gray-100 tracking-wide">
+            👥 Daftar <span class="text-emerald-500/80">Member</span>
+        </h1>
+    </div>
+
+    {{-- 🌐 Logika --}}
     @if($members->isEmpty())
-        {{-- Empty State (Style "Dark Premium") --}}
-        <div class="bg-black/70 backdrop-blur-lg border border-gray-700/50 shadow-sm sm:rounded-lg p-6">
-            <p class="text-gray-400 italic text-center">Belum ada member di bawah bimbinganmu.</p>
+        <div class="p-8 text-center border border-gray-800 rounded-xl bg-gray-950/70">
+            <p class="text-gray-500 italic mb-3">Belum ada member di bawah bimbinganmu.</p>
+            <p class="text-gray-400">Tetap siaga, mungkin besok ada yang mendaftar 💪</p>
         </div>
     @else
-        <div class="bg-black/70 backdrop-blur-lg border border-gray-700/50 overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-950/60">
 
-            <table class="min-w-full divide-y divide-gray-700">
-                <thead class="bg-gray-900/50">
+            <table class="min-w-full divide-y divide-gray-800">
+                <thead class="bg-gray-900/80">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Nama</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Jumlah Log</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Nama
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Jumlah Log
+                        </th>
                         <th scope="col" class="relative px-6 py-3"><span class="sr-only">Aksi</span></th>
                     </tr>
                 </thead>
+
                 <tbody class="divide-y divide-gray-800">
-
-                    {{-- Logika @foreach Anda aman --}}
                     @foreach ($members as $member)
-                    <tr class="hover:bg-gray-800/50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-white">{{ $member->name }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-400">{{ $member->email }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                            {{ $member->progress_logs_count }} log
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            {{-- Link (Style "Dark Premium") --}}
-                            <a href="{{ route('trainer.members.show', $member->id) }}"
-                               class="text-amber-400 hover:text-amber-300">Lihat Detail</a>
-                        </td>
-                    </tr>
+                        <tr class="hover:bg-gray-800/40 transition-all duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-200">{{ $member->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-400">{{ $member->email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-400/70">
+                                {{ $member->progress_logs_count }} log
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{{ route('trainer.members.show', $member->id) }}"
+                                   class="text-emerald-500/80 hover:text-emerald-400/70 underline-offset-2 hover:underline transition-all duration-200">
+                                    Lihat Detail
+                                </a>
+                            </td>
+                        </tr>
                     @endforeach
-
                 </tbody>
             </table>
         </div>
     @endif
+</div>
 @endsection
