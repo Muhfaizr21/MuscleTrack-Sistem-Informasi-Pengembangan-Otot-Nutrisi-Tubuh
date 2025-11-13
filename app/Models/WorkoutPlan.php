@@ -28,6 +28,15 @@ class WorkoutPlan extends Model
         'recommended_by',
     ];
 
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | BOOT EVENTS
+    |--------------------------------------------------------------------------
+    */
     protected static function boot()
     {
         parent::boot();
@@ -35,70 +44,105 @@ class WorkoutPlan extends Model
         static::creating(function ($plan) {
             if (Auth::check()) {
                 $plan->user_id = Auth::id();
-                $plan->recommended_by = Auth::user()->role;
+                $plan->recommended_by = Auth::user()->role ?? 'system';
             }
         });
     }
 
-    // 🔹 Relasi ke pembuat plan (admin/trainer)
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONSHIPS
+    |--------------------------------------------------------------------------
+    */
+
+    // 🔹 Pembuat plan (Admin/Trainer)
     public function creator()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // 🔹 Relasi ke pelatih yang ditugaskan
+    // 🔹 Trainer yang ditugaskan
     public function trainer()
     {
         return $this->belongsTo(User::class, 'trainer_id');
     }
 
-    // 🔹 Jika ada member (peserta plan)
-    public function member()
-    {
-        return $this->belongsTo(User::class, 'member_id');
-    }
-
-    // 🔹 Relasi ke exercises (many-to-many melalui tabel pivot)
+    // 🔹 Exercise (Many-to-Many Pivot)
     public function exercises()
     {
         return $this->belongsToMany(Exercise::class, 'exercise_workout_plan')
-            ->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval')
+            ->withPivot(['sets', 'reps', 'duration', 'order', 'rest_interval'])
             ->withTimestamps()
-            ->orderBy('order');
+            ->orderBy('pivot_order', 'asc');
     }
 
-    // 🔹 Relasi ke workout sessions (one-to-many)
+    // 🔹 Workout Sessions (One-to-Many)
     public function workoutSessions()
     {
-        return $this->hasMany(WorkoutSession::class);
+        return $this->hasMany(WorkoutSession::class, 'workout_plan_id');
     }
 
-    // 🔹 Scope untuk plan yang aktif
+    // 🔹 Workout Exercise (One-to-Many alternatif pivot eksplisit)
+    public function workoutExercises()
+    {
+        return $this->hasMany(WorkoutExercise::class, 'workout_plan_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 
-    // 🔹 Scope untuk plan berdasarkan level kesulitan
-    public function scopeByDifficulty($query, $level)
+    public function scopeByDifficulty($query, string $level)
     {
         return $query->where('difficulty_level', $level);
     }
 
-    // 🔹 Accessor untuk durasi total
+    public function scopeForBMI($query, string $bmiCategory)
+    {
+        return $query->where('bmi_category', $bmiCategory);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSORS
+    |--------------------------------------------------------------------------
+    */
+
+    // 🔹 Format durasi: “6 minggu (45 menit/hari)”
     public function getTotalDurationAttribute()
     {
-        return $this->duration_weeks . ' minggu (' . $this->duration_minutes . ' menit/hari)';
+        $weeks = $this->duration_weeks ? "{$this->duration_weeks} minggu" : "-";
+        $minutes = $this->duration_minutes ? "{$this->duration_minutes} menit/hari" : "-";
+        return "{$weeks} ({$minutes})";
     }
 
-    // 🔹 Method untuk mengecek apakah plan milik user tertentu
-    public function isOwnedBy($userId)
+    // 🔹 Warna status label di UI
+    public function getStatusLabelAttribute()
     {
-        return $this->user_id == $userId;
+        return $this->status === 'active' ? '🟢 Active' : '⚪ Inactive';
     }
 
-    // 🔹 Method untuk menambah exercise ke plan
-    public function addExercise($exerciseId, $data = [])
+    /*
+    |--------------------------------------------------------------------------
+    | METHODS
+    |--------------------------------------------------------------------------
+    */
+
+    // 🔹 Cek kepemilikan user
+    public function isOwnedBy(int $userId): bool
+    {
+        return $this->user_id === $userId;
+    }
+
+    // 🔹 Tambahkan Exercise ke Plan (Pivot)
+    public function addExercise($exerciseId, array $data = [])
     {
         return $this->exercises()->attach($exerciseId, [
             'sets' => $data['sets'] ?? 3,
@@ -108,8 +152,26 @@ class WorkoutPlan extends Model
             'rest_interval' => $data['rest_interval'] ?? 60,
         ]);
     }
-    public function workoutExercises()
+
+    // 🔹 Hapus Exercise dari Plan
+    public function removeExercise($exerciseId)
     {
-        return $this->hasMany(WorkoutExercise::class, 'workout_plan_id');
+        return $this->exercises()->detach($exerciseId);
+    }
+
+    // 🔹 Sinkronisasi list exercise (replace semua pivot)
+    public function syncExercises(array $exercises)
+    {
+        $syncData = [];
+        foreach ($exercises as $exerciseId => $data) {
+            $syncData[$exerciseId] = [
+                'sets' => $data['sets'] ?? 3,
+                'reps' => $data['reps'] ?? 10,
+                'duration' => $data['duration'] ?? null,
+                'order' => $data['order'] ?? 0,
+                'rest_interval' => $data['rest_interval'] ?? 60,
+            ];
+        }
+        $this->exercises()->sync($syncData);
     }
 }

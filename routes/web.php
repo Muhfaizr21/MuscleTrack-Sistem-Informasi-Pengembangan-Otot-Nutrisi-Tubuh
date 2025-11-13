@@ -32,10 +32,12 @@ use App\Http\Controllers\Admin\{
     BodyMetricController,
     NotificationBroadcasterController,
     ContactMessageController, // ← INI JUGA
+    ExerciseController,
     ProfileController,
     SettingsController,
     HelpSupportController,
-    TrainerManagementController
+    TrainerManagementController,
+
 };
 
 // ==========================
@@ -101,7 +103,6 @@ Route::controller(GoogleRegisterController::class)->group(function () {
 });
 
 Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
-
 // ==========================
 // 🧑‍💼 ADMIN
 // ==========================
@@ -109,9 +110,23 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // PERBAIKI: ganti 'index' menjadi 'dashboard'
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
+        // ==============================
+        // 📋 EXERCISES MANAGEMENT (FULL CRUD)
+        // ==============================
+        Route::prefix('exercises')->name('exercises.')->group(function () {
+            Route::get('/', [ExerciseController::class, 'index'])->name('index');
+            Route::get('/create', [ExerciseController::class, 'create'])->name('create');
+            Route::post('/', [ExerciseController::class, 'store'])->name('store');
+            Route::get('/{exercise}/edit', [ExerciseController::class, 'edit'])->name('edit');
+            Route::put('/{exercise}', [ExerciseController::class, 'update'])->name('update');
+            Route::delete('/{exercise}', [ExerciseController::class, 'destroy'])->name('destroy');
+        });
+
+        // ==============================
+        // 🌐 ROUTES LAINNYA
+        // ==============================
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
@@ -137,16 +152,16 @@ Route::middleware(['auth', 'role:admin'])
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::get('/help-support', [HelpSupportController::class, 'index'])->name('help-support.index');
 
-        // Trainer Management Routes
-Route::prefix('trainers')->name('trainers.')->group(function () {
-    Route::get('/', [TrainerManagementController::class, 'index'])->name('index');
-    Route::get('/{trainer}', [TrainerManagementController::class, 'show'])->name('show');
-    Route::get('/{trainer}/verification', [TrainerManagementController::class, 'editVerification'])->name('verification.edit');
-    Route::put('/{trainer}/verification', [TrainerManagementController::class, 'updateVerification'])->name('verification.update');
-    Route::put('/{trainer}/toggle-status', [TrainerManagementController::class, 'toggleStatus'])->name('toggle-status');
-    Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
-});
-    });
+        // Trainer Management
+        Route::prefix('trainers')->name('trainers.')->group(function () {
+            Route::get('/', [TrainerManagementController::class, 'index'])->name('index');
+            Route::get('/{trainer}', [TrainerManagementController::class, 'show'])->name('show');
+            Route::get('/{trainer}/verification', [TrainerManagementController::class, 'editVerification'])->name('verification.edit');
+            Route::put('/{trainer}/verification', [TrainerManagementController::class, 'updateVerification'])->name('verification.update');
+            Route::put('/{trainer}/toggle-status', [TrainerManagementController::class, 'toggleStatus'])->name('toggle-status');
+            Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
+        });
+    }); // 🔹 INI WAJIB ADA UNTUK MENUTUP BLOK ADMIN
 
 // ==========================
 // 🧑‍🏫 TRAINER

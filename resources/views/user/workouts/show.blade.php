@@ -36,7 +36,7 @@
                     <div>
                         <h2 class="text-2xl font-black text-white mb-2">{{ $workout->title }}</h2>
                         <p class="text-emerald-400/80 text-lg mb-4">{{ $workout->description }}</p>
-                        
+
                         <div class="flex flex-wrap gap-4 mb-4">
                             <div class="flex items-center gap-2">
                                 <span class="text-emerald-400 text-sm font-bold">Level:</span>
@@ -375,9 +375,9 @@
                                             <div>
                                                 <h4 class="text-sm font-bold text-white mb-2">Video Tutorial</h4>
                                                 <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
-                                                    <iframe src="{{ $exercise->video_url }}" 
-                                                            frameborder="0" 
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                    <iframe src="{{ $exercise->video_url }}"
+                                                            frameborder="0"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                             allowfullscreen
                                                             class="w-full h-48 rounded-lg"></iframe>
                                                 </div>
@@ -406,7 +406,7 @@
                                         @if($exercise->image_url)
                                             <div>
                                                 <h4 class="text-sm font-bold text-white mb-2">Exercise Image</h4>
-                                                <img src="{{ $exercise->image_url }}" 
+                                                <img src="{{ $exercise->image_url }}"
                                                      alt="{{ $exercise->name }}"
                                                      class="w-full h-48 object-cover rounded-lg">
                                             </div>

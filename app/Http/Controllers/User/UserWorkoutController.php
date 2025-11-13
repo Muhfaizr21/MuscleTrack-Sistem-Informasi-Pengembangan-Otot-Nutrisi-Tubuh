@@ -327,7 +327,7 @@ class UserWorkoutController extends Controller
         $workout = WorkoutPlan::with([
             'exercises' => function ($query) {
                 $query->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval');
-            }, 
+            },
             'trainer:id,name',
             'workoutExercises'
         ])->findOrFail($id);
@@ -363,8 +363,8 @@ class UserWorkoutController extends Controller
         }
 
         return view('user.workouts.show', compact(
-            'workout', 
-            'trainerName', 
+            'workout',
+            'trainerName',
             'exerciseCount',
             'totalDuration',
             'totalCalories',
