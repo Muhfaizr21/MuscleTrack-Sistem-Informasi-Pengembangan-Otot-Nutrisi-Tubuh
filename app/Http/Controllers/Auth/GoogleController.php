@@ -7,7 +7,8 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
@@ -21,7 +22,7 @@ class GoogleController extends Controller
     }
 
     /**
-     * Callback dari Google setelah login.
+     * Callback dari Google setelah login/register.
      */
     public function handleGoogleCallback()
     {
@@ -31,79 +32,104 @@ class GoogleController extends Controller
             // Cek apakah user sudah ada
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (! $user) {
-                // Simpan data sementara di session untuk memilih role
+            if ($user) {
+                // Login langsung jika user sudah ada
+                Auth::login($user);
+
+                // Redirect sesuai role
+                return $this->redirectByRole($user);
+            } else {
+                // Simpan data sementara di session untuk melengkapi registrasi
                 session(['google_user' => [
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
+                    'avatar' => $googleUser->getAvatar(),
                 ]]);
 
-                // Redirect ke halaman pilih role
-                return redirect()->route('register.role');
+                // Redirect ke halaman lengkapi registrasi
+                return redirect()->route('register.google.complete');
             }
-
-            // Login langsung jika user sudah ada
-            Auth::login($user);
-
-            // Redirect sesuai role
-            return $this->redirectByRole($user);
-
         } catch (Exception $e) {
-            return redirect()->route('login')
-                ->with('error', 'Login/Register dengan Google gagal! '.$e->getMessage());
+            Log::error('Google OAuth Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return redirect()->route('register')
+                ->with('error', 'Login/Register dengan Google gagal! Silakan coba lagi.');
         }
     }
 
     /**
-     * Menampilkan halaman untuk memilih role setelah login Google pertama kali.
+     * Menampilkan halaman untuk melengkapi registrasi Google.
      */
-    public function showRoleForm()
+    public function showCompleteRegistrationForm()
     {
         if (! session('google_user')) {
             return redirect()->route('register')
-                ->with('error', 'Sesi Google sudah berakhir.');
+                ->with('error', 'Sesi Google sudah berakhir. Silakan daftar ulang.');
         }
 
         $googleUser = session('google_user');
 
-        return view('auth.register-role', [
+        return view('auth.register-google-complete', [
             'name' => $googleUser['name'],
             'email' => $googleUser['email'],
+            'avatar' => $googleUser['avatar'] ?? null,
         ]);
     }
 
     /**
-     * Menyimpan role dan buat akun baru.
+     * Menyimpan data registrasi lengkap dari Google.
      */
-    public function storeRole(Request $request)
+    public function completeRegistration(Request $request)
     {
         $request->validate([
-            'role' => 'required|in:user,trainer,admin',
+            'role' => 'required|in:user,trainer',
+            'password' => 'required|string|min:6|confirmed',
+            'terms' => 'required|accepted',
         ]);
 
         $googleData = session('google_user');
 
         if (! $googleData) {
             return redirect()->route('register')
-                ->with('error', 'Sesi Google sudah berakhir.');
+                ->with('error', 'Sesi Google sudah berakhir. Silakan daftar ulang.');
         }
 
-        // Buat user baru
+        // Cek kembali apakah email sudah terdaftar (untuk menghindari race condition)
+        $existingUser = User::where('email', $googleData['email'])->first();
+        if ($existingUser) {
+            Auth::login($existingUser);
+            session()->forget('google_user');
+            return $this->redirectByRole($existingUser);
+        }
+
+        // Buat user baru dengan password yang diinput
         $user = User::create([
             'name' => $googleData['name'],
             'email' => $googleData['email'],
-            'password' => bcrypt(Str::random(16)),
+            'password' => Hash::make($request->password),
             'role' => $request->role,
+            'email_verified_at' => now(), // Email Google sudah terverifikasi
         ]);
+
+        // Optional: Simpan avatar jika ada
+        if (!empty($googleData['avatar'])) {
+            // Anda bisa menambahkan logika untuk menyimpan avatar di sini
+            // $user->avatar = $googleData['avatar'];
+            // $user->save();
+        }
 
         Auth::login($user);
         session()->forget('google_user');
 
-        return $this->redirectByRole($user);
+        return $this->redirectByRole($user)
+            ->with('success', 'Registrasi berhasil! Selamat datang di MuscleTrack.');
     }
 
     /**
-     * Redirect user berdasarkan role MuscleTrack.
+     * Redirect user berdasarkan role.
      */
     private function redirectByRole(User $user)
     {
@@ -116,8 +142,8 @@ class GoogleController extends Controller
                 return redirect()->route('user.dashboard');
             default:
                 Auth::logout();
-
-                return redirect()->route('login')->with('error', 'Role pengguna tidak dikenali!');
+                return redirect()->route('login')
+                    ->with('error', 'Role pengguna tidak dikenali!');
         }
     }
 }

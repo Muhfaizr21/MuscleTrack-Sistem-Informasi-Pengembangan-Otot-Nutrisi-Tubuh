@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 // ==========================
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\GoogleRegisterController;
+
 
 // ==========================
 // 🌐 PUBLIC/CORE CONTROLLERS
@@ -37,7 +37,6 @@ use App\Http\Controllers\Admin\{
     SettingsController,
     HelpSupportController,
     TrainerManagementController,
-
 };
 
 // ==========================
@@ -81,8 +80,18 @@ use App\Http\Controllers\User\{
 // ==========================
 Route::get('/', fn() => view('welcome'))->name('home');
 
-Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
-Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+// ==========================
+// 🏠 GOOGLE OAUTH ROUTES - FIXED
+// ==========================
+Route::controller(GoogleController::class)->group(function () {
+    // Ubah dari 'login/google' menjadi 'auth/google'
+    Route::get('auth/google', 'redirectToGoogle')->name('login.google');
+    Route::get('auth/google/callback', 'handleGoogleCallback');
+
+    // Google Registration Completion Routes
+    Route::get('register/google/complete', 'showCompleteRegistrationForm')->name('register.google.complete');
+    Route::post('register/google/complete', 'completeRegistration')->name('register.google.complete.store');
+});
 
 Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::get('/login', 'create')->name('login');
@@ -90,19 +99,8 @@ Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::post('/logout', 'destroy')->name('logout');
 });
 
-Route::controller(GoogleController::class)->group(function () {
-    Route::get('login/google', 'redirectToGoogle')->name('login.google');
-    Route::get('login/google/callback', 'handleGoogleCallback');
-});
-
-Route::controller(GoogleRegisterController::class)->group(function () {
-    Route::get('register/google', 'redirectToGoogle')->name('register.google');
-    Route::get('register/google/callback', 'handleGoogleCallback');
-    Route::get('register/google/role', 'showRoleForm')->name('register.role');
-    Route::post('register/google/role', 'storeRole')->name('register.role.store');
-});
-
 Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+
 // ==========================
 // 🧑‍💼 ADMIN
 // ==========================
@@ -261,7 +259,6 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/ai-chat', [UserTrainingController::class, 'chatAI'])->name('ai.chat');
             Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('reset-ai-chat');
             Route::post('/confirm/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm');
-
         });
 
         // 👤 Profile
