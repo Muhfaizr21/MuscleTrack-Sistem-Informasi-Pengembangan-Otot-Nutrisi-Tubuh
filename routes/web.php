@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 // ==========================
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 
 // ==========================
@@ -37,6 +39,7 @@ use App\Http\Controllers\Admin\{
     SettingsController,
     HelpSupportController,
     TrainerManagementController,
+    
 };
 
 // ==========================
@@ -97,6 +100,21 @@ Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::get('/login', 'create')->name('login');
     Route::post('/login', 'store');
     Route::post('/logout', 'destroy')->name('logout');
+});
+
+// Password Reset Routes
+Route::middleware('guest')->group(function () {
+    // Forgot Password
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+                ->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+                ->name('password.email');
+
+    // Reset Password
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+                ->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+                ->name('password.store');
 });
 
 Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');

@@ -3,30 +3,27 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class PasswordResetLinkController extends Controller
 {
     /**
      * Display the password reset link request view.
      */
-    public function create(): View
+    public function create()
     {
         return view('auth.forgot-password');
     }
 
     /**
      * Handle an incoming password reset link request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => 'required|email',
         ]);
 
         // We will send the password reset link to this user. Once we have attempted
@@ -36,9 +33,15 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if ($status == Password::RESET_LINK_SENT) {
+            Log::info('Password reset link sent to: ' . $request->email);
+            
+            return back()->with('status', __($status));
+        }
+
+        Log::warning('Failed to send password reset link to: ' . $request->email);
+        
+        return back()->withInput($request->only('email'))
+                    ->withErrors(['email' => __($status)]);
     }
 }
