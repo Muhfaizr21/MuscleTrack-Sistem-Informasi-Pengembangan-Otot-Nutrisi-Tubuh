@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trainer Panel - @yield('title', 'Dashboard')</title>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- AlpineJS untuk interaktivitas --}}
@@ -19,6 +18,7 @@
         rel="stylesheet">
 
     <style>
+        /* Styles yang sama seperti sebelumnya */
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -297,13 +297,52 @@
         .fade-in-up {
             animation: fadeInUp 0.5s ease-out;
         }
+
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            width: 240px;
+            background: rgba(17, 25, 21, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .profile-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #e5e7eb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .profile-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .profile-item svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 
 <body class="text-gray-100 min-h-screen flex flex-col">
-
-    <div x-data="{ isMobileMenuOpen: false }" class="flex flex-col min-h-screen">
-
+    <div x-data="{ isMobileMenuOpen: false, profileDropdownOpen: false }" class="flex flex-col min-h-screen">
         {{-- 🌟 TOP NAVBAR --}}
         <nav class="glass-nav fixed top-0 left-0 w-full z-50">
             <div class="max-w-7xl mx-auto px-4 md:px-8">
@@ -327,7 +366,6 @@
                         $trainer = auth()->user();
                         $firstMember = $trainer ? User::where('trainer_id', $trainer->id)->first() : null;
                     @endphp
-
                     <div class="hidden lg:flex items-center space-x-1">
                         <a href="{{ route('trainer.dashboard') }}"
                             class="nav-item {{ Route::is('trainer.dashboard') ? 'active text-emerald-400' : 'text-gray-300' }}">
@@ -338,7 +376,6 @@
                             </svg>
                             Dashboard
                         </a>
-
                         <a href="{{ route('trainer.members.index') }}"
                             class="nav-item {{ Route::is('trainer.members.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +385,6 @@
                             </svg>
                             Member
                         </a>
-
                         @if ($firstMember)
                             <a href="{{ route('trainer.programs.index') }}"
                                 class="nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
@@ -359,7 +395,6 @@
                                 </svg>
                                 Program
                             </a>
-
                             <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
                                 class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -369,7 +404,6 @@
                                 Nutrisi
                             </a>
                         @endif
-
                         <a href="{{ route('trainer.communication.chat.index') }}"
                             class="nav-item {{ Route::is('trainer.communication.chat.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,7 +413,6 @@
                             </svg>
                             Pesan
                         </a>
-
                         <a href="{{ route('trainer.communication.notifications.index') }}"
                             class="nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,14 +421,16 @@
                                 </path>
                             </svg>
                             Notifikasi
-                            @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                            @php
+                                $unreadNotificationsCount = auth()->user()->unreadNotifications->count();
+                            @endphp
+                            @if($unreadNotificationsCount > 0)
                                 <span
                                     class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold notification-badge">
                                     {{ $unreadNotificationsCount }}
                                 </span>
                             @endif
                         </a>
-
                         <a href="{{ route('trainer.quality.verification.status') }}"
                             class="nav-item {{ Route::is('trainer.quality.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,25 +444,77 @@
 
                     {{-- Right Side: Profile & Logout --}}
                     <div class="hidden lg:flex items-center space-x-3">
-                        <div class="glass-card px-3 py-1.5 rounded-lg flex items-center gap-2">
-                            <div class="profile-avatar">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </div>
-                            <span class="text-gray-200 font-medium text-sm">{{ auth()->user()->name }}</span>
-                        </div>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit"
-                                class="glow-button text-red-400 hover:text-red-300 text-sm font-medium smooth-transition flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-red-500/10 border border-red-500/20">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- Profile Dropdown -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-500/10 transition-all duration-200">
+                                <div class="profile-avatar">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                                <span class="text-gray-200 font-medium text-sm">{{ auth()->user()->name }}</span>
+                                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                    :class="{ 'rotate-180': open }" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                    </path>
+                                        d="M19 9l-7 7-7-7"></path>
                                 </svg>
-                                Logout
                             </button>
-                        </form>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" @click.away="open = false"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95" class="profile-dropdown">
+                                <!-- Profile Header -->
+                                <div class="profile-header">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="profile-avatar w-10 h-10">
+                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-white font-semibold text-sm">{{ auth()->user()->name }}</p>
+                                            <p class="text-emerald-400 text-xs">Professional Trainer</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Profile Menu Items -->
+                                <a href="{{ route('trainer.profile.index') }}" class="profile-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                        </path>
+                                    </svg>
+                                    Profil Saya
+                                </a>
+                                <a href="{{ route('trainer.profile.edit') }}" class="profile-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Edit Profil
+                                </a>
+                                <div class="border-t border-emerald-500/10 my-1"></div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="profile-item text-red-400 hover:text-red-300 w-full text-left">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                            </path>
+                                        </svg>
+                                        Keluar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Mobile Menu Button --}}
@@ -472,7 +559,6 @@
                             </svg>
                             Dashboard
                         </a>
-
                         <a href="{{ route('trainer.members.index') }}"
                             class="nav-item {{ Route::is('trainer.members.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,7 +568,6 @@
                             </svg>
                             Member
                         </a>
-
                         @if ($firstMember)
                             <a href="{{ route('trainer.programs.index') }}"
                                 class="nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
@@ -493,7 +578,6 @@
                                 </svg>
                                 Program Latihan
                             </a>
-
                             <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
                                 class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -503,7 +587,6 @@
                                 Nutrisi & Suplemen
                             </a>
                         @endif
-
                         <a href="{{ route('trainer.communication.chat.index') }}"
                             class="nav-item {{ Route::is('trainer.communication.chat.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -513,7 +596,6 @@
                             </svg>
                             Pesan
                         </a>
-
                         <a href="{{ route('trainer.communication.notifications.index') }}"
                             class="nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -522,14 +604,16 @@
                                 </path>
                             </svg>
                             Notifikasi
-                            @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                            @php
+                                $unreadNotificationsCount = auth()->user()->unreadNotifications->count();
+                            @endphp
+                            @if($unreadNotificationsCount > 0)
                                 <span
                                     class="inline-block ml-2 px-2 py-0.5 bg-red-500 rounded-full text-white text-xs font-bold">
                                     {{ $unreadNotificationsCount }}
                                 </span>
                             @endif
                         </a>
-
                         <a href="{{ route('trainer.quality.verification.status') }}"
                             class="nav-item {{ Route::is('trainer.quality.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -538,6 +622,17 @@
                                 </path>
                             </svg>
                             Kualitas Trainer
+                        </a>
+
+                        {{-- Profile Menu Items for Mobile --}}
+                        <div class="nav-divider"></div>
+
+                        <a href="{{ route('trainer.profile.index') }}" class="nav-item text-gray-300">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Profil Saya
                         </a>
 
                         <div class="nav-divider"></div>
@@ -639,9 +734,8 @@
                 <div
                     class="border-t border-emerald-500/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p class="text-gray-400 text-sm text-center md:text-left">
-                        &copy; {{ date('Y') }} MuscleXpert. All rights reserved.
+                        © {{ date('Y') }} MuscleXpert. All rights reserved.
                     </p>
-
                     <div class="flex items-center gap-4">
                         <a href="#" class="text-gray-400 hover:text-emerald-400 smooth-transition">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

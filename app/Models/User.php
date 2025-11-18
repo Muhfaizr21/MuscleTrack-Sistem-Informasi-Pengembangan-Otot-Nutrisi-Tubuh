@@ -153,4 +153,19 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserFitnessProfile::class);
     }
+    /**
+     * Relasi ke user_devices
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Scope untuk users yang memiliki devices
+     */
+    public function scopeHasDevices($query)
+    {
+        return $query->whereHas('devices');
+    }
 }

@@ -39,7 +39,6 @@ use App\Http\Controllers\Admin\{
     SettingsController,
     HelpSupportController,
     TrainerManagementController,
-    
 };
 
 // ==========================
@@ -52,7 +51,8 @@ use App\Http\Controllers\Trainer\{
     NotificationController as TrainerNotificationController,
     ProgramController,
     QualityController,
-    NutritionManagementController
+    NutritionManagementController,
+    TrainerProfileController
 };
 
 // ==========================
@@ -106,15 +106,15 @@ Route::controller(AuthenticatedSessionController::class)->group(function () {
 Route::middleware('guest')->group(function () {
     // Forgot Password
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-                ->name('password.request');
+        ->name('password.request');
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-                ->name('password.email');
+        ->name('password.email');
 
     // Reset Password
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-                ->name('password.reset');
+        ->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])
-                ->name('password.store');
+        ->name('password.store');
 });
 
 Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
@@ -194,6 +194,16 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/{member}/update-progress', [MemberController::class, 'updateProgress'])->name('updateProgress');
         });
 
+        // Trainer Profile Routes
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [TrainerProfileController::class, 'index'])->name('index');
+            Route::get('/edit', [TrainerProfileController::class, 'edit'])->name('edit');
+            Route::post('/update', [TrainerProfileController::class, 'update'])->name('update');
+            Route::post('/password', [TrainerProfileController::class, 'updatePassword'])->name('password.update');
+            Route::post('/settings', [TrainerProfileController::class, 'updateSettings'])->name('settings.update');
+            Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+        });
+
         Route::prefix('communication')->name('communication.')->group(function () {
             Route::get('/chat', [TrainerChatController::class, 'index'])->name('chat.index');
             Route::post('/chat', [TrainerChatController::class, 'store'])->name('chat.store');
@@ -249,6 +259,10 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
+        // 🏋️ WORKOUT ACTIONS - TAMBAHKAN INI
+        Route::post('/workout/{schedule}/start', [UserSummaryController::class, 'startWorkout'])->name('workout.start');
+        Route::post('/workout/{schedule}/complete', [UserSummaryController::class, 'completeWorkout'])->name('workout.complete');
+
         // 💬 Chat
         Route::prefix('chat')->name('chat.')->group(function () {
             Route::get('/', [UserChatController::class, 'index'])->name('index');
@@ -293,7 +307,7 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
 
-        // 🔔 Notifikasi User (Complete Routes)
+        // 🔔 Notifikasi User (Complete Routes dengan Push Notification)
         Route::prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', [UserNotificationController::class, 'index'])->name('index');
             Route::post('/mark-all-read', [UserNotificationController::class, 'markAllRead'])->name('markAllRead');
@@ -305,9 +319,19 @@ Route::middleware(['auth', 'role:user'])
             Route::get('/unread-count', [UserNotificationController::class, 'getUnreadCount'])->name('unreadCount');
             Route::post('/{id}/read-ajax', [UserNotificationController::class, 'markAsReadAjax'])->name('readAjax');
             Route::get('/filter', [UserNotificationController::class, 'filter'])->name('filter');
+
+            // 🚀 REMINDER ROUTES
+            Route::post('/reminder-preferences', [UserNotificationController::class, 'saveReminderPreferences'])->name('reminder-preferences');
+            Route::post('/toggle-reminder', [UserNotificationController::class, 'toggleQuickReminder'])->name('toggle-reminder');
+            Route::post('/test-reminder', [UserNotificationController::class, 'testReminder'])->name('test-reminder');
+            // 🚀 PUSH NOTIFICATION ROUTES - TAMBAHKAN INI
+            Route::post('/test-push', [UserNotificationController::class, 'testPushNotification'])->name('testPush');
+            Route::post('/fcm-token', [UserNotificationController::class, 'storeFCMToken'])->name('storeFCMToken');
+            Route::delete('/fcm-token', [UserNotificationController::class, 'removeFCMToken'])->name('removeFCMToken');
+            Route::get('/devices', [UserNotificationController::class, 'getUserDevices'])->name('devices');
+            Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
     });
-
 // ==========================
 // 🌐 RUTE PUBLIK (DILUAR LOGIN)
 // ==========================

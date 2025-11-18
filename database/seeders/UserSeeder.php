@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
         // Trainer 1 - Specialization: Weight Loss
         $trainerApprovedIds[] = DB::table('users')->insertGetId([
             'name' => 'Coach Andika Pratama',
-            'email' => 'coach.andika@example.com',
+        'email' => 'coach.andika@example.com',
             'password' => Hash::make('password123'),
             'role' => 'trainer',
             'age' => 32,
