@@ -110,7 +110,7 @@ class UserTrainingController extends Controller
     {
         $user = Auth::user();
 
-        if (! empty($user->trainer_id)) {
+        if (!empty($user->trainer_id)) {
             return back()->with('error', 'Anda sudah memiliki trainer aktif.');
         }
 
@@ -119,24 +119,28 @@ class UserTrainingController extends Controller
             ->where('verification_status', 'approved')
             ->first();
 
-        if (! $trainer) {
+        if (!$trainer) {
             return back()->with('error', 'Trainer tidak ditemukan atau belum disetujui.');
         }
+
+        // Generate order_id untuk Midtrans
+        $orderId = 'ORD-' . time() . '-' . rand(1000, 9999);
 
         $payment = Payment::create([
             'user_id' => $user->id,
             'trainer_id' => $trainer->id,
+            'order_id' => $orderId,
             'amount' => 150000,
-            'method' => $request->input('method', 'transfer'),
+            'method' => $request->input('method', 'ewallet'),
             'status' => 'pending',
-            'transaction_id' => 'TRX-'.strtoupper(uniqid()),
         ]);
 
+        // Buat program request
         ProgramRequest::create([
             'trainer_id' => $trainer->id,
             'user_id' => $user->id,
             'status' => 'pending',
-            'note' => 'Permintaan program training dari user '.e($user->name),
+            'note' => 'Permintaan program training dari user ' . e($user->name),
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
@@ -153,7 +157,7 @@ class UserTrainingController extends Controller
             ->where('user_id', Auth::id())
             ->first();
 
-        if (! $payment) {
+        if (!$payment) {
             return redirect()->route('user.training.index')
                 ->with('error', 'Data pembayaran tidak ditemukan.');
         }
@@ -162,53 +166,84 @@ class UserTrainingController extends Controller
     }
 
     /**
-     * Konfirmasi pembayaran sukses.
+     * Halaman invoice untuk semua status pembayaran.
+     */
+    public function invoice($paymentId)
+    {
+        $payment = Payment::with(['trainer', 'trainer.trainerProfile'])
+            ->where('id', $paymentId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$payment) {
+            return redirect()->route('user.training.index')
+                ->with('error', 'Data pembayaran tidak ditemukan.');
+        }
+
+        return view('user.training.invoice', compact('payment'));
+    }
+
+    /**
+     * Handle pembayaran dan redirect ke halaman payment
+     */
+    public function processPayment(Request $request, $trainerId)
+    {
+        $user = Auth::user();
+
+        if (!empty($user->trainer_id)) {
+            return back()->with('error', 'Anda sudah memiliki trainer aktif.');
+        }
+
+        $trainer = User::where('id', $trainerId)
+            ->where('role', 'trainer')
+            ->where('verification_status', 'approved')
+            ->first();
+
+        if (!$trainer) {
+            return back()->with('error', 'Trainer tidak ditemukan atau belum disetujui.');
+        }
+
+        // Generate order_id untuk Midtrans
+        $orderId = 'ORD-' . time() . '-' . rand(1000, 9999);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'trainer_id' => $trainer->id,
+            'order_id' => $orderId,
+            'amount' => 150000,
+            'method' => $request->input('method', 'ewallet'),
+            'status' => 'pending',
+        ]);
+
+        // Buat program request
+        ProgramRequest::create([
+            'trainer_id' => $trainer->id,
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'note' => 'Permintaan program training dari user ' . e($user->name),
+        ]);
+
+        return redirect()->route('user.training.payment', $payment->id)
+            ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
+    }
+
+    /**
+     * Konfirmasi pembayaran sukses - REDIRECT KE INVOICE.
      */
     public function confirmPayment($paymentId)
     {
         $payment = Payment::where('id', $paymentId)
             ->where('user_id', Auth::id())
-            ->where('status', 'pending')
             ->first();
 
-        if (! $payment) {
-            return back()->with('error', 'Pembayaran tidak valid atau sudah dikonfirmasi.');
+        if (!$payment) {
+            return redirect()->route('user.training.index')
+                ->with('error', 'Data pembayaran tidak ditemukan.');
         }
 
-        $payment->update(['status' => 'paid']);
-
-        $user = Auth::user();
-        $user->update(['trainer_id' => $payment->trainer_id]);
-
-        PremiumAccessLog::create([
-            'user_id' => $user->id,
-            'trainer_id' => $payment->trainer_id,
-            'start_date' => now(),
-            'end_date' => now()->addDays(30),
-            'payment_status' => 'paid',
-        ]);
-
-        TrainerMembership::create([
-            'trainer_id' => $payment->trainer_id,
-            'user_id' => $user->id,
-        ]);
-
-        ProgramRequest::where('trainer_id', $payment->trainer_id)
-            ->where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->update(['status' => 'approved']);
-
-        TrainerChat::create([
-            'trainer_id' => $payment->trainer_id,
-            'user_id' => $user->id,
-            'message' => 'Halo! Selamat bergabung di program training saya. Mari kita mulai perjalanan fitness Anda!',
-            'sender_type' => 'trainer',
-            'timestamp' => now(),
-            'read_status' => false,
-        ]);
-
-        return redirect()->route('user.dashboard')
-            ->with('success', 'Pembayaran berhasil! Anda memiliki akses ke trainer selama 30 hari.');
+        // Redirect ke halaman invoice untuk melihat status
+        return redirect()->route('user.training.invoice', $payment->id)
+            ->with('info', 'Status pembayaran Anda: ' . strtoupper($payment->status));
     }
 
     /**
@@ -233,6 +268,31 @@ class UserTrainingController extends Controller
 
         return redirect()->route('user.training.index')
             ->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    /**
+     * Refresh status pembayaran (manual check)
+     */
+    public function refreshPaymentStatus($paymentId)
+    {
+        $payment = Payment::where('id', $paymentId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not found'
+            ], 404);
+        }
+
+        // Di production, Anda mungkin ingin memanggil API Midtrans untuk status terbaru
+        // Untuk sekarang, kita hanya return current status
+        return response()->json([
+            'success' => true,
+            'status' => $payment->status,
+            'order_id' => $payment->order_id
+        ]);
     }
 
     /**
@@ -303,18 +363,19 @@ class UserTrainingController extends Controller
             ->where('verification_status', 'approved')
             ->first();
 
-        if (! $newTrainer) {
+        if (!$newTrainer) {
             return back()->with('error', 'Trainer tidak ditemukan atau belum disetujui.');
         }
 
-        // Buat pembayaran untuk trainer baru
+        $orderId = 'SWITCH-' . time() . '-' . rand(1000, 9999);
+
         $payment = Payment::create([
             'user_id' => $user->id,
             'trainer_id' => $newTrainer->id,
+            'order_id' => $orderId,
             'amount' => 150000,
-            'method' => $request->input('method', 'transfer'),
+            'method' => $request->input('method', 'ewallet'),
             'status' => 'pending',
-            'transaction_id' => 'SWITCH-'.strtoupper(uniqid()),
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
@@ -392,7 +453,7 @@ class UserTrainingController extends Controller
             return redirect()->route('user.training.my-trainer')
                 ->with('success', 'Terima kasih! Rating Anda telah berhasil disimpan.');
         } catch (\Exception $e) {
-            Log::error('Error storing rating: '.$e->getMessage());
+            Log::error('Error storing rating: ' . $e->getMessage());
 
             return back()->with('error', 'Terjadi kesalahan saat menyimpan rating. Silakan coba lagi.');
         }
@@ -527,7 +588,7 @@ class UserTrainingController extends Controller
                 'remaining_messages' => max(0, 5 - ($chatCount + 1)),
             ]);
         } catch (\Throwable $e) {
-            Log::error('AI Chat Error: '.$e->getMessage());
+            Log::error('AI Chat Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,

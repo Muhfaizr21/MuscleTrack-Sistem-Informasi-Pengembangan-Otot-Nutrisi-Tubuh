@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
         // Trainer 1 - Specialization: Weight Loss
         $trainerApprovedIds[] = DB::table('users')->insertGetId([
             'name' => 'Coach Andika Pratama',
-        'email' => 'coach.andika@example.com',
+            'email' => 'coach.andika@example.com',
             'password' => Hash::make('password123'),
             'role' => 'trainer',
             'age' => 32,
@@ -366,7 +366,7 @@ class UserSeeder extends Seeder
             // Trainer Verifications untuk approved trainers
             DB::table('trainer_verifications')->insert([
                 'trainer_id' => $trainerId,
-                'certificate' => 'certificates/trainer_'.$trainerId.'.pdf',
+                'certificate' => 'certificates/trainer_' . $trainerId . '.pdf',
                 'bio' => $bios[$index] ?? 'Trainer profesional terverifikasi.',
                 'status' => 'approved',
                 'created_at' => now(),
@@ -390,7 +390,7 @@ class UserSeeder extends Seeder
             // Trainer Verifications untuk pending trainers
             DB::table('trainer_verifications')->insert([
                 'trainer_id' => $trainerId,
-                'certificate' => 'certificates/trainer_'.$trainerId.'.pdf',
+                'certificate' => 'certificates/trainer_' . $trainerId . '.pdf',
                 'bio' => 'Sedang menunggu proses verifikasi oleh admin.',
                 'status' => 'pending',
                 'created_at' => now(),
@@ -469,7 +469,7 @@ class UserSeeder extends Seeder
                     'trainer_id' => $userIds[$index] == $userIds[2] ? $trainerPendingIds[0] : $trainerApprovedIds[$index],
                     'user_id' => $userId,
                     'status' => 'approved',
-                    'note' => 'Program training untuk user '.($index + 1),
+                    'note' => 'Program training untuk user ' . ($index + 1),
                     'created_at' => now()->subDays(30),
                     'updated_at' => now()->subDays(30),
                 ]);
@@ -481,10 +481,12 @@ class UserSeeder extends Seeder
                     'amount' => 150000,
                     'method' => 'transfer',
                     'status' => 'paid',
-                    'transaction_id' => 'TRX-'.strtoupper(uniqid()),
+                    'transaction_id' => 'TRX-' . strtoupper(uniqid()),
+                    'order_id' => 'ORDER-' . strtoupper(uniqid()), // tambahkan ini
                     'created_at' => now()->subDays(30),
                     'updated_at' => now()->subDays(30),
                 ]);
+
 
                 // Trainer Chats
                 DB::table('trainer_chats')->insert([

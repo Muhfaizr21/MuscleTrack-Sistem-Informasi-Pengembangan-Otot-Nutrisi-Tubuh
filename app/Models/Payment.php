@@ -12,19 +12,31 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'trainer_id',
+        'order_id',
         'amount',
         'method',
         'status',
+        'payment_type',
+        'snap_token',
+        'redirect_url',
         'transaction_id',
+        'fraud_status',
+        'raw_response',
+        'paid_at',
     ];
 
-    // User yang melakukan pembayaran
+    protected $casts = [
+        'raw_response' => 'array',   // JSON dari Midtrans
+        'paid_at' => 'datetime',     // tanggal pembayaran selesai
+    ];
+
+    /** Relasi ke User (pembeli) */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Trainer yang menerima pembayaran
+    /** Relasi ke trainer (jika pembayaran untuk trainer) */
     public function trainer()
     {
         return $this->belongsTo(User::class, 'trainer_id');

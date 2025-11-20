@@ -11,20 +11,18 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 
-
 // ==========================
 // 🌐 PUBLIC/CORE CONTROLLERS
 // ==========================
-
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\NewsArticleController;
-
+use App\Http\Controllers\PaymentController;
 
 // ==========================
 // 🧑‍💼 ADMIN CONTROLLERS
 // ==========================
 use App\Http\Controllers\Admin\{
-    AdminController, // ← PASTIKAN INI
+    AdminController,
     UserManagementController,
     ArticleController,
     NutritionProgramController,
@@ -33,7 +31,7 @@ use App\Http\Controllers\Admin\{
     GoalController,
     BodyMetricController,
     NotificationBroadcasterController,
-    ContactMessageController, // ← INI JUGA
+    ContactMessageController,
     ExerciseController,
     ProfileController,
     SettingsController,
@@ -87,11 +85,8 @@ Route::get('/', fn() => view('welcome'))->name('home');
 // 🏠 GOOGLE OAUTH ROUTES - FIXED
 // ==========================
 Route::controller(GoogleController::class)->group(function () {
-    // Ubah dari 'login/google' menjadi 'auth/google'
     Route::get('auth/google', 'redirectToGoogle')->name('login.google');
     Route::get('auth/google/callback', 'handleGoogleCallback');
-
-    // Google Registration Completion Routes
     Route::get('register/google/complete', 'showCompleteRegistrationForm')->name('register.google.complete');
     Route::post('register/google/complete', 'completeRegistration')->name('register.google.complete.store');
 });
@@ -104,17 +99,10 @@ Route::controller(AuthenticatedSessionController::class)->group(function () {
 
 // Password Reset Routes
 Route::middleware('guest')->group(function () {
-    // Forgot Password
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    // Reset Password
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
 Route::view('/dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
@@ -128,9 +116,7 @@ Route::middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // ==============================
-        // 📋 EXERCISES MANAGEMENT (FULL CRUD)
-        // ==============================
+        // Exercises Management
         Route::prefix('exercises')->name('exercises.')->group(function () {
             Route::get('/', [ExerciseController::class, 'index'])->name('index');
             Route::get('/create', [ExerciseController::class, 'create'])->name('create');
@@ -140,9 +126,7 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/{exercise}', [ExerciseController::class, 'destroy'])->name('destroy');
         });
 
-        // ==============================
-        // 🌐 ROUTES LAINNYA
-        // ==============================
+        // Other Resources
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
@@ -177,7 +161,7 @@ Route::middleware(['auth', 'role:admin'])
             Route::put('/{trainer}/toggle-status', [TrainerManagementController::class, 'toggleStatus'])->name('toggle-status');
             Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
         });
-    }); // 🔹 INI WAJIB ADA UNTUK MENUTUP BLOK ADMIN
+    });
 
 // ==========================
 // 🧑‍🏫 TRAINER
@@ -259,7 +243,7 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
-        // 🏋️ WORKOUT ACTIONS - TAMBAHKAN INI
+        // 🏋️ WORKOUT ACTIONS
         Route::post('/workout/{schedule}/start', [UserSummaryController::class, 'startWorkout'])->name('workout.start');
         Route::post('/workout/{schedule}/complete', [UserSummaryController::class, 'completeWorkout'])->name('workout.complete');
 
@@ -272,13 +256,26 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/typing', [UserChatController::class, 'typing'])->name('typing');
         });
 
-        // 🏋️ Training
+        // 🏋️ Training - FIXED VERSION
         Route::prefix('training')->name('training.')->group(function () {
             Route::get('/', [UserTrainingController::class, 'index'])->name('index');
             Route::get('/trainer/{trainerId}', [UserTrainingController::class, 'show'])->name('show');
             Route::post('/order/{trainerId}', [UserTrainingController::class, 'order'])->name('order');
             Route::get('/payment/{paymentId}', [UserTrainingController::class, 'payment'])->name('payment');
-            Route::post('/confirm-payment/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm-payment');
+
+            // HAPUS DUPLIKASI INI:
+            // Route::post('/process-payment/{trainerId}', [UserTrainingController::class, 'processPayment'])->name('process-payment');
+
+            // INVOICE ROUTE - PASTIKAN ADA
+            Route::get('/invoice/{paymentId}', [UserTrainingController::class, 'invoice'])->name('invoice');
+            Route::get('/refresh-status/{paymentId}', [UserTrainingController::class, 'refreshPaymentStatus'])->name('refresh-status');
+
+            // HANYA GUNAKAN SATU confirm-payment (GET method):
+            Route::get('/confirm-payment/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm-payment');
+
+            // HAPUS DUPLIKASI INI:
+            // Route::post('/confirm/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm');
+
             Route::post('/cancel-order/{paymentId}', [UserTrainingController::class, 'cancelOrder'])->name('cancel-order');
             Route::get('/my-trainer', [UserTrainingController::class, 'myTrainer'])->name('my-trainer');
             Route::get('/switch-trainer', [UserTrainingController::class, 'showSwitchTrainer'])->name('switch-trainer');
@@ -290,7 +287,6 @@ Route::middleware(['auth', 'role:user'])
             Route::get('/my-ratings', [UserTrainingController::class, 'myRatings'])->name('my-ratings');
             Route::post('/ai-chat', [UserTrainingController::class, 'chatAI'])->name('ai.chat');
             Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('reset-ai-chat');
-            Route::post('/confirm/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm');
         });
 
         // 👤 Profile
@@ -307,7 +303,7 @@ Route::middleware(['auth', 'role:user'])
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
 
-        // 🔔 Notifikasi User (Complete Routes dengan Push Notification)
+        // 🔔 Notifikasi User
         Route::prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', [UserNotificationController::class, 'index'])->name('index');
             Route::post('/mark-all-read', [UserNotificationController::class, 'markAllRead'])->name('markAllRead');
@@ -320,11 +316,12 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/{id}/read-ajax', [UserNotificationController::class, 'markAsReadAjax'])->name('readAjax');
             Route::get('/filter', [UserNotificationController::class, 'filter'])->name('filter');
 
-            // 🚀 REMINDER ROUTES
+            // Reminder Routes
             Route::post('/reminder-preferences', [UserNotificationController::class, 'saveReminderPreferences'])->name('reminder-preferences');
             Route::post('/toggle-reminder', [UserNotificationController::class, 'toggleQuickReminder'])->name('toggle-reminder');
             Route::post('/test-reminder', [UserNotificationController::class, 'testReminder'])->name('test-reminder');
-            // 🚀 PUSH NOTIFICATION ROUTES - TAMBAHKAN INI
+
+            // Push Notification Routes
             Route::post('/test-push', [UserNotificationController::class, 'testPushNotification'])->name('testPush');
             Route::post('/fcm-token', [UserNotificationController::class, 'storeFCMToken'])->name('storeFCMToken');
             Route::delete('/fcm-token', [UserNotificationController::class, 'removeFCMToken'])->name('removeFCMToken');
@@ -332,6 +329,7 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
     });
+
 // ==========================
 // 🌐 RUTE PUBLIK (DILUAR LOGIN)
 // ==========================
@@ -340,6 +338,23 @@ Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'sh
 
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
+
+// ==========================
+// 💳 PAYMENT MIDTRANS
+// ==========================
+Route::middleware('auth')->post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
+Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
+
+// TEST ROUTE - Hapus setelah selesai
+Route::get('/test-midtrans', function () {
+    return [
+        'server_key' => config('midtrans.server_key'),
+        'client_key' => config('midtrans.client_key'),
+        'is_production' => config('midtrans.is_production'),
+        'merchant_id' => config('midtrans.merchant_id'),
+        'all_midtrans_config' => config('midtrans')
+    ];
+});
 
 // ==========================
 // ⚙️ AUTH LARAVEL DEFAULT
