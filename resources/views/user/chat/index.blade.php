@@ -348,11 +348,10 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
 
                 try {
-                    const res = await axios.post("{{ route('user.training.ai-chat') }}", {
-    message,
-    trainer_id: currentTrainerId,
-    _token: "{{ csrf_token() }}"
-});
+                    const res = await axios.post("{{ route('user.chat.store') }}", {
+                        message,
+                        trainer_id: currentTrainerId
+                    });
 
                     if (isAiMode) {
                         // Remove typing indicator and add AI response
