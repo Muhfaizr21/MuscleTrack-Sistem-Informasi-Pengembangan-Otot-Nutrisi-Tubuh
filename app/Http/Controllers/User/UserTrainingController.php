@@ -129,14 +129,14 @@ class UserTrainingController extends Controller
             'amount' => 150000,
             'method' => $request->input('method', 'transfer'),
             'status' => 'pending',
-            'transaction_id' => 'TRX-' . strtoupper(uniqid()),
+            'transaction_id' => 'TRX-'.strtoupper(uniqid()),
         ]);
 
         ProgramRequest::create([
             'trainer_id' => $trainer->id,
             'user_id' => $user->id,
             'status' => 'pending',
-            'note' => 'Permintaan program training dari user ' . e($user->name),
+            'note' => 'Permintaan program training dari user '.e($user->name),
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
@@ -314,7 +314,7 @@ class UserTrainingController extends Controller
             'amount' => 150000,
             'method' => $request->input('method', 'transfer'),
             'status' => 'pending',
-            'transaction_id' => 'SWITCH-' . strtoupper(uniqid()),
+            'transaction_id' => 'SWITCH-'.strtoupper(uniqid()),
         ]);
 
         return redirect()->route('user.training.payment', $payment->id)
@@ -392,7 +392,7 @@ class UserTrainingController extends Controller
             return redirect()->route('user.training.my-trainer')
                 ->with('success', 'Terima kasih! Rating Anda telah berhasil disimpan.');
         } catch (\Exception $e) {
-            Log::error('Error storing rating: ' . $e->getMessage());
+            Log::error('Error storing rating: '.$e->getMessage());
 
             return back()->with('error', 'Terjadi kesalahan saat menyimpan rating. Silakan coba lagi.');
         }
@@ -477,91 +477,57 @@ class UserTrainingController extends Controller
     /**
      * Chat dengan AI trainer (maksimal 5 pesan per jam).
      */
-    /**
-     * Chat dengan AI trainer (maksimal 5 pesan per jam).
-     */
     public function chatAI(Request $request, GeminiService $gemini)
     {
+        $user = Auth::user();
+        $cacheKey = "ai_chat_count_user_{$user->id}";
+        $chatCount = Cache::get($cacheKey, 0);
+
+        if ($chatCount >= 5) {
+            return response()->json([
+                'success' => false,
+                'reply' => '🚫 Batas 5 pesan AI telah tercapai. Silakan upgrade untuk akses tanpa batas.',
+            ]);
+        }
+
+        $request->validate(['message' => 'required|string|max:500']);
+        $userMessage = trim($request->message);
+
+        TrainerChat::create([
+            'user_id' => $user->id,
+            'trainer_id' => null,
+            'message' => e($userMessage),
+            'sender_type' => 'user',
+            'timestamp' => now(),
+            'read_status' => true,
+        ]);
+
         try {
-            $user = Auth::user();
-            $cacheKey = "ai_chat_count_user_{$user->id}";
-            $chatCount = Cache::get($cacheKey, 0);
-
-            Log::info('AI Chat Request', [
-                'user_id' => $user->id,
-                'chat_count' => $chatCount,
-                'message' => $request->message
-            ]);
-
-            if ($chatCount >= 5) {
-                return response()->json([
-                    'success' => false,
-                    'reply' => '🚫 Batas 5 pesan AI telah tercapai. Silakan upgrade untuk akses tanpa batas.',
-                ]);
-            }
-
-            $request->validate([
-                'message' => 'required|string|max:500',
-                'trainer_id' => 'required|integer'
-            ]);
-
-            $userMessage = trim($request->message);
-            $trainerId = $request->trainer_id;
-
-            // Simpan pesan user
-            TrainerChat::create([
-                'user_id' => $user->id,
-                'trainer_id' => $trainerId == 0 ? null : $trainerId,
-                'message' => e($userMessage),
-                'sender_type' => 'user',
-                'timestamp' => now(),
-                'read_status' => true,
-            ]);
-
-            // Generate prompt untuk AI
             $prompt = "Kamu adalah Muscle AI Trainer, pelatih fitness dan nutrisi profesional. 
-        Jawab dengan bahasa Indonesia yang singkat, ramah, dan akurat.
-        Topik: fitness, nutrisi, latihan, dan kesehatan.
-        Pesan pengguna: {$userMessage}";
+            Jawab dengan bahasa Indonesia yang singkat, ramah, dan akurat.
+            Topik: fitness, nutrisi, latihan, dan kesehatan.
+            Pesan pengguna: {$userMessage}";
 
-            Log::info('Calling Gemini API', ['prompt_length' => strlen($prompt)]);
+            $reply = $gemini->generateText($prompt) ?? 'Saya tidak bisa menjawab pertanyaan itu saat ini.';
 
-            $reply = $gemini->generateText($prompt);
-
-            if (!$reply) {
-                throw new \Exception('Gemini service returned empty response');
-            }
-
-            // Simpan balasan AI
             TrainerChat::create([
                 'user_id' => $user->id,
-                'trainer_id' => $trainerId == 0 ? null : $trainerId,
+                'trainer_id' => null,
                 'message' => $reply,
                 'sender_type' => 'ai',
                 'timestamp' => now(),
                 'read_status' => true,
             ]);
 
-            // Update cache counter
             Cache::put($cacheKey, $chatCount + 1, now()->addHour());
-
-            Log::info('AI Chat Success', [
-                'user_id' => $user->id,
-                'new_count' => $chatCount + 1
-            ]);
 
             return response()->json([
                 'success' => true,
                 'reply' => $reply,
-                'ai_message' => $reply, // tambahkan ini untuk consistency
                 'remaining_messages' => max(0, 5 - ($chatCount + 1)),
             ]);
         } catch (\Throwable $e) {
-            Log::error('AI Chat Error: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('AI Chat Error: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
