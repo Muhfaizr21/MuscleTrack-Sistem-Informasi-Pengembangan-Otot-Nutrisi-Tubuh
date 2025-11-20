@@ -5,15 +5,18 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Services\GeminiService;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    public function register(): void
+    public function register()
     {
-        //
+        $this->app->singleton(GeminiService::class, function ($app) {
+            return new GeminiService();
+        });
     }
 
     /**
@@ -44,7 +47,6 @@ class AppServiceProvider extends ServiceProvider
 
             // Kirim variabel $unreadCount ke view
             $view->with('unreadNotificationsCount', $unreadCount);
-
         });
 
         // ======================================
