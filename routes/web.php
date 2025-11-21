@@ -343,8 +343,6 @@ Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.
 // 💳 PAYMENT MIDTRANS - FIXED
 // ==========================
 
-// Route callback HARUS di luar auth middleware
-Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
 
 // Route dengan auth middleware
 Route::middleware('auth')->group(function () {
