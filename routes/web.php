@@ -342,7 +342,10 @@ Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.
 // ==========================
 // 💳 PAYMENT MIDTRANS
 // ==========================
-Route::middleware('auth')->post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
+Route::middleware('auth')->group(function () {
+    Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
+});
+
 Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
 
 // TEST ROUTE - Hapus setelah selesai
