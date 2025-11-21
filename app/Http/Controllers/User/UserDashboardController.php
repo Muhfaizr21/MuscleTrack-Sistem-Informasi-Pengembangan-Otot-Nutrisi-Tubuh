@@ -10,6 +10,7 @@ use App\Models\ProgressLog;
 use App\Models\TrainerChat;
 use App\Models\WorkoutPlan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class UserDashboardController extends Controller
 {

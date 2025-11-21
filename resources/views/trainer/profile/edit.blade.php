@@ -3,299 +3,312 @@
 @section('title', 'Edit Profil Trainer')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-transparent pb-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Edit Profil Trainer</h5>
-                            <a href="{{ route('trainer.profile.index') }}" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>Kembali
-                            </a>
+<div class="relative max-w-7xl mx-auto p-6">
+    <div class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-gray-800/70 backdrop-blur-xl shadow-[0_0_20px_rgba(16,185,129,0.25)] p-6">
+
+        {{-- Header --}}
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center">
+                <div class="w-2 h-10 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full mr-3"></div>
+                <h1 class="text-3xl font-semibold text-white tracking-wide drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">
+                    ✏️ Edit <span class="text-emerald-400">Profil Trainer</span>
+                </h1>
+            </div>
+            <a href="{{ route('trainer.profile.index') }}"
+               class="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500 px-4 py-2 rounded-xl transition-all duration-300 flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
+            </a>
+        </div>
+
+        <form action="{{ route('trainer.profile.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {{-- Informasi Pribadi --}}
+                <div class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-gray-800/70 backdrop-blur-xl p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-blue-400"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-white">Informasi Pribadi</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-emerald-300/80 text-sm font-semibold mb-2">
+                                Nama Lengkap <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text"
+                                   class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('name') border-red-400 @enderror"
+                                   id="name" name="name"
+                                   value="{{ old('name', $user->name) }}"
+                                   placeholder="Masukkan nama lengkap" required>
+                            @error('name')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-emerald-300/80 text-sm font-semibold mb-2">
+                                Email <span class="text-red-400">*</span>
+                            </label>
+                            <input type="email"
+                                   class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('email') border-red-400 @enderror"
+                                   id="email" name="email"
+                                   value="{{ old('email', $user->email) }}"
+                                   placeholder="Masukkan email" required>
+                            @error('email')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="age" class="block text-emerald-300/80 text-sm font-semibold mb-2">Usia</label>
+                                <input type="number"
+                                       class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('age') border-red-400 @enderror"
+                                       id="age" name="age"
+                                       value="{{ old('age', $user->age) }}"
+                                       min="18" max="100" placeholder="Usia">
+                                @error('age')
+                                    <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="gender" class="block text-emerald-300/80 text-sm font-semibold mb-2">Jenis Kelamin</label>
+                                <select class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('gender') border-red-400 @enderror"
+                                        id="gender" name="gender">
+                                    <option value="" class="bg-gray-800">Pilih Jenis Kelamin</option>
+                                    <option value="male" class="bg-gray-800" {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="female" class="bg-gray-800" {{ old('gender', $user->gender) == 'female' ? 'selected' : '' }}>Perempuan</option>
+                                </select>
+                                @error('gender')
+                                    <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="height" class="block text-emerald-300/80 text-sm font-semibold mb-2">Tinggi Badan (cm)</label>
+                                <input type="number" step="0.1"
+                                       class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('height') border-red-400 @enderror"
+                                       id="height" name="height"
+                                       value="{{ old('height', $user->height) }}"
+                                       min="100" max="250" placeholder="Tinggi">
+                                @error('height')
+                                    <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="weight" class="block text-emerald-300/80 text-sm font-semibold mb-2">Berat Badan (kg)</label>
+                                <input type="number" step="0.1"
+                                       class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('weight') border-red-400 @enderror"
+                                       id="weight" name="weight"
+                                       value="{{ old('weight', $user->weight) }}"
+                                       min="30" max="200" placeholder="Berat">
+                                @error('weight')
+                                    <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <!-- UBAH METHOD MENJADI POST DAN HAPUS @method('PUT') -->
-                        <form action="{{ route('trainer.profile.update') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <!-- HAPUS BARIS INI: @method('PUT') -->
+                </div>
 
-                            <div class="row">
-                                <!-- Informasi Pribadi -->
-                                <div class="col-lg-6">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-user me-2 text-primary"></i>Informasi Pribadi
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-12 mb-3">
-                                                    <label for="name" class="form-label">Nama Lengkap <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text"
-                                                        class="form-control @error('name') is-invalid @enderror" id="name"
-                                                        name="name" value="{{ old('name', $user->name) }}" required>
-                                                    @error('name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                {{-- Informasi Profesional --}}
+                <div class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-gray-800/70 backdrop-blur-xl p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-briefcase text-green-400"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-white">Informasi Profesional</h2>
+                    </div>
 
-                                                <div class="col-12 mb-3">
-                                                    <label for="email" class="form-label">Email <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="email"
-                                                        class="form-control @error('email') is-invalid @enderror" id="email"
-                                                        name="email" value="{{ old('email', $user->email) }}" required>
-                                                    @error('email')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="specialization" class="block text-emerald-300/80 text-sm font-semibold mb-2">Spesialisasi</label>
+                            <input type="text"
+                                   class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('specialization') border-red-400 @enderror"
+                                   id="specialization" name="specialization"
+                                   value="{{ old('specialization', $trainerProfile->specialization) }}"
+                                   placeholder="Contoh: Weight Loss, Muscle Building, etc.">
+                            @error('specialization')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="age" class="form-label">Usia</label>
-                                                    <input type="number"
-                                                        class="form-control @error('age') is-invalid @enderror" id="age"
-                                                        name="age" value="{{ old('age', $user->age) }}" min="18" max="100">
-                                                    @error('age')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                        <div>
+                            <label for="experience_years" class="block text-emerald-300/80 text-sm font-semibold mb-2">Tahun Pengalaman</label>
+                            <input type="number"
+                                   class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('experience_years') border-red-400 @enderror"
+                                   id="experience_years" name="experience_years"
+                                   value="{{ old('experience_years', $trainerProfile->experience_years) }}"
+                                   min="0" max="50" placeholder="Jumlah tahun pengalaman">
+                            @error('experience_years')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="gender" class="form-label">Jenis Kelamin</label>
-                                                    <select class="form-select @error('gender') is-invalid @enderror"
-                                                        id="gender" name="gender">
-                                                        <option value="">Pilih Jenis Kelamin</option>
-                                                        <option value="male"
-                                                            {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>
-                                                            Laki-laki</option>
-                                                        <option value="female"
-                                                            {{ old('gender', $user->gender) == 'female' ? 'selected' : '' }}>
-                                                            Perempuan</option>
-                                                    </select>
-                                                    @error('gender')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                        <div>
+                            <label for="bio" class="block text-emerald-300/80 text-sm font-semibold mb-2">Bio / Deskripsi Diri</label>
+                            <textarea class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('bio') border-red-400 @enderror"
+                                      id="bio" name="bio" rows="4"
+                                      placeholder="Ceritakan tentang diri Anda, pengalaman, dan keahlian...">{{ old('bio', $trainerProfile->bio) }}</textarea>
+                            @error('bio')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="height" class="form-label">Tinggi Badan (cm)</label>
-                                                    <input type="number" step="0.1"
-                                                        class="form-control @error('height') is-invalid @enderror"
-                                                        id="height" name="height" value="{{ old('height', $user->height) }}"
-                                                        min="100" max="250">
-                                                    @error('height')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="weight" class="form-label">Berat Badan (kg)</label>
-                                                    <input type="number" step="0.1"
-                                                        class="form-control @error('weight') is-invalid @enderror"
-                                                        id="weight" name="weight" value="{{ old('weight', $user->weight) }}"
-                                                        min="30" max="200">
-                                                    @error('weight')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informasi Profesional -->
-                                <div class="col-lg-6">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-briefcase me-2 text-success"></i>Informasi Profesional
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-12 mb-3">
-                                                    <label for="specialization" class="form-label">Spesialisasi</label>
-                                                    <input type="text"
-                                                        class="form-control @error('specialization') is-invalid @enderror"
-                                                        id="specialization" name="specialization"
-                                                        value="{{ old('specialization', $trainerProfile->specialization) }}"
-                                                        placeholder="Contoh: Weight Loss, Muscle Building, etc.">
-                                                    @error('specialization')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="col-12 mb-3">
-                                                    <label for="experience_years" class="form-label">Tahun
-                                                        Pengalaman</label>
-                                                    <input type="number"
-                                                        class="form-control @error('experience_years') is-invalid @enderror"
-                                                        id="experience_years" name="experience_years"
-                                                        value="{{ old('experience_years', $trainerProfile->experience_years) }}"
-                                                        min="0" max="50" placeholder="Jumlah tahun pengalaman">
-                                                    @error('experience_years')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="col-12 mb-3">
-                                                    <label for="bio" class="form-label">Bio / Deskripsi Diri</label>
-                                                    <textarea class="form-control @error('bio') is-invalid @enderror"
-                                                        id="bio" name="bio" rows="4"
-                                                        placeholder="Ceritakan tentang diri Anda, pengalaman, dan keahlian...">{{ old('bio', $trainerProfile->bio) }}</textarea>
-                                                    @error('bio')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="col-12 mb-3">
-                                                    <label for="certifications" class="form-label">Sertifikasi &
-                                                        Kualifikasi</label>
-                                                    <textarea
-                                                        class="form-control @error('certifications') is-invalid @enderror"
-                                                        id="certifications" name="certifications" rows="3"
-                                                        placeholder="Masukkan sertifikasi yang dimiliki (pisahkan dengan koma)">{{ old('certifications', $trainerProfile->certifications) }}</textarea>
-                                                    @error('certifications')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Upload File -->
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <div class="card border">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-upload me-2 text-info"></i>Upload File
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="avatar" class="form-label">Foto Profil</label>
-                                                    <input type="file"
-                                                        class="form-control @error('avatar') is-invalid @enderror"
-                                                        id="avatar" name="avatar" accept="image/*">
-                                                    <div class="form-text">
-                                                        Format: JPG, PNG, GIF. Maksimal: 2MB
-                                                    </div>
-                                                    @error('avatar')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-
-                                                    @if($user->avatar)
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">Foto saat ini:</small>
-                                                            <img src="{{ $user->avatar }}" alt="Current Avatar"
-                                                                class="rounded ms-2" width="50" height="50">
-                                                        </div>
-                                                    @endif
-                                                </div>
-
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="certificate_file" class="form-label">File Sertifikat</label>
-                                                    <input type="file"
-                                                        class="form-control @error('certificate_file') is-invalid @enderror"
-                                                        id="certificate_file" name="certificate_file"
-                                                        accept=".pdf,.doc,.docx">
-                                                    <div class="form-text">
-                                                        Format: PDF, DOC, DOCX. Maksimal: 5MB
-                                                    </div>
-                                                    @error('certificate_file')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-
-                                                    @if(isset($verification) && $verification->certificate)
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">File saat ini:
-                                                                {{ basename($verification->certificate) }}</small>
-                                                            @if($verification->status == 'approved')
-                                                                <span class="badge bg-success ms-2">Terverifikasi</span>
-                                                            @elseif($verification->status == 'pending')
-                                                                <span class="badge bg-warning ms-2">Menunggu Verifikasi</span>
-                                                            @else
-                                                                <span class="badge bg-danger ms-2">Ditolak</span>
-                                                            @endif
-                                                        </div>
-                                                    @else
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">Belum ada file sertifikat yang
-                                                                diupload.</small>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <a href="{{ route('trainer.profile.index') }}"
-                                                class="btn btn-outline-secondary">
-                                                <i class="fas fa-times me-1"></i>Batal
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-save me-1"></i>Simpan Perubahan
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                        <div>
+                            <label for="certifications" class="block text-emerald-300/80 text-sm font-semibold mb-2">Sertifikasi & Kualifikasi</label>
+                            <textarea class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-300 @error('certifications') border-red-400 @enderror"
+                                      id="certifications" name="certifications" rows="3"
+                                      placeholder="Masukkan sertifikasi yang dimiliki (pisahkan dengan koma)">{{ old('certifications', $trainerProfile->certifications) }}</textarea>
+                            @error('certifications')
+                                <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {{-- Upload File --}}
+            <div class="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-gray-800/70 backdrop-blur-xl p-6 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-upload text-purple-400"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-white">Upload File</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Foto Profil --}}
+                    <div>
+                        <label for="avatar" class="block text-emerald-300/80 text-sm font-semibold mb-2">Foto Profil</label>
+                        <input type="file"
+                               class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 transition-all duration-300 @error('avatar') border-red-400 @enderror"
+                               id="avatar" name="avatar" accept="image/*">
+                        <p class="text-gray-400 text-sm mt-2">Format: JPG, PNG, GIF. Maksimal: 2MB</p>
+                        @error('avatar')
+                            <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+
+                        @if($user->avatar)
+                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-emerald-400/10">
+                                <p class="text-emerald-300 text-sm font-semibold mb-2">Foto saat ini:</p>
+                                <img src="{{ $user->avatar }}" alt="Current Avatar" class="rounded-xl w-20 h-20 object-cover border-2 border-emerald-400/30">
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- File Sertifikat --}}
+                    <div>
+                        <label for="certificate_file" class="block text-emerald-300/80 text-sm font-semibold mb-2">File Sertifikat</label>
+                        <input type="file"
+                               class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 transition-all duration-300 @error('certificate_file') border-red-400 @enderror"
+                               id="certificate_file" name="certificate_file" accept=".pdf,.doc,.docx">
+                        <p class="text-gray-400 text-sm mt-2">Format: PDF, DOC, DOCX. Maksimal: 5MB</p>
+                        @error('certificate_file')
+                            <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+
+                        @if(isset($verification) && $verification->certificate)
+                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-emerald-400/10">
+                                <p class="text-emerald-300 text-sm font-semibold mb-2">File saat ini:</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-white">{{ basename($verification->certificate) }}</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                        {{ $verification->status == 'approved' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
+                                           ($verification->status == 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30' :
+                                           'bg-red-500/20 text-red-400 border border-red-400/30') }}">
+                                        {{ $verification->status == 'approved' ? 'Terverifikasi' :
+                                           ($verification->status == 'pending' ? 'Menunggu Verifikasi' : 'Ditolak') }}
+                                    </span>
+                                </div>
+                            </div>
+                        @else
+                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-yellow-400/10">
+                                <p class="text-yellow-400 text-sm">Belum ada file sertifikat yang diupload.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex justify-between items-center">
+                <a href="{{ route('trainer.profile.index') }}"
+                   class="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500 px-6 py-3 rounded-xl transition-all duration-300 flex items-center">
+                    <i class="fas fa-times mr-2"></i>Batal
+                </a>
+                <button type="submit"
+                        class="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 flex items-center shadow-lg hover:shadow-xl">
+                    <i class="fas fa-save mr-2"></i>Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 @endsection
 
 @push('scripts')
-    <script>
-        // Preview image sebelum upload
-        document.getElementById('avatar').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    // Tambahkan preview jika diperlukan
-                    console.log('File selected:', file.name);
-                }
-                reader.readAsDataURL(file);
+<script>
+    // Preview image sebelum upload
+    document.getElementById('avatar').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                console.log('File selected:', file.name);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Validasi form
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const requiredFields = this.querySelectorAll('[required]');
+        let valid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                valid = false;
+                field.classList.add('border-red-400');
+            } else {
+                field.classList.remove('border-red-400');
             }
         });
 
-        // Validasi form
-        document.querySelector('form').addEventListener('submit', function (e) {
-            const requiredFields = this.querySelectorAll('[required]');
-            let valid = true;
+        if (!valid) {
+            e.preventDefault();
+            // SweetAlert atau notifikasi custom
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            })
 
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    valid = false;
-                    field.classList.add('is-invalid');
-                }
-            });
+            Toast.fire({
+                icon: 'error',
+                title: 'Harap isi semua field yang wajib diisi!'
+            })
+        }
+    });
 
-            if (!valid) {
-                e.preventDefault();
-                alert('Harap isi semua field yang wajib diisi!');
+    // Real-time validation
+    document.querySelectorAll('input[required]').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.classList.add('border-red-400');
+            } else {
+                this.classList.remove('border-red-400');
+                this.classList.add('border-emerald-400');
             }
         });
-    </script>
+    });
+</script>
 @endpush

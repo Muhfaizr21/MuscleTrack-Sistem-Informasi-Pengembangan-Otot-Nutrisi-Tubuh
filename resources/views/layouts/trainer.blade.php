@@ -162,28 +162,34 @@
             max-height: 600px;
         }
 
-        /* New Modern Styles */
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-        }
-
+        /* Enhanced Navigation Styles */
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
             transition: all 0.3s ease;
+            color: #9CA3AF;
+            font-weight: 500;
+            font-size: 14px;
         }
 
         .nav-item:hover {
             background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            transform: translateY(-1px);
         }
 
         .nav-item.active {
             background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
+            color: #10B981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
         }
 
         .profile-avatar {
@@ -197,6 +203,7 @@
             color: white;
             font-weight: bold;
             font-size: 14px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
         }
 
         .nav-divider {
@@ -225,79 +232,6 @@
             padding: 20px;
         }
 
-        /* Modern Button Styles */
-        .btn-primary {
-            background: linear-gradient(135deg, #10b981, #34d399);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        /* Stats Cards */
-        .stat-card {
-            background: rgba(17, 25, 21, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-        }
-
-        /* Responsive Grid */
-        .responsive-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* Enhanced Footer */
-        .footer-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-        }
-
-        /* Animation for page load */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out;
-        }
-
         /* Profile Dropdown Styles */
         .profile-dropdown {
             position: absolute;
@@ -309,7 +243,7 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(16, 185, 129, 0.2);
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             z-index: 1000;
         }
@@ -326,6 +260,7 @@
             color: #e5e7eb;
             transition: all 0.2s ease;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .profile-item:hover {
@@ -334,9 +269,82 @@
         }
 
         .profile-item svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             margin-right: 10px;
+        }
+
+        /* Notification Badge */
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            border: 2px solid rgba(13, 20, 16, 0.95);
+        }
+
+        /* Mobile Menu Improvements */
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: #9CA3AF;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+        }
+
+        /* Logo Styles */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Navigation Container */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #9CA3AF;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
         }
     </style>
 </head>
@@ -348,17 +356,19 @@
             <div class="max-w-7xl mx-auto px-4 md:px-8">
                 <div class="flex justify-between items-center h-16">
                     {{-- Logo --}}
-                    <a href="{{ route('trainer.dashboard') }}"
-                        class="font-display text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <span class="hidden sm:inline">Muscle<span class="text-gradient">Xpert</span></span>
-                    </a>
+                    <div class="logo-container">
+                        <a href="{{ route('trainer.dashboard') }}" class="flex items-center gap-2">
+                            <div class="logo-icon">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <span class="font-display text-xl font-bold text-white hidden sm:inline">
+                                Muscle<span class="text-gradient">Xpert</span>
+                            </span>
+                        </a>
+                    </div>
 
                     {{-- Desktop Navigation --}}
                     @php
@@ -368,7 +378,7 @@
                     @endphp
                     <div class="hidden lg:flex items-center space-x-1">
                         <a href="{{ route('trainer.dashboard') }}"
-                            class="nav-item {{ Route::is('trainer.dashboard') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="nav-item {{ Route::is('trainer.dashboard') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -377,7 +387,7 @@
                             Dashboard
                         </a>
                         <a href="{{ route('trainer.members.index') }}"
-                            class="nav-item {{ Route::is('trainer.members.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="nav-item {{ Route::is('trainer.members.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
@@ -387,7 +397,7 @@
                         </a>
                         @if ($firstMember)
                             <a href="{{ route('trainer.programs.index') }}"
-                                class="nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                                class="nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -396,7 +406,7 @@
                                 Program
                             </a>
                             <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
-                                class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                                class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -405,7 +415,7 @@
                             </a>
                         @endif
                         <a href="{{ route('trainer.communication.chat.index') }}"
-                            class="nav-item {{ Route::is('trainer.communication.chat.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="nav-item {{ Route::is('trainer.communication.chat.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
@@ -414,7 +424,7 @@
                             Pesan
                         </a>
                         <a href="{{ route('trainer.communication.notifications.index') }}"
-                            class="nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 17h5l-5 5v-5zM10.24 8.56a5.97 5.97 0 01-4.66-7.11 1 1 0 00-.68-1.16A1 1 0 004 1a7.97 7.97 0 007.33 7.91 1 1 0 00.91-.91 1 1 0 00-.68-1.16 5.99 5.99 0 01-1.32-.28z">
@@ -425,14 +435,11 @@
                                 $unreadNotificationsCount = auth()->user()->unreadNotifications->count();
                             @endphp
                             @if($unreadNotificationsCount > 0)
-                                <span
-                                    class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold notification-badge">
-                                    {{ $unreadNotificationsCount }}
-                                </span>
+                                <span class="notification-dot"></span>
                             @endif
                         </a>
                         <a href="{{ route('trainer.quality.verification.status') }}"
-                            class="nav-item {{ Route::is('trainer.quality.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="nav-item {{ Route::is('trainer.quality.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
@@ -442,10 +449,10 @@
                         </a>
                     </div>
 
-                    {{-- Right Side: Profile & Logout --}}
-                    <div class="hidden lg:flex items-center space-x-3">
-                        <!-- Profile Dropdown -->
-                        <div class="relative" x-data="{ open: false }">
+                    {{-- Right Side: Profile & Mobile Menu --}}
+                    <div class="flex items-center space-x-3">
+                        <!-- Desktop Profile Dropdown -->
+                        <div class="hidden lg:block relative" x-data="{ open: false }">
                             <button @click="open = !open"
                                 class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-500/10 transition-all duration-200">
                                 <div class="profile-avatar">
@@ -461,7 +468,7 @@
                             </button>
 
                             <!-- Dropdown Menu -->
-                            <div x-show="open" @click.away="open = false"
+                            <div x-show="open" @click.away="open = false" x-cloak
                                 x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -515,18 +522,18 @@
                                 </form>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Mobile Menu Button --}}
-                    <button @click="isMobileMenuOpen = !isMobileMenuOpen"
-                        class="lg:hidden text-gray-300 hover:text-emerald-400 smooth-transition p-2 rounded-lg hover:bg-emerald-500/10">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path x-show="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                            <path x-show="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
+                        {{-- Mobile Menu Button --}}
+                        <button @click="isMobileMenuOpen = !isMobileMenuOpen"
+                            class="lg:hidden mobile-menu-btn">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path x-show="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                <path x-show="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Mobile Menu Dropdown --}}
@@ -536,9 +543,9 @@
                     x-transition:leave="transition ease-in duration-150"
                     x-transition:leave-start="opacity-100 translate-y-0"
                     x-transition:leave-end="opacity-0 -translate-y-2" class="lg:hidden pb-4" x-cloak>
-                    <div class="space-y-1 mt-2">
+                    <div class="space-y-2 mt-4">
                         {{-- User Info Mobile --}}
-                        <div class="glass-card rounded-xl p-3 mb-3">
+                        <div class="glass-card rounded-xl p-4 mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="profile-avatar">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -551,7 +558,7 @@
                         </div>
 
                         <a href="{{ route('trainer.dashboard') }}"
-                            class="nav-item {{ Route::is('trainer.dashboard') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="mobile-nav-item {{ Route::is('trainer.dashboard') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -560,7 +567,7 @@
                             Dashboard
                         </a>
                         <a href="{{ route('trainer.members.index') }}"
-                            class="nav-item {{ Route::is('trainer.members.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="mobile-nav-item {{ Route::is('trainer.members.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
@@ -570,25 +577,25 @@
                         </a>
                         @if ($firstMember)
                             <a href="{{ route('trainer.programs.index') }}"
-                                class="nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                                class="mobile-nav-item {{ Route::is('trainer.programs.*') && !Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                                     </path>
                                 </svg>
-                                Program Latihan
+                                Program
                             </a>
                             <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
-                                class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                                class="mobile-nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                Nutrisi & Suplemen
+                                Nutrisi
                             </a>
                         @endif
                         <a href="{{ route('trainer.communication.chat.index') }}"
-                            class="nav-item {{ Route::is('trainer.communication.chat.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="mobile-nav-item {{ Route::is('trainer.communication.chat.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
@@ -597,37 +604,31 @@
                             Pesan
                         </a>
                         <a href="{{ route('trainer.communication.notifications.index') }}"
-                            class="nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="mobile-nav-item relative {{ Route::is('trainer.communication.notifications.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 17h5l-5 5v-5zM10.24 8.56a5.97 5.97 0 01-4.66-7.11 1 1 0 00-.68-1.16A1 1 0 004 1a7.97 7.97 0 007.33 7.91 1 1 0 00.91-.91 1 1 0 00-.68-1.16 5.99 5.99 0 01-1.32-.28z">
                                 </path>
                             </svg>
                             Notifikasi
-                            @php
-                                $unreadNotificationsCount = auth()->user()->unreadNotifications->count();
-                            @endphp
                             @if($unreadNotificationsCount > 0)
-                                <span
-                                    class="inline-block ml-2 px-2 py-0.5 bg-red-500 rounded-full text-white text-xs font-bold">
-                                    {{ $unreadNotificationsCount }}
-                                </span>
+                                <span class="notification-dot"></span>
                             @endif
                         </a>
                         <a href="{{ route('trainer.quality.verification.status') }}"
-                            class="nav-item {{ Route::is('trainer.quality.*') ? 'active text-emerald-400' : 'text-gray-300' }}">
+                            class="mobile-nav-item {{ Route::is('trainer.quality.*') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                 </path>
                             </svg>
-                            Kualitas Trainer
+                            Kualitas
                         </a>
 
                         {{-- Profile Menu Items for Mobile --}}
                         <div class="nav-divider"></div>
 
-                        <a href="{{ route('trainer.profile.index') }}" class="nav-item text-gray-300">
+                        <a href="{{ route('trainer.profile.index') }}" class="mobile-nav-item">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -637,17 +638,16 @@
 
                         <div class="nav-divider"></div>
 
-                        <form method="POST" action="{{ route('logout') }}"
-                            class="mt-3 pt-3 border-t border-emerald-500/10">
+                        <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit"
-                                class="w-full text-left px-4 py-2.5 rounded-lg font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 smooth-transition flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="w-full text-left mobile-nav-item text-red-400 hover:text-red-300">
+                                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                                     </path>
                                 </svg>
-                                Logout
+                                Keluar
                             </button>
                         </form>
                     </div>

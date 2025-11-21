@@ -50,7 +50,7 @@
                 @foreach($articles as $article)
                     <a href="{{ route('user.articles.show', $article->slug) }}"
                        class="group glass rounded-2xl border border-emerald-500/10 overflow-hidden transition-all duration-300 hover:border-emerald-500/30 hover-glow">
-                        
+
                         {{-- Article Image --}}
                         @if($article->image)
                             <div class="h-48 w-full overflow-hidden">
@@ -80,13 +80,19 @@
 
                             {{-- Title --}}
                             <h3 class="font-serif text-xl font-bold text-white mb-3 group-hover:text-emerald-100 transition-colors duration-300 line-clamp-2">
-                                {{ Str::limit($article->title, 70) }}
-                            </h3>
+    @php
+        $title = $article->title;
+        echo strlen($title) > 70 ? substr($title, 0, 70) . '...' : $title;
+    @endphp
+</h3>
 
                             {{-- Summary --}}
-                            <p class="text-emerald-400/80 text-sm leading-relaxed mb-4 line-clamp-3">
-                                {{ Str::limit($article->summary, 120) }}
-                            </p>
+                          <p class="text-emerald-400/80 text-sm leading-relaxed mb-4 line-clamp-3">
+    @php
+        $summary = $article->summary ?? '';
+        echo strlen($summary) > 120 ? substr($summary, 0, 120) . '...' : $summary;
+    @endphp
+</p>
 
                             {{-- Read More --}}
                             <div class="flex items-center justify-between pt-4 border-t border-emerald-500/10">
@@ -140,7 +146,7 @@
                 <div>
                     <h3 class="text-lg font-bold text-white mb-2">Weekly Reading Challenge</h3>
                     <p class="text-emerald-400/80">
-                        <strong class="text-emerald-400">Tip:</strong> Read at least 1 article every week to gain new knowledge and stay motivated on your fitness journey. 
+                        <strong class="text-emerald-400">Tip:</strong> Read at least 1 article every week to gain new knowledge and stay motivated on your fitness journey.
                         Consistent learning leads to consistent results! 🌱
                     </p>
                 </div>

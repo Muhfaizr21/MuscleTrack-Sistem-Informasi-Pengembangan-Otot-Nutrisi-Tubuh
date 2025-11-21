@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\User\UserCommunityController;
 use Illuminate\Support\Facades\Route;
+
 use Illuminate\Support\Facades\Auth;
+
+
+
 
 // ==========================
 // 🔐 AUTH CONTROLLERS
@@ -431,7 +435,16 @@ Route::get('/test-midtrans', function () {
     ];
 });
 
+
 // ==========================
 // ⚙️ AUTH LARAVEL DEFAULT
 // ==========================
-require __DIR__ . '/auth.php';
+
+// Rute Publik untuk Artikel
+Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
+// Rute untuk menangani submit form kontak
+Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
+
+require __DIR__.'/auth.php';

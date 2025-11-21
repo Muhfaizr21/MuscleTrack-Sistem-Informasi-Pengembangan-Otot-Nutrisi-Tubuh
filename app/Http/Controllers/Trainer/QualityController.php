@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrainerVerification;
+use App\Models\Feedback;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,15 +14,33 @@ class QualityController extends Controller
     /**
      * 🧾 Menampilkan status verifikasi trainer
      */
-    public function showVerificationStatus()
+      public function showVerificationStatus()
     {
         $trainer = Auth::user();
         $verification = TrainerVerification::where('trainer_id', $trainer->id)
             ->latest()
             ->first();
 
-        return view('trainer.quality.verification-status', compact('trainer', 'verification'));
+        // TAMBAHKAN SEMUA DATA RATING YANG DIBUTUHKAN
+        $averageRating = Feedback::where('trainer_id', $trainer->id)->avg('rating') ?? 0;
+        $totalRatings = Feedback::where('trainer_id', $trainer->id)->count();
+
+        // Ambil beberapa rating terbaru untuk ditampilkan
+        $ratings = Feedback::with('user')
+            ->where('trainer_id', $trainer->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5) // Ambil 5 rating terbaru
+            ->get();
+
+        return view('trainer.quality.verification-status', compact(
+            'trainer',
+            'verification',
+            'averageRating',
+            'totalRatings',
+            'ratings'
+        ));
     }
+
 
     /**
      * 📤 Form kirim pengajuan verifikasi trainer
@@ -66,4 +86,39 @@ class QualityController extends Controller
         return redirect()->route('trainer.quality.verification.status')
             ->with('success', 'Pengajuan verifikasi telah dikirim. Mohon tunggu konfirmasi dari admin.');
     }
+
+    /**
+     * ⭐ MENAMPILKAN SEMUA RATING & ULASAN UNTUK TRAINER
+     */
+// Di Controller - ubah get() menjadi paginate()
+public function showRatings()
+{
+    $trainer = Auth::user();
+
+    // GANTI: get() menjadi paginate()
+    $ratings = Feedback::with('user')
+        ->where('trainer_id', $trainer->id)
+        ->orderBy('created_at', 'desc')
+        ->paginate(10); // ← paginate() bukan get()
+
+    // Hitung statistik rating
+    $averageRating = Feedback::where('trainer_id', $trainer->id)->avg('rating') ?? 0;
+    $totalRatings = Feedback::where('trainer_id', $trainer->id)->count();
+
+    // Distribusi rating per bintang
+    $ratingDistribution = [];
+    for ($i = 5; $i >= 1; $i--) {
+        $ratingDistribution[$i] = Feedback::where('trainer_id', $trainer->id)
+            ->where('rating', $i)
+            ->count();
+    }
+
+    return view('trainer.quality.ratings', compact(
+        'ratings',
+        'averageRating',
+        'totalRatings',
+        'ratingDistribution',
+        'trainer'
+    ));
+}
 }

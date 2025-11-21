@@ -273,9 +273,12 @@
                                                 class="font-bold text-white group-hover:text-emerald-400 transition-colors mb-2 line-clamp-2">
                                                 {{ $article->title }}
                                             </h4>
-                                            <p class="text-emerald-400/80 text-sm line-clamp-2 mb-3">
-                                                {{ Str::limit(strip_tags($article->content), 100) }}
-                                            </p>
+                                           <p class="text-emerald-400/80 text-sm line-clamp-2 mb-3">
+    @php
+        $content = strip_tags($article->content);
+        echo strlen($content) > 100 ? substr($content, 0, 100) . '...' : $content;
+    @endphp
+</p>
                                             <div class="flex items-center justify-between">
                                                 <span
                                                     class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
