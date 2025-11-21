@@ -1,168 +1,260 @@
 @extends('layouts.trainer')
 
-@section('title', 'Edit Nutrisi & Suplemen')
+@section('title', 'Edit Nutrition Plan')@section('content')<div class="min-h-screen py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-@section('content')
-    {{-- ✅ Flash Notification --}}
-    @if(session('success') || session('error'))
-        <div id="flash-message"
-             class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg text-white shadow-lg
-                 {{ session('success') ? 'bg-emerald-600/90' : 'bg-red-600/90' }}">
-            {{ session('success') ?? session('error') }}
-        </div>
-        <script>
-            setTimeout(() => document.getElementById('flash-message')?.remove(), 3000);
-        </script>
-    @endif
-
-    {{-- 🧊 Panel Transparan Glassmorphism --}}
-    <div class="bg-black/60 backdrop-blur-xl border border-gray-700/40 shadow-inner sm:rounded-xl p-6 md:p-8 space-y-8">
-
-        {{-- 🧠 Header --}}
-        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-            <h1 class="font-serif text-3xl font-bold text-white tracking-wide">
-                ✏️ Edit Nutrisi — <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                    {{ $member->name }}
-                </span>
-            </h1>
-            <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $member->id]) }}"
-               class="text-sm text-gray-400 hover:text-emerald-400 transition-all">
-                ⬅️ Kembali ke Daftar
-            </a>
-        </div>
-
-        {{-- 🍱 Edit Nutrition Form --}}
-        <div class="bg-gray-900/50 border border-gray-700/40 rounded-lg p-6 shadow-md shadow-emerald-500/10">
-            <h2 class="font-serif text-2xl font-bold text-white mb-4">
-                🍱 Ubah Rencana <span class="text-emerald-400">Nutrisi</span>
-            </h2>
-
-            <form action="{{ route('trainer.programs.nutrition.update', ['memberId' => $member->id]) }}"
-                  method="POST" class="space-y-4">
-                @csrf
-
-                {{-- Input Grid --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
-                    <div>
-                        <label for="meal_name" class="block text-sm font-medium text-gray-300">Nama Menu / Makanan</label>
-                        <input type="text" name="meal_name" id="meal_name" value="{{ old('meal_name', $nutritionPlan->meal_name ?? '') }}"
-                            placeholder="Misal: Dada Ayam & Nasi Merah"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-emerald-400 focus:ring-emerald-400 placeholder-gray-500">
+            {{-- Header Section --}}
+            <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center animate-glow">
+                            <span class="text-2xl">✏️</span>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-black text-white">
+                                Edit <span class="text-gradient">Nutrition Plan</span>
+                            </h1>
+                            <p class="text-emerald-400/80 text-lg mt-2">Update nutrition plan for {{ $member->name }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <label for="target_fitness" class="block text-sm font-medium text-gray-300">Target Fitness</label>
-                        <input type="text" name="target_fitness" id="target_fitness" value="{{ old('target_fitness', $nutritionPlan->target_fitness ?? '') }}"
-                            placeholder="Misal: bulking, cutting, maintenance"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-cyan-400 focus:ring-cyan-400 placeholder-gray-500">
+                    <div class="flex gap-3">
+                        <a href="{{ route('trainer.programs.nutrition.index', $member->id) }}"
+                           class="group flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white transition-all duration-300 border border-gray-600 hover:bg-gray-700/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Back to Nutrition
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
-                    <div>
-                        <label for="calories" class="block text-sm font-medium text-cyan-400">Kalori (kcal)</label>
-                        <input type="number" step="0.1" name="calories" id="calories" value="{{ old('calories', $nutritionPlan->calories ?? '') }}"
-                            placeholder="2500"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-cyan-400 focus:ring-cyan-400">
-                    </div>
-                    <div>
-                        <label for="protein" class="block text-sm font-medium text-emerald-400">Protein (g)</label>
-                        <input type="number" step="0.1" name="protein" id="protein" value="{{ old('protein', $nutritionPlan->protein ?? '') }}"
-                            placeholder="150"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-emerald-400 focus:ring-emerald-400">
-                    </div>
-                    <div>
-                        <label for="carbs" class="block text-sm font-medium text-pink-400">Karbohidrat (g)</label>
-                        <input type="number" step="0.1" name="carbs" id="carbs" value="{{ old('carbs', $nutritionPlan->carbs ?? '') }}"
-                            placeholder="200"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-pink-400 focus:ring-pink-400">
-                    </div>
-                    <div>
-                        <label for="fat" class="block text-sm font-medium text-red-400">Lemak (g)</label>
-                        <input type="number" step="0.1" name="fat" id="fat" value="{{ old('fat', $nutritionPlan->fat ?? '') }}"
-                            placeholder="60"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-red-400 focus:ring-red-400">
+            {{-- Toast Notification --}}
+            @if ($errors->any())
+                <div class="mb-6 glass rounded-2xl p-4 border border-red-500/20 animate-pop-in">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-red-400 font-medium mb-2">Please fix the following errors:</p>
+                            <ul class="text-red-400/80 text-sm list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 </div>
-
-                <div class="flex justify-end pt-2">
-                    <button type="submit"
-                        class="px-6 py-2.5 rounded-md text-sm font-bold text-black bg-gradient-to-r from-emerald-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition-all shadow-lg shadow-emerald-500/30">
-                        💾 Simpan Nutrisi
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        {{-- 💊 Tambah Suplemen Baru --}}
-        <div class="bg-gray-900/50 border border-gray-700/40 rounded-lg p-6 shadow-md shadow-emerald-500/10">
-            <h2 class="font-serif text-2xl font-bold text-white mb-4">
-                💊 Tambah <span class="text-cyan-400">Suplemen</span>
-            </h2>
-
-            <form action="{{ route('trainer.programs.nutrition.supplement.store', ['memberId' => $member->id]) }}"
-                  method="POST" class="space-y-4">
-                @csrf
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-300">Nama Suplemen</label>
-                        <input type="text" name="name" id="name" placeholder="Misal: Whey Protein"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-emerald-400 focus:ring-emerald-400">
-                    </div>
-                    <div>
-                        <label for="recommended_dose" class="block text-sm font-medium text-gray-300">Dosis</label>
-                        <input type="text" name="recommended_dose" id="recommended_dose" placeholder="Misal: 1 scoop/hari"
-                            class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-cyan-400 focus:ring-cyan-400">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-300">Deskripsi / Manfaat</label>
-                    <textarea name="description" id="description" placeholder="Deskripsi / manfaat suplemen..." rows="3"
-                        class="mt-1 block w-full bg-gray-800/60 border border-gray-700 rounded-md text-white focus:border-emerald-400 focus:ring-emerald-400"></textarea>
-                </div>
-
-                <div class="flex justify-end pt-2">
-                    <button type="submit"
-                        class="px-6 py-2.5 rounded-md text-sm font-bold text-black bg-gradient-to-r from-emerald-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition-all shadow-lg shadow-emerald-500/30">
-                        ➕ Tambah Suplemen
-                    </button>
-                </div>
-            </form>
-
-            {{-- Daftar Suplemen --}}
-            @if($supplements->count())
-                <div class="mt-6 border-t border-gray-700/40">
-                    <h3 class="font-serif text-lg font-bold text-white pt-5 mb-3">Daftar Suplemen Saat Ini</h3>
-                    <ul class="divide-y divide-gray-700/40">
-                        @foreach($supplements as $supplement)
-                            <li class="py-4 flex justify-between items-start gap-4">
-                                <div>
-                                    <strong class="text-emerald-400 font-semibold text-base">{{ $supplement->name }}</strong>
-                                    <p class="text-sm text-gray-300 mt-1">{{ $supplement->description }}</p>
-                                    @if($supplement->recommended_dose)
-                                        <p class="text-xs text-gray-400 mt-1">💧 <span class="font-medium">Dosis:</span> {{ $supplement->recommended_dose }}</p>
-                                    @endif
-                                </div>
-
-                                <form action="{{ route('trainer.programs.nutrition.supplement.destroy', ['memberId' => $member->id, 'supplementId' => $supplement->id]) }}"
-                                      method="POST" onsubmit="return confirm('Hapus suplemen ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="text-red-500 hover:text-red-400 text-sm font-medium transition-colors whitespace-nowrap">
-                                        🗑️ Hapus
-                                    </button>
-                                </form>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @else
-                <p class="text-gray-400 italic text-center pt-4 border-t border-gray-700/40 mt-6">
-                    Belum ada suplemen untuk member ini.
-                </p>
             @endif
+
+            {{-- Edit Form --}}
+            <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+                <form action="{{ route('trainer.programs.nutrition.update', ['memberId' => $member->id, 'planId' => $nutritionPlan->id]) }}" method="POST" class="space-y-6">
+                    @csrf
+                    @method('PATCH')
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Meal Name --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Meal Name <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" name="meal_name" value="{{ old('meal_name', $nutritionPlan->meal_name) }}" required
+                                   placeholder="e.g., Chicken Breast with Brown Rice, Protein Shake"
+                                   class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                        </div>
+
+                        {{-- Day of Week --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Day of Week <span class="text-red-400">*</span>
+                            </label>
+                            <select name="day_of_week" required
+                                    class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <option value="">Select Day</option>
+                                @foreach($days as $day)
+                                    <option value="{{ $day }}" {{ old('day_of_week', $nutritionPlan->day_of_week) == $day ? 'selected' : '' }}>
+                                        {{ $day }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Meal Type --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Meal Type <span class="text-red-400">*</span>
+                            </label>
+                            <select name="type" required
+                                    class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <option value="">Select Type</option>
+                                @foreach($types as $type)
+                                    <option value="{{ $type }}" {{ old('type', $nutritionPlan->type) == $type ? 'selected' : '' }}>
+                                        {{ ucfirst($type) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Nutrition Information --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {{-- Calories --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Calories <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="calories" value="{{ old('calories', $nutritionPlan->calories) }}" required min="0"
+                                       placeholder="0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">kcal</span>
+                            </div>
+                        </div>
+
+                        {{-- Protein --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Protein <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="protein" value="{{ old('protein', $nutritionPlan->protein) }}" required min="0" step="0.1"
+                                       placeholder="0.0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">g</span>
+                            </div>
+                        </div>
+
+                        {{-- Carbs --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Carbohydrates <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="carbs" value="{{ old('carbs', $nutritionPlan->carbs) }}" required min="0" step="0.1"
+                                       placeholder="0.0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">g</span>
+                            </div>
+                        </div>
+
+                        {{-- Fat --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Fat <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="fat" value="{{ old('fat', $nutritionPlan->fat) }}" required min="0" step="0.1"
+                                       placeholder="0.0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">g</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Water Intake --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Water Intake (Optional)
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="water_intake" value="{{ old('water_intake', $nutritionPlan->water_intake) }}" min="0" step="0.1"
+                                       placeholder="0.0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">L</span>
+                            </div>
+                        </div>
+
+                        {{-- Hydrogen Level --}}
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-400 mb-2">
+                                Hydrogen Level (Optional)
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="hydrogen_level" value="{{ old('hydrogen_level', $nutritionPlan->hydrogen_level) }}" min="0" step="0.1"
+                                       placeholder="0.0"
+                                       class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">pH</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Target Fitness --}}
+                    <div>
+                        <label class="block text-sm font-medium text-emerald-400 mb-2">
+                            Target Fitness Goal
+                        </label>
+                        <select name="target_fitness"
+                                class="w-full px-4 py-3 bg-white border border-emerald-500/20 rounded-xl text-black focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300">
+                            <option value="">Select Fitness Goal (Optional)</option>
+                            @foreach($targetFitnessOptions as $option)
+                                <option value="{{ $option }}" {{ old('target_fitness', $nutritionPlan->target_fitness) == $option ? 'selected' : '' }}>
+                                    {{ $option }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-emerald-500/20">
+                        <button type="submit"
+                                class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Update Nutrition Plan
+                        </button>
+                        <a href="{{ route('trainer.programs.nutrition.index', $member->id) }}"
+                           class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-bold text-gray-400 hover:text-white transition-all duration-300 border border-gray-600 hover:bg-gray-700/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    <style>
+        .text-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.3s ease-out forwards;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            }
+            to {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
 @endsection

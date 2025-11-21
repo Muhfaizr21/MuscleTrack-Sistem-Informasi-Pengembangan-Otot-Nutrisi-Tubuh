@@ -162,7 +162,6 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
         });
     });
-
 // ==========================
 // 🧑‍🏫 TRAINER
 // ==========================
@@ -176,6 +175,15 @@ Route::middleware(['auth', 'role:trainer'])
             Route::get('/', [MemberController::class, 'index'])->name('index');
             Route::get('/{member}', [MemberController::class, 'show'])->name('show');
             Route::post('/{member}/update-progress', [MemberController::class, 'updateProgress'])->name('updateProgress');
+
+            // 🔄 Real-time status API
+            Route::get('/{id}/real-time-status', [MemberController::class, 'getRealTimeStatus'])->name('real-time-status');
+
+            // 🗑️ Hapus member expired
+            Route::delete('/{id}/remove', [MemberController::class, 'removeExpiredMember'])->name('remove');
+
+            // 🔍 Check semua status member
+            Route::post('/check-status', [MemberController::class, 'checkAllMembersStatus'])->name('check-status');
         });
 
         // Trainer Profile Routes
@@ -203,15 +211,35 @@ Route::middleware(['auth', 'role:trainer'])
 
         Route::prefix('programs')->name('programs.')->group(function () {
             Route::get('/', [ProgramController::class, 'index'])->name('index');
+            Route::get('/create', [ProgramController::class, 'create'])->name('create');
+            Route::post('/', [ProgramController::class, 'store'])->name('store');
+            Route::get('/{memberId}', [ProgramController::class, 'show'])->name('show');
             Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
             Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
+            Route::delete('/{memberId}', [ProgramController::class, 'destroy'])->name('destroy');
+            Route::get('/{memberId}/progress', [ProgramController::class, 'progress'])->name('progress');
+            Route::get('/{memberId}/progress/create', [ProgramController::class, 'createProgress'])->name('progress.create');
+            Route::post('/{memberId}/progress', [ProgramController::class, 'storeProgress'])->name('progress.store');
 
-            Route::prefix('nutrition')->name('nutrition.')->group(function () {
-                Route::get('/{memberId}', [NutritionManagementController::class, 'index'])->name('index');
-                Route::get('/{memberId}/edit', [NutritionManagementController::class, 'edit'])->name('edit');
-                Route::post('/{memberId}/update', [NutritionManagementController::class, 'update'])->name('update');
-                Route::delete('/{memberId}/supplement/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
-                Route::post('/{memberId}/supplement', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
+            // 🆕 UPDATED NUTRITION MANAGEMENT ROUTES
+            Route::prefix('{memberId}/nutrition')->name('nutrition.')->group(function () {
+                Route::get('/', [NutritionManagementController::class, 'index'])->name('index');
+                Route::get('/create', [NutritionManagementController::class, 'create'])->name('create');
+                Route::post('/', [NutritionManagementController::class, 'store'])->name('store');
+                Route::get('/{planId}/edit', [NutritionManagementController::class, 'edit'])->name('edit');
+                Route::patch('/{planId}', [NutritionManagementController::class, 'update'])->name('update');
+                Route::delete('/{planId}', [NutritionManagementController::class, 'destroy'])->name('destroy');
+
+                // Supplement routes
+                Route::post('/supplements', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
+                Route::delete('/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
+
+                  // 🆕 ANALYSIS ROUTE - TAMBAHKAN INI
+                Route::get('/analysis', [NutritionManagementController::class, 'analysis'])->name('analysis');
+            
+                // Recommendation routes
+                Route::post('/{planId}/recommend', [NutritionManagementController::class, 'recommend'])->name('recommend');
+                Route::post('/{planId}/unrecommend', [NutritionManagementController::class, 'unrecommend'])->name('unrecommend');
             });
 
             Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');

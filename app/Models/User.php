@@ -149,10 +149,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(AiRecommendation::class, 'user_id');
     }
+
     public function fitnessProfile()
     {
         return $this->hasOne(UserFitnessProfile::class);
     }
+
     /**
      * Relasi ke user_devices
      */
@@ -167,5 +169,153 @@ class User extends Authenticatable
     public function scopeHasDevices($query)
     {
         return $query->whereHas('devices');
+    }
+
+    // === 🆕 RELASI BARU UNTUK FITUR HISTORY MEMBER ===
+
+    /**
+     * Relasi untuk mendapatkan premium access log terbaru untuk trainer tertentu
+     */
+    public function latestPremiumAccessForTrainer($trainerId)
+    {
+        return $this->hasOne(PremiumAccessLog::class, 'user_id')
+            ->where('trainer_id', $trainerId)
+            ->latestOfMany();
+    }
+
+    /**
+     * Relasi untuk mendapatkan semua premium access log untuk trainer tertentu
+     */
+    public function premiumAccessHistoryForTrainer($trainerId)
+    {
+        return $this->hasMany(PremiumAccessLog::class, 'user_id')
+            ->where('trainer_id', $trainerId)
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Relasi untuk mendapatkan pembayaran terbaru untuk trainer tertentu
+     */
+    public function latestPaymentForTrainer($trainerId)
+    {
+        return $this->hasOne(Payment::class, 'user_id')
+            ->where('trainer_id', $trainerId)
+            ->where('status', 'paid')
+            ->latestOfMany();
+    }
+
+    /**
+     * Relasi untuk mendapatkan semua pembayaran untuk trainer tertentu
+     */
+    public function paymentHistoryForTrainer($trainerId)
+    {
+        return $this->hasMany(Payment::class, 'user_id')
+            ->where('trainer_id', $trainerId)
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Relasi untuk mendapatkan trainer yang membimbing user ini
+     */
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    /**
+     * Relasi untuk mendapatkan semua member yang dibimbing oleh trainer ini
+     */
+    public function members()
+    {
+        return $this->hasMany(User::class, 'trainer_id')
+            ->where('role', 'user');
+    }
+    public function workoutSchedules()
+    {
+        return $this->hasMany(WorkoutSchedule::class);
+    }
+
+    /**
+     * Accessor untuk cek apakah user aktif sebagai member trainer tertentu
+     */
+    public function getIsActiveForTrainerAttribute($trainerId = null)
+    {
+        if (!$trainerId && $this->trainer_id) {
+            $trainerId = $this->trainer_id;
+        }
+
+        if (!$trainerId) {
+            return false;
+        }
+
+        $premiumAccess = $this->latestPremiumAccessForTrainer($trainerId)->first();
+
+        if (!$premiumAccess) {
+            return false;
+        }
+
+        return \Carbon\Carbon::parse($premiumAccess->end_date)->isFuture();
+    }
+
+    /**
+     * Accessor untuk mendapatkan sisa hari masa aktif untuk trainer tertentu
+     */
+    public function getRemainingDaysForTrainerAttribute($trainerId = null)
+    {
+        if (!$trainerId && $this->trainer_id) {
+            $trainerId = $this->trainer_id;
+        }
+
+        if (!$trainerId) {
+            return 0;
+        }
+
+        $premiumAccess = $this->latestPremiumAccessForTrainer($trainerId)->first();
+
+        if (!$premiumAccess) {
+            return 0;
+        }
+
+        $endDate = \Carbon\Carbon::parse($premiumAccess->end_date);
+        $today = \Carbon\Carbon::today();
+
+        return $today->diffInDays($endDate, false);
+    }
+
+    /**
+     * Scope untuk mendapatkan member yang aktif untuk trainer tertentu
+     */
+    public function scopeActiveForTrainer($query, $trainerId)
+    {
+        return $query->whereHas('premiumAccessLogsAsUser', function ($q) use ($trainerId) {
+            $q->where('trainer_id', $trainerId)
+                ->where('end_date', '>=', now())
+                ->where('payment_status', 'paid');
+        });
+    }
+
+    /**
+     * Scope untuk mendapatkan member yang akan berakhir masa aktifnya (kurang dari 7 hari)
+     */
+    public function scopeExpiringForTrainer($query, $trainerId)
+    {
+        return $query->whereHas('premiumAccessLogsAsUser', function ($q) use ($trainerId) {
+            $q->where('trainer_id', $trainerId)
+                ->where('end_date', '>=', now())
+                ->where('end_date', '<=', now()->addDays(7))
+                ->where('payment_status', 'paid');
+        });
+    }
+
+    /**
+     * Scope untuk mendapatkan member yang sudah kadaluarsa untuk trainer tertentu
+     */
+    public function scopeExpiredForTrainer($query, $trainerId)
+    {
+        return $query->whereHas('premiumAccessLogsAsUser', function ($q) use ($trainerId) {
+            $q->where('trainer_id', $trainerId)
+                ->where('end_date', '<', now())
+                ->where('payment_status', 'paid');
+        });
     }
 }
