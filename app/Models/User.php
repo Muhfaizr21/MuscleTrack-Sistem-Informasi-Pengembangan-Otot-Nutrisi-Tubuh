@@ -230,9 +230,50 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'trainer_id')
             ->where('role', 'user');
     }
+
     public function workoutSchedules()
     {
         return $this->hasMany(WorkoutSchedule::class);
+    }
+
+    // === 👥 COMMUNITY RELATIONSHIPS ===
+
+    // Relationship dengan komunitas yang diikuti (melalui CommunityMember)
+    public function communityMemberships()
+    {
+        return $this->hasMany(CommunityMember::class);
+    }
+
+    // Relationship dengan komunitas yang diikuti (many-to-many)
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_members', 'user_id', 'community_id')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    // Relationship dengan posts yang dibuat
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    // Relationship dengan komentar yang dibuat
+    public function postComments()
+    {
+        return $this->hasMany(PostComment::class);
+    }
+
+    // Relationship dengan likes pada post
+    public function postLikes()
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    // Relationship dengan likes pada komentar
+    public function commentLikes()
+    {
+        return $this->hasMany(CommentLike::class);
     }
 
     /**

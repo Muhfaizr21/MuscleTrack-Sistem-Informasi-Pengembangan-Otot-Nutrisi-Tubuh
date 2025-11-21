@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\UserCommunityController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,7 +68,10 @@ use App\Http\Controllers\User\{
     UserProfileController,
     UserArticleController,
     UserTrainingController,
-    NotificationController as UserNotificationController
+    NotificationController as UserNotificationController,
+    UserCommunityCommentController,
+    UserCommunityLikeController,
+    UserCommunityPostController
 };
 
 /*
@@ -234,9 +238,9 @@ Route::middleware(['auth', 'role:trainer'])
                 Route::post('/supplements', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
                 Route::delete('/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
 
-                  // 🆕 ANALYSIS ROUTE - TAMBAHKAN INI
+                // 🆕 ANALYSIS ROUTE - TAMBAHKAN INI
                 Route::get('/analysis', [NutritionManagementController::class, 'analysis'])->name('analysis');
-            
+
                 // Recommendation routes
                 Route::post('/{planId}/recommend', [NutritionManagementController::class, 'recommend'])->name('recommend');
                 Route::post('/{planId}/unrecommend', [NutritionManagementController::class, 'unrecommend'])->name('unrecommend');
@@ -327,6 +331,7 @@ Route::middleware(['auth', 'role:user'])
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
 
+
         // 📚 Artikel
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
@@ -355,6 +360,45 @@ Route::middleware(['auth', 'role:user'])
             Route::delete('/fcm-token', [UserNotificationController::class, 'removeFCMToken'])->name('removeFCMToken');
             Route::get('/devices', [UserNotificationController::class, 'getUserDevices'])->name('devices');
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
+        });
+    });
+
+// ==========================
+// 👥 COMMUNITY ROUTES
+// ==========================
+Route::middleware(['auth', 'role:user'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
+        // ... routes yang sudah ada ...
+
+        // 🆕 COMMUNITY ROUTES
+        Route::prefix('communities')->name('communities.')->group(function () {
+            Route::get('/', [UserCommunityController::class, 'index'])->name('index');
+            Route::get('/create', [UserCommunityController::class, 'create'])->name('create');
+            Route::post('/', [UserCommunityController::class, 'store'])->name('store');
+            Route::get('/{community}', [UserCommunityController::class, 'show'])->name('show');
+            Route::get('/{community}/edit', [UserCommunityController::class, 'edit'])->name('edit');
+            Route::put('/{community}', [UserCommunityController::class, 'update'])->name('update');
+            Route::delete('/{community}', [UserCommunityController::class, 'destroy'])->name('destroy');
+
+            // Membership routes
+            Route::post('/{community}/join', [UserCommunityController::class, 'join'])->name('join');
+            Route::post('/{community}/leave', [UserCommunityController::class, 'leave'])->name('leave');
+
+            // Post routes
+            Route::post('/{community}/posts', [UserCommunityPostController::class, 'store'])->name('posts.store');
+            Route::put('/posts/{post}', [UserCommunityPostController::class, 'update'])->name('posts.update');
+            Route::delete('/posts/{post}', [UserCommunityPostController::class, 'destroy'])->name('posts.destroy');
+
+            // Comment routes
+            Route::post('/posts/{post}/comments', [UserCommunityCommentController::class, 'store'])->name('posts.comments.store');
+            Route::put('/comments/{comment}', [UserCommunityCommentController::class, 'update'])->name('posts.comments.update');
+            Route::delete('/comments/{comment}', [UserCommunityCommentController::class, 'destroy'])->name('posts.comments.destroy');
+
+            // Like routes - PERBAIKAN: tambahkan parameter
+            Route::post('/posts/{post}/like', [UserCommunityLikeController::class, 'store'])->name('posts.like');
+            Route::post('/comments/{comment}/like', [UserCommunityLikeController::class, 'commentLike'])->name('comments.like');
         });
     });
 
