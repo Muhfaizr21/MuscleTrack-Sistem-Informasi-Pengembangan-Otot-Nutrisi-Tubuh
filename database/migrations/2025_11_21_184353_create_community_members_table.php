@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('role', ['admin', 'moderator', 'member'])->default('member');
             $table->timestamp('joined_at')->useCurrent();
-
+            $table->timestamps();
             $table->unique(['community_id', 'user_id']);
         });
     }

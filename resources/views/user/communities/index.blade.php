@@ -54,7 +54,7 @@
         .community-thread:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(16, 185, 129, 0.2),
                 0 0 60px rgba(16, 185, 129, 0.1),
                 inset 0 0 20px rgba(16, 185, 129, 0.05);
@@ -70,11 +70,11 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(16, 185, 129, 0.6), 
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(16, 185, 129, 0.6),
                 rgba(5, 150, 105, 0.8),
-                rgba(16, 185, 129, 0.6), 
+                rgba(16, 185, 129, 0.6),
                 transparent
             );
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
@@ -83,7 +83,7 @@
         .community-avatar {
             position: relative;
             border: 2px solid rgba(16, 185, 129, 0.3);
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(16, 185, 129, 0.3),
                 inset 0 0 10px rgba(16, 185, 129, 0.1);
         }
@@ -168,7 +168,7 @@
         }
 
         .header-glow {
-            background: 
+            background:
                 linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.9) 100%),
                 radial-gradient(circle at top right, rgba(16, 185, 129, 0.15), transparent 70%);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -208,7 +208,7 @@
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(180deg, 
+            background: linear-gradient(180deg,
                 rgba(16, 185, 129, 0.5),
                 rgba(16, 185, 129, 0.2),
                 transparent
@@ -277,7 +277,7 @@
                                     <!-- Avatar -->
                                     <div class="flex-shrink-0">
                                         @if($community->image)
-                                            <img src="{{ Storage::url($community->image) }}" 
+                                            <img src="{{ Storage::url($community->image) }}"
                                                 alt="{{ $community->name }}"
                                                 class="community-avatar w-16 h-16 rounded-2xl object-cover">
                                         @else
@@ -346,7 +346,7 @@
                                                 View Community
                                             </a>
 
-                                            @if($joinedCommunities->contains($community->id))
+                                            @if(in_array($community->id, $joinedCommunities))
                                                 <form action="{{ route('user.communities.leave', $community) }}" method="POST">
                                                     @csrf
                                                     <button type="submit"
@@ -394,7 +394,7 @@
                 <div class="header-glow rounded-3xl p-16 text-center relative overflow-hidden">
                     <div class="sparkle" style="top: 20%; left: 20%; animation-delay: 0s;"></div>
                     <div class="sparkle" style="top: 70%; left: 70%; animation-delay: 1s;"></div>
-                    
+
                     <div class="relative z-10">
                         <div class="w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/20">
                             <svg class="w-16 h-16 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
