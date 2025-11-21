@@ -15,7 +15,8 @@
             </p>
             <p>Metode: {{ strtoupper($payment->method) }}</p>
             <p>Status:
-                <span class="uppercase {{ $payment->status === 'paid' ? 'text-green-400' : 'text-red-400' }}">
+                <span
+                    class="uppercase {{ $payment->status === 'paid' ? 'text-green-400' : ($payment->status === 'pending' ? 'text-yellow-400' : 'text-red-400') }}">
                     {{ $payment->status }}
                 </span>
             </p>
@@ -37,8 +38,8 @@
             </button>
 
             {{-- Loading indicator --}}
-            <div id="loading" class="hidden text-center mt-4">
-                <div class="inline-flex items-center">
+            <div id="loading" class="hidden text-center mt-4 py-4">
+                <div class="inline-flex items-center px-4 py-2 bg-blue-500 rounded-lg">
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -46,66 +47,88 @@
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                         </path>
                     </svg>
-                    Memproses pembayaran...
+                    <span class="text-white font-medium">Memproses pembayaran...</span>
                 </div>
             </div>
 
             {{-- Error message --}}
-            <div id="error-message" class="hidden mt-4 p-3 bg-red-500 text-white rounded-lg"></div>
+            <div id="error-message" class="hidden mt-4 p-4 bg-red-500/20 border border-red-500 text-red-300 rounded-lg"></div>
         @endif
     </div>
 
     {{-- MIDTRANS JS --}}
-    <!-- Tetap pakai Sandbox JS -->
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 
     <script>
         document.getElementById('pay-button').addEventListener('click', function () {
-            console.log('🚀 Starting payment on HOSTING - SANDBOX MODE');
+            const payButton = this;
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+
+            // Show loading, hide button
+            payButton.classList.add('hidden');
+            loading.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+
+            console.log('🚀 Starting payment process...');
 
             fetch("{{ route('payment.create') }}", {
                 method: "POST",
                 headers: {
                     "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify({
                     payment_id: "{{ $payment->id }}"
                 })
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    console.log('📦 Response from HOSTING:', data);
+                    console.log('📦 Response from server:', data);
 
                     if (!data.success) {
-                        alert("Gagal membuat pembayaran: " + data.message);
-                        return;
+                        throw new Error(data.message || "Gagal membuat pembayaran");
                     }
 
-                    // Launch Midtrans Sandbox
+                    // Launch Midtrans
                     window.snap.pay(data.snap_token, {
                         onSuccess: function (result) {
-                            console.log('💰 Payment SUCCESS on HOSTING:', result);
-                            window.location.href = "https://musclexpert.my.id/user/training/invoice/{{ $payment->id }}";
+                            console.log('💰 Payment SUCCESS:', result);
+                            window.location.href = "{{ route('user.training.invoice', $payment->id) }}";
                         },
                         onPending: function (result) {
-                            console.log('⏳ Payment PENDING on HOSTING:', result);
-                            window.location.href = "https://musclexpert.my.id/user/training/invoice/{{ $payment->id }}";
+                            console.log('⏳ Payment PENDING:', result);
+                            window.location.href = "{{ route('user.training.invoice', $payment->id) }}";
                         },
                         onError: function (result) {
-                            console.error('❌ Payment ERROR on HOSTING:', result);
-                            window.location.href = "https://musclexpert.my.id/user/training/invoice/{{ $payment->id }}";
+                            console.error('❌ Payment ERROR:', result);
+                            window.location.href = "{{ route('user.training.invoice', $payment->id) }}";
                         },
                         onClose: function () {
-                            console.log('🔒 Payment popup closed on HOSTING');
-                            window.location.href = "https://musclexpert.my.id/user/training/invoice/{{ $payment->id }}";
+                            console.log('🔒 Payment popup closed');
+                            // Jangan redirect saat user close popup
+                            payButton.classList.remove('hidden');
+                            loading.classList.add('hidden');
                         }
                     });
                 })
                 .catch(error => {
-                    console.error('❌ Fetch error on HOSTING:', error);
-                    alert("Terjadi kesalahan server di hosting.");
+                    console.error('❌ Error:', error);
+
+                    // Show error message to user
+                    errorMessage.textContent = "Terjadi kesalahan: " + error.message;
+                    errorMessage.classList.remove('hidden');
+
+                    // Show button again
+                    payButton.classList.remove('hidden');
+                    loading.classList.add('hidden');
                 });
         });
     </script>

@@ -340,14 +340,16 @@ Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.i
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
 // ==========================
-// 💳 PAYMENT MIDTRANS
+// 💳 PAYMENT MIDTRANS - FIXED
 // ==========================
+
+// Route callback HARUS di luar auth middleware
+Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
+
+// Route dengan auth middleware
 Route::middleware('auth')->group(function () {
     Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
 });
-
-Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
-
 // TEST ROUTE - Hapus setelah selesai
 Route::get('/test-midtrans', function () {
     return [

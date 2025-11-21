@@ -46,27 +46,12 @@ class PaymentController extends Controller
                 $payment->update(['order_id' => $newOrderId]);
             }
 
-            // DEBUG: Log konfigurasi
-            Log::info('🎯 Midtrans Config in PaymentController', [
-                'server_key' => config('midtrans.server_key'),
-                'client_key' => config('midtrans.client_key'),
-                'is_production' => config('midtrans.is_production'),
-                'payment_id' => $payment->id,
-                'order_id' => $payment->order_id,
-                'amount' => $payment->amount
-            ]);
-
-            // Setup Midtrans dengan verification
+            // Setup Midtrans
             \Midtrans\Config::$serverKey = config('midtrans.server_key');
             \Midtrans\Config::$clientKey = config('midtrans.client_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
-
-            // Verify server key is set
-            if (empty(\Midtrans\Config::$serverKey)) {
-                throw new \Exception('Midtrans server key is empty! Check your config.');
-            }
 
             $transaction = [
                 'transaction_details' => [
@@ -79,15 +64,8 @@ class PaymentController extends Controller
                 ],
             ];
 
-            Log::info('📦 Transaction details for Midtrans', $transaction);
-
             // Generate Snap Token
             $snapToken = \Midtrans\Snap::getSnapToken($transaction);
-
-            Log::info('✅ Snap Token generated successfully', [
-                'order_id' => $payment->order_id,
-                'snap_token_received' => !empty($snapToken)
-            ]);
 
             $payment->update(['snap_token' => $snapToken]);
 
@@ -99,7 +77,6 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::error('❌ Payment Creation Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
                 'payment_id' => $request->payment_id ?? 'unknown',
                 'user_id' => Auth::id()
             ]);
@@ -112,13 +89,32 @@ class PaymentController extends Controller
     }
 
     /**
-     * Callback dari Midtrans
+     * Callback dari Midtrans - FIXED VERSION
      */
     public function callback(Request $request)
     {
-        Log::info('🔄 Midtrans Callback Received', $request->all());
+        // LOG SEMUA DATA YANG DITERIMA
+        Log::info('🎯 MIDTRANS CALLBACK RECEIVED', [
+            'headers' => $request->headers->all(),
+            'all_data' => $request->all(),
+            'ip' => $request->ip(),
+            'method' => $request->method(),
+            'full_url' => $request->fullUrl()
+        ]);
+
+        // Validasi data required
+        if (!$request->has(['order_id', 'transaction_status', 'signature_key'])) {
+            Log::warning('🚫 INVALID CALLBACK DATA', $request->all());
+            return response()->json(['message' => 'Invalid callback data'], 400);
+        }
 
         $serverKey = config('midtrans.server_key');
+
+        // DEBUG: Log server key (partial untuk security)
+        Log::info('🔑 Server Key Check', [
+            'server_key_length' => strlen($serverKey),
+            'server_key_prefix' => substr($serverKey, 0, 10) . '...'
+        ]);
 
         // Verifikasi signature
         $hashed = hash(
@@ -128,6 +124,12 @@ class PaymentController extends Controller
                 $request->gross_amount .
                 $serverKey
         );
+
+        Log::info('🔐 Signature Verification', [
+            'received_signature' => $request->signature_key,
+            'calculated_signature' => $hashed,
+            'match' => $hashed === $request->signature_key
+        ]);
 
         if ($hashed !== $request->signature_key) {
             Log::warning('🚫 INVALID SIGNATURE MIDTRANS', [
@@ -146,22 +148,43 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
+        Log::info('✅ Payment Found', [
+            'payment_id' => $payment->id,
+            'old_status' => $payment->status,
+            'new_status' => $request->transaction_status
+        ]);
+
         // Update status sesuai callback
+        $this->updatePaymentStatus($payment, $request);
+
+        return response()->json(['message' => 'Callback processed successfully']);
+    }
+
+    /**
+     * Handle status update
+     */
+    private function updatePaymentStatus($payment, $request)
+    {
         $oldStatus = $payment->status;
 
         switch ($request->transaction_status) {
             case 'capture':
                 if ($request->fraud_status == 'accept') {
                     $payment->update(['status' => 'paid']);
-                    Log::info('💰 Payment CAPTURED and ACCEPTED', ['order_id' => $request->order_id]);
+                    Log::info('💰 Payment CAPTURED and ACCEPTED', [
+                        'order_id' => $request->order_id,
+                        'payment_id' => $payment->id
+                    ]);
+                    $this->handleSuccessfulPayment($payment);
                 }
                 break;
 
             case 'settlement':
                 $payment->update(['status' => 'paid']);
-                Log::info('💰 Payment SETTLEMENT/PAID', ['order_id' => $request->order_id]);
-
-                // Trigger aksi setelah pembayaran berhasil
+                Log::info('💰 Payment SETTLEMENT/PAID', [
+                    'order_id' => $request->order_id,
+                    'payment_id' => $payment->id
+                ]);
                 $this->handleSuccessfulPayment($payment);
                 break;
 
@@ -181,7 +204,11 @@ class PaymentController extends Controller
                 break;
         }
 
-        return response()->json(['message' => 'Callback processed successfully']);
+        Log::info('🔄 Status Updated', [
+            'order_id' => $request->order_id,
+            'old_status' => $oldStatus,
+            'new_status' => $payment->status
+        ]);
     }
 
     /**
