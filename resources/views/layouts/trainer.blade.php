@@ -18,113 +18,540 @@
         rel="stylesheet">
 
     <style>
-        /* Styles yang sama seperti sebelumnya */
+        /* Reset dan Base Styles */
         * {
             font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            background: #000 !important;
+            color-scheme: dark;
+            overflow-x: hidden;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        body::-webkit-scrollbar-track {
+            background: #000 !important;
+        }
+
+        html {
+            background-color: #000 !important;
         }
 
         .font-display {
             font-family: 'Outfit', sans-serif;
         }
 
+        /* Enhanced Dark Theme with Emerald Glow */
         body {
-            background: linear-gradient(135deg, #0a0f0d 0%, #0d1410 50%, #0a0f0d 100%);
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 255, 170, 0.25), transparent),
+                radial-gradient(ellipse 50% 50% at 100% 0%, rgba(0, 255, 204, 0.2), transparent),
+                radial-gradient(ellipse 50% 50% at 0% 100%, rgba(0, 255, 157, 0.2), transparent),
+                linear-gradient(135deg, #0a0f0d 0%, #0d1410 50%, #0a0f0d 100%);
             background-attachment: fixed;
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .glass-nav {
-            background: rgba(13, 20, 16, 0.95);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .glass-card {
-            background: rgba(17, 25, 21, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .glass-footer {
-            background: rgba(13, 20, 16, 0.9);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(16, 185, 129, 0.15);
-        }
-
-        .nav-link-top {
             position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
         }
 
-        .nav-link-top::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 3px;
-            background: linear-gradient(to right, #10b981, #34d399);
-            transition: width 0.3s ease;
-            border-radius: 3px 3px 0 0;
-        }
-
-        .nav-link-top.active::after {
-            width: 80%;
-        }
-
-        .nav-link-top:hover::after {
-            width: 60%;
-        }
-
-        .glow-button {
-            position: relative;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .glow-button::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            opacity: 0;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(52, 211, 153, 0.3));
-            transition: opacity 0.3s ease;
+        /* Animated Grid Background */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 170, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 170, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            animation: gridMove 20s linear infinite;
+            opacity: 0.1;
             z-index: -1;
         }
 
-        .glow-button:hover::after {
-            opacity: 1;
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
         }
 
-        .notification-badge {
-            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        /* Floating Elements */
+        .floating-element {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            z-index: -1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-1 {
+            top: 20%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 255, 170, 0.3);
+            animation-delay: 0s;
+        }
+
+        .floating-2 {
+            top: 60%;
+            right: 10%;
+            width: 250px;
+            height: 250px;
+            background: rgba(0, 255, 204, 0.25);
+            animation-delay: 2s;
+        }
+
+        .floating-3 {
+            bottom: 20%;
+            left: 20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 255, 157, 0.2);
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        /* Enhanced Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #00ff9d 0%, #00ffcc 50%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% {
+                filter: drop-shadow(0 0 5px rgba(0, 255, 170, 0.5));
+            }
+
+            100% {
+                filter: drop-shadow(0 0 15px rgba(0, 255, 170, 0.8));
+            }
+        }
+
+        /* Premium Glass Effects */
+        .glass-nav {
+            background: rgba(13, 20, 16, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(0, 255, 170, 0.3);
+            box-shadow:
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 255, 170, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            height: 80px;
+            /* Fixed height for consistent spacing */
+        }
+
+        .glass-card {
+            background: rgba(17, 25, 21, 0.8);
+            backdrop-filter: blur(15px) saturate(180%);
+            border: 1px solid rgba(0, 255, 170, 0.25);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 255, 170, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 255, 170, 0.4);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 255, 170, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .glass-footer {
+            background: rgba(13, 20, 16, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid rgba(0, 255, 170, 0.2);
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced Navigation Items */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #9CA3AF;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 170, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 255, 170, 0.15);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 170, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 170, 0.15);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 255, 170, 0.2);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 170, 0.4);
+            box-shadow:
+                0 8px 25px rgba(0, 255, 170, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon,
+        .nav-item.active .nav-icon {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.6));
+        }
+
+        /* Enhanced Profile Avatar */
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00ff9d, #00ffcc);
+            border-radius: 30%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            border: 2px solid rgba(0, 255, 170, 0.4);
+            box-shadow:
+                0 4px 15px rgba(0, 255, 170, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            margin-left: 20px;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 6px 20px rgba(0, 255, 170, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Premium Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 12px;
+            width: 280px;
+            background: rgba(17, 25, 21, 0.98);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 16px;
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 255, 170, 0.2);
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .profile-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.2);
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.1), transparent);
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.05);
+        }
+
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-item:hover {
+            background: rgba(0, 255, 170, 0.15);
+            color: #00ffcc;
+            padding-left: 24px;
+        }
+
+        .profile-item svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-item:hover svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 6px rgba(0, 255, 170, 0.6));
+        }
+
+        /* Enhanced Notification Badge */
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+            border-radius: 50%;
+            border: 2px solid rgba(13, 20, 16, 0.95);
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+            animation: pulse-glow 2s ease-in-out infinite;
         }
 
         @keyframes pulse-glow {
 
             0%,
             100% {
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
             }
 
             50% {
-                opacity: 0.8;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+                transform: scale(1.1);
+                box-shadow: 0 0 0 6px rgba(255, 68, 68, 0);
             }
         }
 
+        /* Enhanced Mobile Styles */
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            color: #9CA3AF;
+            font-weight: 500;
+            font-size: 15px;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(0, 255, 170, 0.15);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 170, 0.3);
+            transform: translateX(5px);
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(0, 255, 170, 0.2);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 170, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 255, 170, 0.15);
+        }
+
+        /* Enhanced Logo */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00ff9d, #00ffcc);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 6px 20px rgba(0, 255, 170, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            margin-right: 20px;
+        }
+
+        .logo-icon:hover {
+            transform: rotate(10deg) scale(1.05);
+            box-shadow:
+                0 8px 25px rgba(0, 255, 170, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced Mobile Menu Button */
+        .mobile-menu-btn {
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: #9CA3AF;
+            border: 1px solid transparent;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(0, 255, 170, 0.15);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 170, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Enhanced Footer */
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* FIXED: Main Content Spacing to Prevent Navbar Overlap */
+        .main-content-wrapper {
+            min-height: 100vh;
+            padding-top: 80px;
+            margin-top: 30px;
+            /* Match navbar height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Enhanced responsive padding for main content */
+        .content-container {
+            width: 100%;
+            max-width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .content-container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .content-container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-item {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .nav-icon {
+                width: 18px;
+                height: 18px;
+                margin-right: 10px;
+            }
+
+            .profile-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .footer-links {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .glass-card {
+                margin: 0 10px;
+            }
+
+            /* Adjust main content padding for mobile */
+            .main-content-wrapper {
+                padding-top: 70px;
+                /* Slightly less on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .mobile-nav-item {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .profile-dropdown {
+                width: 260px;
+                right: -20px;
+            }
+
+            .logo-container span {
+                font-size: 18px;
+            }
+
+            /* Further adjustment for very small screens */
+            .main-content-wrapper {
+                padding-top: 65px;
+            }
+        }
+
+        /* Smooth Transitions */
         .smooth-transition {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -133,250 +560,102 @@
             display: none !important;
         }
 
-        /* Scrollbar Styling */
+        /* Enhanced Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
             background: rgba(16, 185, 129, 0.05);
+            border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(16, 185, 129, 0.3);
-            border-radius: 3px;
+            background: linear-gradient(135deg, #00ff9d, #00ffcc);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, #00ffcc, #00ff9d);
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.7);
         }
 
-        /* Mobile Menu Dropdown */
-        .mobile-menu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
-        .mobile-menu.open {
-            max-height: 600px;
+        /* Focus States for Accessibility */
+        button:focus,
+        a:focus {
+            outline: 2px solid rgba(0, 255, 170, 0.5);
+            outline-offset: 2px;
         }
 
-        /* Enhanced Navigation Styles */
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 16px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            color: #9CA3AF;
-            font-weight: 500;
-            font-size: 14px;
+        /* Print Styles */
+        @media print {
+
+            .glass-nav,
+            .glass-footer {
+                display: none;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .main-content-wrapper {
+                padding-top: 0 !important;
+            }
         }
 
-        .nav-item:hover {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10B981;
-            transform: translateY(-1px);
+        /* Additional safety measures to prevent overlap */
+        body {
+            padding-top: 0 !important;
         }
 
-        .nav-item.active {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10B981;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        }
-
-        .nav-icon {
-            width: 18px;
-            height: 18px;
-            margin-right: 10px;
-        }
-
-        .profile-avatar {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            border: 2px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .nav-divider {
-            height: 1px;
-            background: rgba(16, 185, 129, 0.1);
-            margin: 8px 0;
-        }
-
-        /* Enhanced Card Styles */
-        .enhanced-card {
-            background: rgba(17, 25, 21, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
-            background: rgba(16, 185, 129, 0.05);
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        /* Profile Dropdown Styles */
-        .profile-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 8px;
-            width: 240px;
-            background: rgba(17, 25, 21, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-            z-index: 1000;
-        }
-
-        .profile-header {
-            padding: 16px;
-            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
-        }
-
-        .profile-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            color: #e5e7eb;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .profile-item:hover {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .profile-item svg {
-            width: 16px;
-            height: 16px;
-            margin-right: 10px;
-        }
-
-        /* Notification Badge */
-        .notification-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 8px;
-            height: 8px;
-            background: #EF4444;
-            border-radius: 50%;
-            border: 2px solid rgba(13, 20, 16, 0.95);
-        }
-
-        /* Mobile Menu Improvements */
-        .mobile-nav-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            color: #9CA3AF;
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .mobile-nav-item:hover {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10B981;
-        }
-
-        .mobile-nav-item.active {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10B981;
-        }
-
-        /* Logo Styles */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        /* Navigation Container */
-        .nav-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            color: #9CA3AF;
-        }
-
-        .mobile-menu-btn:hover {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10B981;
+        /* Ensure content starts below navbar */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
         }
     </style>
 </head>
 
 <body class="text-gray-100 min-h-screen flex flex-col">
+    <!-- Background Elements -->
+    <div class="grid-pattern"></div>
+    <div class="floating-element floating-1"></div>
+    <div class="floating-element floating-2"></div>
+    <div class="floating-element floating-3"></div>
+
     <div x-data="{ isMobileMenuOpen: false, profileDropdownOpen: false }" class="flex flex-col min-h-screen">
-        {{-- 🌟 TOP NAVBAR --}}
-        <nav class="glass-nav fixed top-0 left-0 w-full z-50">
-            <div class="max-w-7xl mx-auto px-4 md:px-8">
-                <div class="flex justify-between items-center h-16">
-                    {{-- Logo --}}
+        {{-- 🌟 ENHANCED TOP NAVBAR --}}
+        <nav class="glass-nav">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    {{-- Enhanced Logo --}}
                     <div class="logo-container">
-                        <a href="{{ route('trainer.dashboard') }}" class="flex items-center gap-2">
+                        <a href="{{ route('trainer.dashboard') }}" class="flex items-center gap-3">
                             <div class="logo-icon">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                 </svg>
                             </div>
-                            <span class="font-display text-xl font-bold text-white hidden sm:inline">
-                                Muscle<span class="text-gradient">Xpert</span>
-                            </span>
+                        
                         </a>
                     </div>
 
-                    {{-- Desktop Navigation --}}
+                    {{-- Enhanced Desktop Navigation --}}
                     @php
                         use App\Models\User;
                         $trainer = auth()->user();
                         $firstMember = $trainer ? User::where('trainer_id', $trainer->id)->first() : null;
                     @endphp
-                    <div class="hidden lg:flex items-center space-x-1">
+                    <div class="hidden lg:flex items-center space-x-2">
                         <a href="{{ route('trainer.dashboard') }}"
                             class="nav-item {{ Route::is('trainer.dashboard') ? 'active' : '' }}">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -449,17 +728,17 @@
                         </a>
                     </div>
 
-                    {{-- Right Side: Profile & Mobile Menu --}}
-                    <div class="flex items-center space-x-3">
-                        <!-- Desktop Profile Dropdown -->
+                    {{-- Enhanced Right Side: Profile & Mobile Menu --}}
+                    <div class="flex items-center space-x-4">
+                        <!-- Enhanced Desktop Profile Dropdown -->
                         <div class="hidden lg:block relative" x-data="{ open: false }">
                             <button @click="open = !open"
-                                class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-500/10 transition-all duration-200">
+                                class="flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30">
                                 <div class="profile-avatar">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
-                                <span class="text-gray-200 font-medium text-sm">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                <span class="text-gray-200 font-semibold text-sm">{{ auth()->user()->name }}</span>
+                                <svg class="w-4 h-4 text-emerald-400 transition-transform duration-300"
                                     :class="{ 'rotate-180': open }" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -467,28 +746,28 @@
                                 </svg>
                             </button>
 
-                            <!-- Dropdown Menu -->
+                            <!-- Enhanced Dropdown Menu -->
                             <div x-show="open" @click.away="open = false" x-cloak
-                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter="transition ease-out duration-300"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave="transition ease-in duration-200"
                                 x-transition:leave-start="opacity-100 scale-100"
                                 x-transition:leave-end="opacity-0 scale-95" class="profile-dropdown">
-                                <!-- Profile Header -->
+                                <!-- Enhanced Profile Header -->
                                 <div class="profile-header">
                                     <div class="flex items-center space-x-3">
-                                        <div class="profile-avatar w-10 h-10">
+                                        <div class="profile-avatar w-12 h-12">
                                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <p class="text-white font-semibold text-sm">{{ auth()->user()->name }}</p>
-                                            <p class="text-emerald-400 text-xs">Professional Trainer</p>
+                                            <p class="text-white font-bold text-base">{{ auth()->user()->name }}</p>
+                                            <p class="text-gradient text-sm font-semibold">Professional Trainer</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Profile Menu Items -->
+                                <!-- Enhanced Profile Menu Items -->
                                 <a href="{{ route('trainer.profile.index') }}" class="profile-item">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -507,7 +786,7 @@
                                     </svg>
                                     Edit Profil
                                 </a>
-                                <div class="border-t border-emerald-500/10 my-1"></div>
+                                <div class="border-t border-emerald-500/20 my-1"></div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
@@ -523,10 +802,9 @@
                             </div>
                         </div>
 
-                        {{-- Mobile Menu Button --}}
-                        <button @click="isMobileMenuOpen = !isMobileMenuOpen"
-                            class="lg:hidden mobile-menu-btn">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {{-- Enhanced Mobile Menu Button --}}
+                        <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="lg:hidden mobile-menu-btn">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path x-show="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                                 <path x-show="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
@@ -536,23 +814,23 @@
                     </div>
                 </div>
 
-                {{-- Mobile Menu Dropdown --}}
-                <div x-show="isMobileMenuOpen" x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 -translate-y-2"
+                {{-- Enhanced Mobile Menu Dropdown --}}
+                <div x-show="isMobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 -translate-y-4"
                     x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave="transition ease-in duration-200"
                     x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-2" class="lg:hidden pb-4" x-cloak>
-                    <div class="space-y-2 mt-4">
-                        {{-- User Info Mobile --}}
-                        <div class="glass-card rounded-xl p-4 mb-3">
-                            <div class="flex items-center gap-3">
+                    x-transition:leave-end="opacity-0 -translate-y-4" class="lg:hidden pb-6 mt-4" x-cloak>
+                    <div class="space-y-3">
+                        {{-- Enhanced User Info Mobile --}}
+                        <div class="glass-card rounded-2xl p-5 mb-4">
+                            <div class="flex items-center gap-4">
                                 <div class="profile-avatar">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <p class="text-white font-semibold text-sm">{{ auth()->user()->name }}</p>
-                                    <p class="text-emerald-400 text-xs">Professional Trainer</p>
+                                    <p class="text-white font-bold text-base">{{ auth()->user()->name }}</p>
+                                    <p class="text-gradient text-sm font-semibold">Professional Trainer</p>
                                 </div>
                             </div>
                         </div>
@@ -625,8 +903,8 @@
                             Kualitas
                         </a>
 
-                        {{-- Profile Menu Items for Mobile --}}
-                        <div class="nav-divider"></div>
+                        {{-- Enhanced Profile Menu Items for Mobile --}}
+                        <div class="border-t border-emerald-500/20 pt-4 mt-4"></div>
 
                         <a href="{{ route('trainer.profile.index') }}" class="mobile-nav-item">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,7 +914,7 @@
                             Profil Saya
                         </a>
 
-                        <div class="nav-divider"></div>
+                        <div class="border-t border-emerald-500/20 pt-4 mt-4"></div>
 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -655,110 +933,128 @@
             </div>
         </nav>
 
-        {{-- 🧩 MAIN CONTENT --}}
-        <main class="flex-grow pt-16">
-            <div class="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
-                @yield('content')
-            </div>
-        </main>
+        {{-- 🧩 FIXED MAIN CONTENT AREA --}}
+        <div class="main-content-wrapper">
+            <main class="main-content">
+                <div class="content-container">
+                    @yield('content')
+                </div>
+            </main>
 
-        {{-- 🦶 FOOTER --}}
-        <footer class="glass-footer mt-auto">
-            <div class="max-w-7xl mx-auto px-4 md:px-8 py-6">
-                <div class="footer-links mb-6">
-                    {{-- About Section --}}
-                    <div>
-                        <h3 class="font-display text-xl font-bold text-white mb-3 flex items-center gap-2">
-                            <div
-                                class="w-7 h-7 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                </svg>
-                            </div>
-                            Muscle<span class="text-gradient">Xpert</span>
-                        </h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            Platform terbaik untuk trainer profesional dalam mengelola member dan program fitness secara
-                            efektif.
+            {{-- 🦶 ENHANCED FOOTER --}}
+            <footer class="glass-footer mt-auto">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="footer-links">
+                        {{-- Enhanced About Section --}}
+                        <div>
+                            <h3 class="font-display text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                                <div class="logo-icon">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                Muscle<span class="text-gradient">Xpert</span>
+                            </h3>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Platform terbaik untuk trainer profesional dalam mengelola member dan program fitness
+                                secara
+                                efektif dengan teknologi terkini.
+                            </p>
+                        </div>
+
+                        {{-- Enhanced Quick Links --}}
+                        <div>
+                            <h4 class="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="{{ route('trainer.dashboard') }}"
+                                        class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition flex items-center gap-2">
+                                        <span class="w-1 h-1 bg-emerald-400 rounded-full"></span>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('trainer.members.index') }}"
+                                        class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition flex items-center gap-2">
+                                        <span class="w-1 h-1 bg-emerald-400 rounded-full"></span>
+                                        Manajemen Member
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('trainer.communication.chat.index') }}"
+                                        class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition flex items-center gap-2">
+                                        <span class="w-1 h-1 bg-emerald-400 rounded-full"></span>
+                                        Komunikasi
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {{-- Enhanced Contact Info --}}
+                        <div>
+                            <h4 class="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Support</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3 text-gray-400 text-sm">
+                                    <div class="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    support@musclexpert.com
+                                </li>
+                                <li class="flex items-center gap-3 text-gray-400 text-sm">
+                                    <div class="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    +62 123 4567 890
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- Enhanced Bottom Bar --}}
+                    <div
+                        class="border-t border-emerald-500/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <p class="text-gray-400 text-sm text-center md:text-left">
+                            © {{ date('Y') }} MuscleXpert. All rights reserved.
                         </p>
-                    </div>
-
-                    {{-- Quick Links --}}
-                    <div>
-                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Quick Links</h4>
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="{{ route('trainer.dashboard') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Dashboard</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('trainer.members.index') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Manajemen
-                                    Member</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('trainer.communication.chat.index') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Komunikasi</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {{-- Contact Info --}}
-                    <div>
-                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Support</h4>
-                        <ul class="space-y-2">
-                            <li class="flex items-center gap-2 text-gray-400 text-sm">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                    </path>
+                        <div class="flex items-center gap-6">
+                            <a href="#"
+                                class="text-gray-400 hover:text-emerald-400 smooth-transition transform hover:scale-110">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                 </svg>
-                                support@musclexpert.com
-                            </li>
-                            <li class="flex items-center gap-2 text-gray-400 text-sm">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                                    </path>
+                            </a>
+                            <a href="#"
+                                class="text-gray-400 hover:text-emerald-400 smooth-transition transform hover:scale-110">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                                 </svg>
-                                +62 123 4567 890
-                            </li>
-                        </ul>
+                            </a>
+                            <a href="#"
+                                class="text-gray-400 hover:text-emerald-400 smooth-transition transform hover:scale-110">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.308-.346-.11l-6.4 4.03-2.76-.918c-.6-.187-.612-.6.125-.89l10.782-4.156c.5-.18.943.11.78.89z" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
-
-                {{-- Bottom Bar --}}
-                <div
-                    class="border-t border-emerald-500/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p class="text-gray-400 text-sm text-center md:text-left">
-                        © {{ date('Y') }} MuscleXpert. All rights reserved.
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <a href="#" class="text-gray-400 hover:text-emerald-400 smooth-transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-emerald-400 smooth-transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-emerald-400 smooth-transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.68c.223-.198-.054-.308-.346-.11l-6.4 4.03-2.76-.918c-.6-.187-.612-.6.125-.89l10.782-4.156c.5-.18.943.11.78.89z" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </footer>
+            </footer>
+        </div>
     </div>
 
     @yield('scripts')

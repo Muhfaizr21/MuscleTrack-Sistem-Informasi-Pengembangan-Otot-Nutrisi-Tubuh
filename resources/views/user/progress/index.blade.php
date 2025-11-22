@@ -1,30 +1,30 @@
 @extends('layouts.user')
 
 @section('content')
-    <div class="min-h-screen py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen py-4 sm:py-6 lg:py-8">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
 
             {{-- Header Section --}}
-            <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                    <div class="flex items-center gap-4">
+            <div class="glass-dark rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-emerald-500/20 shadow-xl sm:shadow-2xl shadow-emerald-500/10 mb-6 sm:mb-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start gap-4 sm:gap-6">
+                    <div class="flex items-center gap-3 sm:gap-4">
                         <div
-                            class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center animate-glow">
-                            <span class="text-2xl">📊</span>
+                            class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl sm:rounded-2xl flex items-center justify-center animate-glow">
+                            <span class="text-lg sm:text-xl lg:text-2xl">📊</span>
                         </div>
                         <div>
-                            <h1 class="text-3xl sm:text-4xl font-black text-white">
+                            <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black text-white">
                                 My <span class="text-gradient">Progress</span>
                             </h1>
-                            <p class="text-emerald-400/80 text-lg mt-2">Track your fitness journey with detailed analytics
+                            <p class="text-emerald-400/80 text-sm sm:text-base lg:text-lg mt-1 sm:mt-2">Track your fitness journey with detailed analytics
                             </p>
                         </div>
                     </div>
                     <a href="{{ route('user.progress.create') }}"
-                        class="group relative px-8 py-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 flex items-center gap-3">
-                        <span class="text-xl">+</span>
-                        Add New Progress
-                        <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none"
+                        class="group relative w-full lg:w-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-2 sm:gap-3">
+                        <span class="text-lg sm:text-xl">+</span>
+                        <span class="text-center">Add New Progress</span>
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-1 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -35,27 +35,27 @@
 
             {{-- Fitness Profile Overview --}}
             @if($fitnessProfile)
-                <div class="glass-dark rounded-3xl p-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
-                    <h2 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
+                <div class="glass-dark rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-emerald-500/20 shadow-xl sm:shadow-2xl shadow-emerald-500/10 mb-6 sm:mb-8">
+                    <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
                         <span class="text-gradient">Fitness Profile</span>
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
-                            <p class="text-emerald-400 text-sm mb-1">Goal</p>
-                            <p class="text-white font-semibold capitalize">{{ $fitnessProfile->goal->name ?? 'Not Set' }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                        <div class="glass rounded-lg sm:rounded-xl p-3 sm:p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-xs sm:text-sm mb-1">Goal</p>
+                            <p class="text-white font-semibold text-sm sm:text-base capitalize">{{ $fitnessProfile->goal->name ?? 'Not Set' }}</p>
                         </div>
-                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
-                            <p class="text-emerald-400 text-sm mb-1">Activity Level</p>
-                            <p class="text-white font-semibold capitalize">{{ $fitnessProfile->activity_level ?? 'Not Set' }}
+                        <div class="glass rounded-lg sm:rounded-xl p-3 sm:p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-xs sm:text-sm mb-1">Activity Level</p>
+                            <p class="text-white font-semibold text-sm sm:text-base capitalize">{{ $fitnessProfile->activity_level ?? 'Not Set' }}
                             </p>
                         </div>
-                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
-                            <p class="text-emerald-400 text-sm mb-1">Daily Calories</p>
-                            <p class="text-white font-semibold">{{ $fitnessProfile->daily_calorie_target ?? 'Not Set' }}</p>
+                        <div class="glass rounded-lg sm:rounded-xl p-3 sm:p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-xs sm:text-sm mb-1">Daily Calories</p>
+                            <p class="text-white font-semibold text-sm sm:text-base">{{ $fitnessProfile->daily_calorie_target ?? 'Not Set' }}</p>
                         </div>
-                        <div class="glass rounded-xl p-4 border border-emerald-500/10">
-                            <p class="text-emerald-400 text-sm mb-1">Focus Areas</p>
-                            <p class="text-white font-semibold text-sm">
+                        <div class="glass rounded-lg sm:rounded-xl p-3 sm:p-4 border border-emerald-500/10">
+                            <p class="text-emerald-400 text-xs sm:text-sm mb-1">Focus Areas</p>
+                            <p class="text-white font-semibold text-xs sm:text-sm">
                                 @if($fitnessProfile->preferred_muscle_groups)
                                     {{ implode(', ', json_decode($fitnessProfile->preferred_muscle_groups)) }}
                                 @else
@@ -74,30 +74,30 @@
                     $previous = $progress->skip(1)->first();
                 @endphp
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                     {{-- Weight Stat --}}
                     <div
-                        class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-emerald-400">Current Weight</h3>
+                        class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <h3 class="text-sm sm:text-base lg:text-lg font-semibold text-emerald-400">Current Weight</h3>
                             <div
-                                class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <span class="text-emerald-400 text-lg">⚖️</span>
+                                class="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-emerald-400 text-base sm:text-lg">⚖️</span>
                             </div>
                         </div>
                         <div class="text-center">
-                            <p class="text-4xl font-black text-white mb-2">{{ number_format($latest->weight, 1) }}<span
-                                    class="text-2xl text-emerald-400">kg</span></p>
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2">{{ number_format($latest->weight, 1) }}<span
+                                    class="text-lg sm:text-xl lg:text-2xl text-emerald-400">kg</span></p>
                             @if($previous)
                                 @php
                                     $weightDiff = $latest->weight - $previous->weight;
                                     $weightIcon = $weightDiff > 0 ? '↗️' : ($weightDiff < 0 ? '↘️' : '➡️');
                                     $weightColor = $weightDiff > 0 ? 'text-red-400' : ($weightDiff < 0 ? 'text-emerald-400' : 'text-gray-400');
                                 @endphp
-                                <p class="text-sm {{ $weightColor }} flex items-center justify-center gap-1">
+                                <p class="text-xs sm:text-sm {{ $weightColor }} flex items-center justify-center gap-1">
                                     <span>{{ $weightIcon }}</span>
                                     <span>{{ $weightDiff > 0 ? '+' : '' }}{{ number_format($weightDiff, 1) }}kg</span>
-                                    <span class="text-gray-500">from last</span>
+                                    <span class="text-gray-500 hidden sm:inline">from last</span>
                                 </p>
                             @endif
                         </div>
@@ -105,18 +105,18 @@
 
                     {{-- Body Fat Stat --}}
                     <div
-                        class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-purple-400">Body Fat</h3>
+                        class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <h3 class="text-sm sm:text-base lg:text-lg font-semibold text-purple-400">Body Fat</h3>
                             <div
-                                class="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <span class="text-purple-400 text-lg">🔥</span>
+                                class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-purple-400 text-base sm:text-lg">🔥</span>
                             </div>
                         </div>
                         <div class="text-center">
-                            <p class="text-4xl font-black text-white mb-2">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2">
                                 {{ $latest->body_fat ? number_format($latest->body_fat, 1) : '--' }}<span
-                                    class="text-2xl text-purple-400">%</span>
+                                    class="text-lg sm:text-xl lg:text-2xl text-purple-400">%</span>
                             </p>
                             @if($previous && $latest->body_fat && $previous->body_fat)
                                 @php
@@ -124,7 +124,7 @@
                                     $fatIcon = $fatDiff < 0 ? '📈' : ($fatDiff > 0 ? '📉' : '➡️');
                                     $fatColor = $fatDiff < 0 ? 'text-emerald-400' : ($fatDiff > 0 ? 'text-red-400' : 'text-gray-400');
                                 @endphp
-                                <p class="text-sm {{ $fatColor }} flex items-center justify-center gap-1">
+                                <p class="text-xs sm:text-sm {{ $fatColor }} flex items-center justify-center gap-1">
                                     <span>{{ $fatIcon }}</span>
                                     <span>{{ $fatDiff > 0 ? '+' : '' }}{{ number_format($fatDiff, 1) }}%</span>
                                 </p>
@@ -134,18 +134,18 @@
 
                     {{-- Muscle Mass Stat --}}
                     <div
-                        class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-blue-400">Muscle Mass</h3>
+                        class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <h3 class="text-sm sm:text-base lg:text-lg font-semibold text-blue-400">Muscle Mass</h3>
                             <div
-                                class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <span class="text-blue-400 text-lg">💪</span>
+                                class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-blue-400 text-base sm:text-lg">💪</span>
                             </div>
                         </div>
                         <div class="text-center">
-                            <p class="text-4xl font-black text-white mb-2">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2">
                                 {{ $latest->muscle_mass ? number_format($latest->muscle_mass, 1) : '--' }}<span
-                                    class="text-2xl text-blue-400">kg</span>
+                                    class="text-lg sm:text-xl lg:text-2xl text-blue-400">kg</span>
                             </p>
                             @if($previous && $latest->muscle_mass && $previous->muscle_mass)
                                 @php
@@ -153,7 +153,7 @@
                                     $muscleIcon = $muscleDiff > 0 ? '📈' : ($muscleDiff < 0 ? '📉' : '➡️');
                                     $muscleColor = $muscleDiff > 0 ? 'text-emerald-400' : ($muscleDiff < 0 ? 'text-red-400' : 'text-gray-400');
                                 @endphp
-                                <p class="text-sm {{ $muscleColor }} flex items-center justify-center gap-1">
+                                <p class="text-xs sm:text-sm {{ $muscleColor }} flex items-center justify-center gap-1">
                                     <span>{{ $muscleIcon }}</span>
                                     <span>{{ $muscleDiff > 0 ? '+' : '' }}{{ number_format($muscleDiff, 1) }}kg</span>
                                 </p>
@@ -163,12 +163,12 @@
 
                     {{-- BMI Stat --}}
                     <div
-                        class="glass rounded-2xl p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-orange-400">BMI</h3>
+                        class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <h3 class="text-sm sm:text-base lg:text-lg font-semibold text-orange-400">BMI</h3>
                             <div
-                                class="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <span class="text-orange-400 text-lg">📐</span>
+                                class="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <span class="text-orange-400 text-base sm:text-lg">📐</span>
                             </div>
                         </div>
                         <div class="text-center">
@@ -176,7 +176,7 @@
                                 $heightInMeter = $latest->height / 100;
                                 $bmi = $heightInMeter > 0 ? $latest->weight / ($heightInMeter * $heightInMeter) : 0;
                             @endphp
-                            <p class="text-4xl font-black text-white mb-2">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 sm:mb-2">
                                 {{ $bmi > 0 ? number_format($bmi, 1) : '--' }}
                             </p>
                             @if($bmi > 0)
@@ -184,7 +184,7 @@
                                     $bmiStatus = $bmi < 18.5 ? 'Underweight' : ($bmi < 25 ? 'Normal' : ($bmi < 30 ? 'Overweight' : 'Obese'));
                                     $bmiColor = $bmi < 18.5 ? 'text-blue-400' : ($bmi < 25 ? 'text-emerald-400' : ($bmi < 30 ? 'text-orange-400' : 'text-red-400'));
                                 @endphp
-                                <p class="text-sm {{ $bmiColor }} font-semibold">
+                                <p class="text-xs sm:text-sm {{ $bmiColor }} font-semibold">
                                     {{ $bmiStatus }}
                                 </p>
                             @endif
@@ -194,30 +194,30 @@
             @endif
 
             {{-- Progress Chart --}}
-            <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+            <div class="glass-dark rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-emerald-500/20 shadow-xl sm:shadow-2xl shadow-emerald-500/10 mb-6 sm:mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-white flex items-center gap-2 sm:gap-3">
                         <span class="text-gradient">Progress Analytics</span>
                     </h2>
-                    <div class="flex items-center gap-2 text-sm text-emerald-400">
+                    <div class="flex flex-wrap gap-2 text-xs sm:text-sm text-emerald-400">
                         @if($progress->whereNotNull('muscle_mass')->count() > 0)
                             <div
-                                class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                                <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                                class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full"></div>
                                 <span>Weight</span>
                             </div>
                         @endif
                         @if($progress->whereNotNull('muscle_mass')->count() > 0)
                             <div
-                                class="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                                <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full"></div>
                                 <span>Muscle Mass</span>
                             </div>
                         @endif
                         @if($progress->whereNotNull('body_fat')->count() > 0)
                             <div
-                                class="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
-                                <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
+                                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-400 rounded-full"></div>
                                 <span>Body Fat</span>
                             </div>
                         @endif
@@ -225,21 +225,21 @@
                 </div>
 
                 @if($progress->count() > 0)
-                    <div class="h-96">
+                    <div class="h-64 sm:h-80 lg:h-96">
                         <canvas id="progressChart"></canvas>
                     </div>
                 @else
-                    <div class="text-center py-16">
+                    <div class="text-center py-8 sm:py-12 lg:py-16">
                         <div
-                            class="w-24 h-24 bg-emerald-500/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                            <span class="text-4xl">📊</span>
+                            class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-emerald-500/10 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-emerald-500/20">
+                            <span class="text-2xl sm:text-3xl lg:text-4xl">📊</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-white mb-2">No Progress Data Yet</h3>
-                        <p class="text-emerald-400/80 mb-6">Start tracking your fitness journey to see beautiful charts here</p>
+                        <h3 class="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">No Progress Data Yet</h3>
+                        <p class="text-emerald-400/80 text-sm sm:text-base mb-4 sm:mb-6">Start tracking your fitness journey to see beautiful charts here</p>
                         <a href="{{ route('user.progress.create') }}"
-                            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300">
+                            class="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300">
                             <span>Add Your First Progress</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
@@ -250,131 +250,131 @@
 
             {{-- Progress Table --}}
             <div
-                class="glass-dark rounded-3xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10 overflow-hidden">
-                <div class="px-8 py-6 border-b border-emerald-500/20">
-                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                class="glass-dark rounded-2xl sm:rounded-3xl border border-emerald-500/20 shadow-xl sm:shadow-2xl shadow-emerald-500/10 overflow-hidden">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-emerald-500/20">
+                    <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-white flex items-center gap-2 sm:gap-3">
                         <span class="text-gradient">Progress History</span>
                     </h2>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full min-w-[800px]">
                         <thead>
                             <tr class="border-b border-emerald-500/20">
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Date</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Weight</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Height</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Body Fat</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Muscle</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Waist</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Chest</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Arm</th>
                                 <th
-                                    class="px-8 py-4 text-left text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-left text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Photo</th>
                                 <th
-                                    class="px-8 py-4 text-right text-sm font-semibold text-emerald-400 uppercase tracking-wider">
+                                    class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-right text-xs sm:text-sm font-semibold text-emerald-400 uppercase tracking-wider">
                                     Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-emerald-500/10">
                             @forelse ($progress as $p)
                                 <tr class="group hover:bg-emerald-500/5 transition-all duration-300">
-                                    <td class="px-8 py-4">
-                                        <div class="flex items-center gap-3">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <div class="flex items-center gap-2 sm:gap-3">
                                             <div
-                                                class="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                class="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                                 <span
-                                                    class="text-emerald-400 text-sm font-bold">{{ \Carbon\Carbon::parse($p->recorded_at)->format('d') }}</span>
+                                                    class="text-emerald-400 text-xs sm:text-sm font-bold">{{ \Carbon\Carbon::parse($p->recorded_at)->format('d') }}</span>
                                             </div>
                                             <div>
-                                                <p class="text-white font-semibold">
+                                                <p class="text-white font-semibold text-sm">
                                                     {{ \Carbon\Carbon::parse($p->recorded_at)->format('M Y') }}</p>
-                                                <p class="text-emerald-400/60 text-sm">
+                                                <p class="text-emerald-400/60 text-xs">
                                                     {{ \Carbon\Carbon::parse($p->recorded_at)->format('D') }}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-2xl font-black text-white">{{ number_format($p->weight, 1) }}<span
-                                                class="text-lg text-emerald-400">kg</span></p>
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-lg sm:text-xl lg:text-2xl font-black text-white">{{ number_format($p->weight, 1) }}<span
+                                                class="text-sm sm:text-base lg:text-lg text-emerald-400">kg</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->height ? number_format($p->height, 1) : '--' }}<span
-                                                class="text-sm text-blue-400">cm</span></p>
+                                                class="text-xs sm:text-sm text-blue-400">cm</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->body_fat ? number_format($p->body_fat, 1) : '--' }}<span
-                                                class="text-sm text-purple-400">%</span></p>
+                                                class="text-xs sm:text-sm text-purple-400">%</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->muscle_mass ? number_format($p->muscle_mass, 1) : '--' }}<span
-                                                class="text-sm text-blue-400">kg</span></p>
+                                                class="text-xs sm:text-sm text-blue-400">kg</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->waist ? number_format($p->waist, 1) : '--' }}<span
-                                                class="text-sm text-emerald-400">cm</span></p>
+                                                class="text-xs sm:text-sm text-emerald-400">cm</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->chest ? number_format($p->chest, 1) : '--' }}<span
-                                                class="text-sm text-emerald-400">cm</span></p>
+                                                class="text-xs sm:text-sm text-emerald-400">cm</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
-                                        <p class="text-xl font-semibold text-white">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
+                                        <p class="text-base sm:text-lg lg:text-xl font-semibold text-white">
                                             {{ $p->arm ? number_format($p->arm, 1) : '--' }}<span
-                                                class="text-sm text-emerald-400">cm</span></p>
+                                                class="text-xs sm:text-sm text-emerald-400">cm</span></p>
                                     </td>
-                                    <td class="px-8 py-4">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3">
                                         @if($p->photo_progress)
                                             <img src="{{ asset('storage/' . $p->photo_progress) }}" alt="Progress Photo"
-                                                class="w-12 h-12 rounded-xl object-cover border border-emerald-500/20">
+                                                class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl object-cover border border-emerald-500/20">
                                         @else
-                                            <span class="text-emerald-400/60">--</span>
+                                            <span class="text-emerald-400/60 text-sm">--</span>
                                         @endif
                                     </td>
-                                    <td class="px-8 py-4 text-right">
-                                        <div class="flex justify-end gap-2">
+                                    <td class="px-3 sm:px-4 lg:px-6 xl:px-8 py-3 text-right">
+                                        <div class="flex flex-col sm:flex-row justify-end gap-1 sm:gap-2">
                                             <a href="{{ route('user.progress.edit', $p->id) }}"
-                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30 group/edit">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-transparent hover:border-emerald-500/30 group/edit">
+                                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
-                                                Edit
+                                                <span class="hidden sm:inline">Edit</span>
                                             </a>
                                             <form action="{{ route('user.progress.destroy', $p->id) }}" method="POST"
                                                 class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-400 hover:text-white hover:bg-red-500/10 transition-all duration-300 border border-transparent hover:border-red-500/30"
+                                                    class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-400 hover:text-white hover:bg-red-500/10 transition-all duration-300 border border-transparent hover:border-red-500/30"
                                                     onclick="return confirm('Are you sure you want to delete this progress?')">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
-                                                    Delete
+                                                    <span class="hidden sm:inline">Delete</span>
                                                 </button>
                                             </form>
                                         </div>
@@ -382,16 +382,16 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="px-8 py-16 text-center">
+                                    <td colspan="10" class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 text-center">
                                         <div
-                                            class="w-20 h-20 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-                                            <span class="text-2xl">📝</span>
+                                            class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-emerald-500/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-emerald-500/20">
+                                            <span class="text-xl sm:text-2xl">📝</span>
                                         </div>
-                                        <h3 class="text-lg font-semibold text-white mb-2">No Progress Records</h3>
-                                        <p class="text-emerald-400/80 mb-4">Start tracking your fitness progress to see your
+                                        <h3 class="text-base sm:text-lg lg:text-lg font-semibold text-white mb-1 sm:mb-2">No Progress Records</h3>
+                                        <p class="text-emerald-400/80 text-sm sm:text-base mb-3 sm:mb-4">Start tracking your fitness progress to see your
                                             journey</p>
                                         <a href="{{ route('user.progress.create') }}"
-                                            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300">
+                                            class="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300">
                                             Add First Progress
                                         </a>
                                     </td>
@@ -433,8 +433,8 @@
                     pointBackgroundColor: '#10b981',
                     pointBorderColor: '#000',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true
                 }
             ];
@@ -450,8 +450,8 @@
                     pointBackgroundColor: '#3b82f6',
                     pointBorderColor: '#000',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true
                 });
             }
@@ -467,8 +467,8 @@
                     pointBackgroundColor: '#8b5cf6',
                     pointBorderColor: '#000',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true
                 });
             }
@@ -486,10 +486,10 @@
                             labels: {
                                 color: '#e2e8f0',
                                 font: {
-                                    size: 12,
+                                    size: window.innerWidth < 640 ? 10 : 12,
                                     weight: '600'
                                 },
-                                padding: 20,
+                                padding: 15,
                                 usePointStyle: true
                             }
                         },
@@ -500,7 +500,13 @@
                             borderColor: 'rgba(16, 185, 129, 0.3)',
                             borderWidth: 1,
                             cornerRadius: 8,
-                            displayColors: true
+                            displayColors: true,
+                            bodyFont: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            },
+                            titleFont: {
+                                size: window.innerWidth < 640 ? 11 : 13
+                            }
                         }
                     },
                     scales: {
@@ -513,7 +519,7 @@
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: 11
+                                    size: window.innerWidth < 640 ? 9 : 11
                                 }
                             }
                         },
@@ -525,7 +531,7 @@
                             ticks: {
                                 color: '#94a3b8',
                                 font: {
-                                    size: 11
+                                    size: window.innerWidth < 640 ? 9 : 11
                                 }
                             }
                         }
@@ -568,6 +574,14 @@
         .hover-glow:hover {
             box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
             transition: all 0.3s ease;
+        }
+
+        /* Responsive table container */
+        @media (max-width: 640px) {
+            .table-container {
+                margin-left: -0.75rem;
+                margin-right: -0.75rem;
+            }
         }
     </style>
 @endsection
