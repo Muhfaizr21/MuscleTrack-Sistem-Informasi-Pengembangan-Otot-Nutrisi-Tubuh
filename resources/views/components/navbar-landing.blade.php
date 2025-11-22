@@ -1,16 +1,16 @@
-<nav x-data="{ isNavOpen: false }"
+<nav x-data="{ isNavOpen: false, isUserDropdownOpen: false }"
     class="sticky top-0 z-50 w-full bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
+        <div class="flex items-center justify-between h-16 md:h-20">
 
             {{-- Logo --}}
             <div class="flex-shrink-0">
-                <a href="/" class="flex items-center gap-3 group">
+                <a href="/" class="flex items-center gap-2 md:gap-3 group">
                     <div
-                        class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <span class="text-white font-bold text-lg">M</span>
+                        class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <span class="text-white font-bold text-sm md:text-lg">M</span>
                     </div>
-                    <span class="font-bold text-2xl text-white">
+                    <span class="font-bold text-xl md:text-2xl text-white">
                         Muscle<span
                             class="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Xpert</span>
                     </span>
@@ -36,29 +36,29 @@
             {{-- Desktop Auth Buttons --}}
             <div class="hidden md:flex items-center space-x-3">
                 @auth
-                    <div x-data="{ isOpen: false }" class="relative">
-                        <button @click="isOpen = !isOpen"
+                    <div x-data="{ isUserDropdownOpen: false }" class="relative">
+                        <button @click="isUserDropdownOpen = !isUserDropdownOpen"
                             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-300">
                             <div
                                 class="w-8 h-8 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-full flex items-center justify-center border border-green-500/30">
                                 <span
                                     class="text-green-400 text-sm font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                             </div>
-                            <span>{{ Auth::user()->name }}</span>
-                            <svg class="w-4 h-4 transition-transform duration-300" :class="{ 'rotate-180': isOpen }"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span class="max-w-32 truncate">{{ Auth::user()->name }}</span>
+                            <svg class="w-4 h-4 transition-transform duration-300"
+                                :class="{ 'rotate-180': isUserDropdownOpen }" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                                 </path>
                             </svg>
                         </button>
 
-                        <div x-show="isOpen" @click.away="isOpen = false"
+                        <div x-show="isUserDropdownOpen" @click.away="isUserDropdownOpen = false" x-cloak
                             x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl shadow-xl bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 py-2"
-                            style="display: none;">
+                            class="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl shadow-xl bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 py-2 z-50">
                             <div class="px-4 py-3 border-b border-slate-700/30">
                                 <p class="text-sm text-slate-400">Signed in as</p>
                                 <p class="text-sm font-medium text-white truncate">{{ Auth::user()->email }}</p>
@@ -111,7 +111,7 @@
             {{-- Mobile Menu Button --}}
             <div class="md:hidden flex items-center">
                 <button @click="isNavOpen = !isNavOpen"
-                    class="inline-flex items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-300">
+                    class="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500/50">
                     <svg class="h-6 w-6" :class="{ 'hidden': isNavOpen, 'block': !isNavOpen }" stroke="currentColor"
                         fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -128,13 +128,13 @@
     </div>
 
     {{-- Mobile Menu --}}
-    <div x-show="isNavOpen" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        class="md:hidden bg-slate-800/95 backdrop-blur-xl border-t border-slate-700/30" style="display: none;">
+    <div x-show="isNavOpen" @click.away="isNavOpen = false" x-cloak
+        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-4"
+        x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4"
+        class="md:hidden bg-slate-800/95 backdrop-blur-xl border-t border-slate-700/30 shadow-xl">
         <div class="px-4 py-6 space-y-2">
-            <a href="/"
+            <a href="/" @click="isNavOpen = false"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -142,7 +142,7 @@
                 </svg>
                 Home
             </a>
-            <a href="{{ route('public.articles.index') }}"
+            <a href="{{ route('public.articles.index') }}" @click="isNavOpen = false"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -150,7 +150,7 @@
                 </svg>
                 Tips & Articles
             </a>
-            <a href="{{ route('contact.index') }}"
+            <a href="{{ route('contact.index') }}" @click="isNavOpen = false"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -165,7 +165,7 @@
                         <p class="text-sm text-slate-400">Signed in as</p>
                         <p class="text-sm font-medium text-white truncate">{{ Auth::user()->email }}</p>
                     </div>
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ route('dashboard') }}" @click="isNavOpen = false"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -173,7 +173,7 @@
                         </svg>
                         Dashboard
                     </a>
-                    <a href="{{ route('user.profile.edit') }}"
+                    <a href="{{ route('user.profile.edit') }}" @click="isNavOpen = false"
                         class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -183,7 +183,7 @@
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit"
+                        <button type="submit" @click="isNavOpen = false"
                             class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-red-400 hover:bg-slate-700/50 transition-all duration-300 group">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -195,7 +195,7 @@
                 </div>
             @else
                 <div class="border-t border-slate-700/30 pt-4 mt-4 space-y-2">
-                    <a href="{{ route('login') }}"
+                    <a href="{{ route('login') }}" @click="isNavOpen = false"
                         class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -203,7 +203,7 @@
                         </svg>
                         Login
                     </a>
-                    <a href="{{ route('register') }}"
+                    <a href="{{ route('register') }}" @click="isNavOpen = false"
                         class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-base font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 group">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -216,3 +216,9 @@
         </div>
     </div>
 </nav>
+
+<style>
+    [x-cloak] {
+        display: none !important;
+    }
+</style>
