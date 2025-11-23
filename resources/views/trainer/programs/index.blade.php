@@ -202,7 +202,7 @@
                     <div class="text-blue-400 text-xs">Chat with Members</div>
                 </a>
 
-                <a href="{{ route('trainer.quality.feedback.index') }}"
+                <a href="{{ route('trainer.quality.verification.status') }}"
                    class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover-glow text-center group">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-purple-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
                         <span class="text-purple-400 text-lg">⭐</span>
