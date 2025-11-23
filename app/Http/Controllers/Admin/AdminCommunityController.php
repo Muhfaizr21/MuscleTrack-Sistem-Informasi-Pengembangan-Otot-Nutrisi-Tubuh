@@ -94,7 +94,6 @@ class AdminCommunityController extends Controller
             ->get();
 
         // FIX: Communities dengan masalah (kurang dari 5 member)
-        // HAPUS kondisi is_suspended karena kolom tidak ada di database
         $problematicCommunities = Community::with(['creator'])
             ->withCount(['members', 'posts'])
             ->get()
@@ -209,36 +208,6 @@ class AdminCommunityController extends Controller
     }
 
     /**
-     * ⏸️ Suspend Community - DIHAPUS karena tidak ada kolom is_suspended
-     */
-    // public function suspend(Community $community)
-    // {
-    //     try {
-    //         $community->update(['is_suspended' => true]);
-    //         return redirect()->back()
-    //             ->with('warning', "Community '{$community->name}' telah di-suspend!");
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()
-    //             ->with('error', 'Gagal mensuspend community: ' . $e->getMessage());
-    //     }
-    // }
-
-    /**
-     * ▶️ Activate Community - DIHAPUS karena tidak ada kolom is_suspended
-     */
-    // public function activate(Community $community)
-    // {
-    //     try {
-    //         $community->update(['is_suspended' => false]);
-    //         return redirect()->back()
-    //             ->with('success', "Community '{$community->name}' telah diaktifkan kembali!");
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()
-    //             ->with('error', 'Gagal mengaktifkan community: ' . $e->getMessage());
-    //     }
-    // }
-
-    /**
      * 📊 Community Statistics
      */
     public function statistics()
@@ -249,7 +218,6 @@ class AdminCommunityController extends Controller
 
         $publicCommunities = Community::where('is_public', true)->count();
         $privateCommunities = Community::where('is_public', false)->count();
-        // $suspendedCommunities = Community::where('is_suspended', true)->count(); // DIHAPUS
 
         // Communities dengan pertumbuhan tercepat (7 hari terakhir)
         $recentCommunities = Community::where('created_at', '>=', now()->subDays(7))
@@ -267,7 +235,6 @@ class AdminCommunityController extends Controller
             'totalPosts',
             'publicCommunities',
             'privateCommunities',
-            // 'suspendedCommunities', // DIHAPUS
             'recentCommunities',
             'topCommunities'
         ));
