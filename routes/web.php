@@ -175,34 +175,17 @@ Route::middleware(['auth', 'role:admin'])
     });
 
 
-<<<<<<< Updated upstream
 // ==========================
 // 🧑‍🏫 TRAINER ROUTES
 // ==========================
-=======
-
-/*
-|--------------------------------------------------------------------------
-| 🧑‍🏫 TRAINER ROUTES
-|--------------------------------------------------------------------------
-*/
-
->>>>>>> Stashed changes
 Route::middleware(['auth', 'role:trainer'])
     ->prefix('trainer')
     ->name('trainer.')
     ->group(function () {
 
-<<<<<<< Updated upstream
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
         // Members
-=======
-        // 🏠 Dashboard
-        Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
-
-        // 👥 Members Management
->>>>>>> Stashed changes
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
             Route::get('/{member}', [MemberController::class, 'show'])->name('show');
@@ -212,11 +195,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/check-status', [MemberController::class, 'checkAllMembersStatus'])->name('check-status');
         });
 
-<<<<<<< Updated upstream
         // Profile
-=======
-        // 👤 Profile Management
->>>>>>> Stashed changes
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [TrainerProfileController::class, 'index'])->name('index');
             Route::get('/edit', [TrainerProfileController::class, 'edit'])->name('edit');
@@ -226,11 +205,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
         });
 
-<<<<<<< Updated upstream
         // Communication
-=======
-        // 💬 Communication
->>>>>>> Stashed changes
         Route::prefix('communication')->name('communication.')->group(function () {
             // Chat Routes
             Route::get('/chat', [TrainerChatController::class, 'index'])->name('chat.index');
@@ -245,11 +220,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/notifications/{id}', [TrainerNotificationController::class, 'destroy'])->name('notifications.destroy');
         });
 
-<<<<<<< Updated upstream
         // Programs
-=======
-        // 📊 Programs Management
->>>>>>> Stashed changes
         Route::prefix('programs')->name('programs.')->group(function () {
             Route::get('/', [ProgramController::class, 'index'])->name('index');
             Route::get('/create', [ProgramController::class, 'create'])->name('create');
@@ -262,7 +233,6 @@ Route::middleware(['auth', 'role:trainer'])
             Route::get('/{memberId}/progress/create', [ProgramController::class, 'createProgress'])->name('progress.create');
             Route::post('/{memberId}/progress', [ProgramController::class, 'storeProgress'])->name('progress.store');
 
-<<<<<<< Updated upstream
             // Nutrition Routes
             Route::prefix('{memberId}/nutrition')->name('nutrition.')->group(function () {
                 Route::get('/', [NutritionManagementController::class, 'index'])->name('index');
@@ -281,9 +251,6 @@ Route::middleware(['auth', 'role:trainer'])
                 Route::post('/{planId}/unrecommend', [NutritionManagementController::class, 'unrecommend'])->name('unrecommend');
             });
 
-=======
-            // Progress Notes
->>>>>>> Stashed changes
             Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
 
             // Program Registration
@@ -291,39 +258,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
         });
 
-<<<<<<< Updated upstream
         // Quality
-=======
-        // 🥗 Nutrition Management - STANDALONE ROUTES (FIXED)
-        Route::prefix('nutrition')->name('nutrition.')->group(function () {
-            // Dashboard & Overview
-            Route::get('/dashboard', [NutritionManagementController::class, 'dashboard'])->name('dashboard');
-            Route::get('/overview', [NutritionManagementController::class, 'overview'])->name('overview');
-
-            // Member-specific Nutrition Routes
-            Route::prefix('{memberId}')->group(function () {
-                Route::get('/', [NutritionManagementController::class, 'index'])->name('index');
-                Route::get('/create', [NutritionManagementController::class, 'create'])->name('create');
-                Route::post('/', [NutritionManagementController::class, 'store'])->name('store');
-                Route::get('/analysis', [NutritionManagementController::class, 'analysis'])->name('analysis');
-
-                // Plan-specific routes
-                Route::prefix('plans/{planId}')->group(function () {
-                    Route::get('/edit', [NutritionManagementController::class, 'edit'])->name('edit');
-                    Route::patch('/', [NutritionManagementController::class, 'update'])->name('update');
-                    Route::delete('/', [NutritionManagementController::class, 'destroy'])->name('destroy');
-                    Route::post('/recommend', [NutritionManagementController::class, 'recommend'])->name('recommend');
-                    Route::post('/unrecommend', [NutritionManagementController::class, 'unrecommend'])->name('unrecommend');
-                });
-
-                // Supplements
-                Route::post('/supplements', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
-                Route::delete('/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
-            });
-        });
-
-        // ⭐ Quality & Verification
->>>>>>> Stashed changes
         Route::prefix('quality')->name('quality.')->group(function () {
             Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
             Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback.index');
