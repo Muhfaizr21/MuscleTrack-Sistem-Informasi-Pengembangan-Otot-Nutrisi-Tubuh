@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\{
     SettingsController,
     HelpSupportController,
     TrainerManagementController,
+    AdminCommunityController,
 };
 
 // ==========================
@@ -171,6 +172,16 @@ Route::middleware(['auth', 'role:admin'])
             Route::put('/{trainer}/verification', [TrainerManagementController::class, 'updateVerification'])->name('verification.update');
             Route::put('/{trainer}/toggle-status', [TrainerManagementController::class, 'toggleStatus'])->name('toggle-status');
             Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('communities')->name('communities.')->group(function () {
+            Route::get('/', [AdminCommunityController::class, 'index'])->name('index');
+            Route::get('/dashboard', [AdminCommunityController::class, 'dashboard'])->name('dashboard');
+            Route::get('/reports', [AdminCommunityController::class, 'reports'])->name('reports');
+            Route::get('/activity', [AdminCommunityController::class, 'activity'])->name('activity');
+            Route::delete('/{community}', [AdminCommunityController::class, 'destroy'])->name('destroy');
+            Route::delete('/posts/{post}', [AdminCommunityController::class, 'destroyPost'])->name('posts.destroy');
+            Route::post('/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('suspend');
         });
     });
 

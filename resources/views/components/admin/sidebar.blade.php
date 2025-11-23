@@ -138,6 +138,22 @@
                     </a>
                 </li>
 
+                <!-- 👥 Community Management -->
+                <li>
+                    <a href="{{ route('admin.communities.index') }}"
+                       class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.communities.*')
+                                 ? 'text-white bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20 transform scale-105'
+                                 : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105' }}">
+                        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-600/20 flex items-center justify-center group-hover:from-purple-500/30 group-hover:to-indigo-600/30 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold">Community Management</span>
+                    </a>
+                </li>
+
                 <!-- Goals -->
                 <li>
                     <a href="{{ route('admin.goals.index') }}"

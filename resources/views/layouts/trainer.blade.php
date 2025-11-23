@@ -372,7 +372,7 @@
             backdrop-filter: blur(30px) saturate(200%);
             border-bottom: 1px solid rgba(0, 255, 170, 0.4);
             border-top: 1px solid rgba(0, 255, 170, 0.2);
-            box-shadow: 
+            box-shadow:
                 0 15px 50px rgba(0, 0, 0, 0.5),
                 0 0 30px rgba(0, 255, 170, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -387,9 +387,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(0, 255, 170, 0.05) 0%, 
-                transparent 50%, 
+            background: linear-gradient(135deg,
+                rgba(0, 255, 170, 0.05) 0%,
+                transparent 50%,
                 rgba(0, 255, 204, 0.03) 100%);
             pointer-events: none;
             z-index: -1;
@@ -423,7 +423,7 @@
             background: rgba(0, 255, 170, 0.2);
             color: #00ffcc;
             border-color: rgba(0, 255, 170, 0.4);
-            box-shadow: 
+            box-shadow:
                 0 4px 15px rgba(0, 255, 170, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
@@ -851,9 +851,9 @@
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-200"
                     x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-4" 
+                    x-transition:leave-end="opacity-0 -translate-y-4"
                     class="lg:hidden pb-6 mt-4 mobile-menu-background" x-cloak>
-                    
+
                     <div class="space-y-3 px-4 sm:px-6 lg:px-8 pt-4">
                         {{-- Enhanced User Info Mobile --}}
                         <div class="glass-card rounded-2xl p-5 mb-4">
@@ -1062,47 +1062,12 @@
                         <p class="text-gray-400 text-sm text-center md:text-left">
                             © {{ date('Y') }} MuscleXpert. All rights reserved.
                         </p>
-<<<<<<< Updated upstream
                         <div class="flex items-center gap-6">
                             <a href="#"
                                 class="text-gray-400 hover:text-emerald-400 smooth-transition transform hover:scale-110">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-=======
-                    </div>
-
-                    {{-- Quick Links --}}
-                    <div>
-                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Quick Links</h4>
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="{{ route('trainer.dashboard') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Dashboard</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('trainer.members.index') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Manajemen
-                                    Member</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('trainer.nutrition.dashboard') }}"
-                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Nutrisi</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {{-- Contact Info --}}
-                    <div>
-                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Support</h4>
-                        <ul class="space-y-2">
-                            <li class="flex items-center gap-2 text-gray-400 text-sm">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                    </path>
->>>>>>> Stashed changes
                                 </svg>
                             </a>
                             <a href="#"
