@@ -167,7 +167,6 @@
             width: 100%;
             z-index: 1000;
             height: 80px;
-            /* Fixed height for consistent spacing */
         }
 
         .glass-card {
@@ -367,6 +366,35 @@
             }
         }
 
+        /* Enhanced Mobile Menu Background */
+        .mobile-menu-background {
+            background: rgba(13, 20, 16, 0.98);
+            backdrop-filter: blur(30px) saturate(200%);
+            border-bottom: 1px solid rgba(0, 255, 170, 0.4);
+            border-top: 1px solid rgba(0, 255, 170, 0.2);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 255, 170, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 999;
+        }
+
+        .mobile-menu-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 170, 0.05) 0%, 
+                transparent 50%, 
+                rgba(0, 255, 204, 0.03) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
         /* Enhanced Mobile Styles */
         .mobile-nav-item {
             display: flex;
@@ -379,6 +407,8 @@
             font-size: 15px;
             margin-bottom: 6px;
             border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
         }
 
         .mobile-nav-item:hover {
@@ -386,13 +416,16 @@
             color: #00ffcc;
             border-color: rgba(0, 255, 170, 0.3);
             transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 255, 170, 0.1);
         }
 
         .mobile-nav-item.active {
             background: rgba(0, 255, 170, 0.2);
             color: #00ffcc;
             border-color: rgba(0, 255, 170, 0.4);
-            box-shadow: 0 4px 15px rgba(0, 255, 170, 0.15);
+            box-shadow: 
+                0 4px 15px rgba(0, 255, 170, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         /* Enhanced Logo */
@@ -453,7 +486,6 @@
             min-height: 100vh;
             padding-top: 80px;
             margin-top: 30px;
-            /* Match navbar height */
             display: flex;
             flex-direction: column;
         }
@@ -521,7 +553,6 @@
             /* Adjust main content padding for mobile */
             .main-content-wrapper {
                 padding-top: 70px;
-                /* Slightly less on mobile */
             }
         }
 
@@ -645,7 +676,6 @@
                                         d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                 </svg>
                             </div>
-                        
                         </a>
                     </div>
 
@@ -814,14 +844,16 @@
                     </div>
                 </div>
 
-                {{-- Enhanced Mobile Menu Dropdown --}}
+                {{-- Enhanced Mobile Menu Dropdown with Background --}}
                 <div x-show="isMobileMenuOpen" x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 -translate-y-4"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-200"
                     x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-4" class="lg:hidden pb-6 mt-4" x-cloak>
-                    <div class="space-y-3">
+                    x-transition:leave-end="opacity-0 -translate-y-4" 
+                    class="lg:hidden pb-6 mt-4 mobile-menu-background" x-cloak>
+                    
+                    <div class="space-y-3 px-4 sm:px-6 lg:px-8 pt-4">
                         {{-- Enhanced User Info Mobile --}}
                         <div class="glass-card rounded-2xl p-5 mb-4">
                             <div class="flex items-center gap-4">
