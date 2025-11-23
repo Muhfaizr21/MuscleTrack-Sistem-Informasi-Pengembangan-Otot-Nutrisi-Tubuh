@@ -267,7 +267,7 @@
                     <div class="text-blue-400 text-xs">Chat dengan Member</div>
                 </a>
 
-                <a href="{{ route('trainer.quality.feedback.index') }}"
+                <a href="{{ route('trainer.quality.verification.status') }}"
                    class="glass-card rounded-xl p-4 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 glow-button text-center group">
                     <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 border border-purple-500/20">
                         <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -258,14 +258,28 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
         });
 
+        // ✅ TAMBAHKAN: Nutrition Routes Standar (di LUAR group programs agar tidak butuh memberId)
+        Route::prefix('nutrition')->name('nutrition.')->group(function () {
+            Route::get('/dashboard', [NutritionManagementController::class, 'dashboard'])->name('dashboard');
+            Route::get('/create/{memberId}', [NutritionManagementController::class, 'create'])->name('create');
+            Route::post('/store/{memberId}', [NutritionManagementController::class, 'store'])->name('store');
+            Route::get('/{memberId}', [NutritionManagementController::class, 'index'])->name('index');
+            Route::get('/{memberId}/analysis', [NutritionManagementController::class, 'analysis'])->name('analysis');
+            Route::get('/{memberId}/edit/{planId}', [NutritionManagementController::class, 'edit'])->name('edit');
+            Route::patch('/{memberId}/update/{planId}', [NutritionManagementController::class, 'update'])->name('update');
+            Route::delete('/{memberId}/destroy/{planId}', [NutritionManagementController::class, 'destroy'])->name('destroy');
+            Route::post('/{memberId}/supplements', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
+            Route::delete('/{memberId}/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
+        });
+
         // Quality
         Route::prefix('quality')->name('quality.')->group(function () {
-            Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
-            Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback.index');
-            Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
-        });
-    });
-
+    Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
+    Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback');
+    Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
+    Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
+});
+    });// <- TUTUP GROUP TRAINER YANG TERTINGGAL
 
 // ==========================
 // 🧍 USER ROUTES
