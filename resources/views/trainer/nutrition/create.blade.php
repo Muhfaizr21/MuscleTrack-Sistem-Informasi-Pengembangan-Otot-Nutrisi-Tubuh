@@ -21,7 +21,8 @@
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <a href="{{ route('trainer.programs.nutrition.index', $member->id) }}"
+                    {{-- ✅ PERBAIKI ROUTE INI --}}
+                    <a href="{{ route('trainer.nutrition.index', $member->id) }}"
                        class="group flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white transition-all duration-300 border border-gray-600 hover:bg-gray-700/50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -55,7 +56,8 @@
 
         {{-- Create Form --}}
         <div class="glass-dark rounded-3xl p-8 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
-            <form action="{{ route('trainer.programs.nutrition.store', $member->id) }}" method="POST" class="space-y-6">
+            {{-- ✅ PERBAIKI ROUTE FORM INI --}}
+            <form action="{{ route('trainer.nutrition.store', $member->id) }}" method="POST" class="space-y-6">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,7 +212,8 @@
                         </svg>
                         Create Nutrition Plan
                     </button>
-                    <a href="{{ route('trainer.programs.nutrition.index', $member->id) }}"
+                    {{-- ✅ PERBAIKI ROUTE CANCEL INI --}}
+                    <a href="{{ route('trainer.nutrition.index', $member->id) }}"
                        class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-bold text-gray-400 hover:text-white transition-all duration-300 border border-gray-600 hover:bg-gray-700/50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

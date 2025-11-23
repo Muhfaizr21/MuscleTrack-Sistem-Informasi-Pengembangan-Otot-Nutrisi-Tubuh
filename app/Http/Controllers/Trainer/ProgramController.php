@@ -11,6 +11,7 @@ use App\Models\WorkoutSchedule;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ProgramController extends Controller
@@ -22,25 +23,36 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
 
-        // 🚫 Pastikan login sebagai trainer
-        if (!$trainer || $trainer->role !== 'trainer') {
+        if ($trainer->role !== 'trainer') {
             return redirect()->route('login')->with('error', 'Silakan login sebagai trainer terlebih dahulu.');
         }
 
-        // ✅ Ambil semua member yang dibimbing trainer dengan data lengkap
+        // ✅ PERBAIKAN: Hapus withCount yang bermasalah, gunakan approach sederhana
         $members = User::where('trainer_id', $trainer->id)
             ->where('role', 'user')
             ->with(['workoutPlans' => function ($query) {
-                $query->latest()->take(1); // Ambil program terbaru
-            }, 'workoutSchedules' => function ($query) {
-                $query->where('status', 'completed')->latest()->take(5); // Ambil 5 workout terakhir yang selesai
+                $query->latest()->take(1);
             }])
             ->get()
             ->map(function ($member) {
-                // Hitung progress stats untuk setiap member
-                $member->total_completed_workouts = $member->workoutSchedules->where('status', 'completed')->count();
-                $member->latest_workout = $member->workoutSchedules->where('status', 'completed')->first();
+                // Hitung manual tanpa withCount
+                $member->total_completed_workouts = WorkoutSchedule::where('user_id', $member->id)
+                    ->where('status', 'completed')
+                    ->count();
+
+                $member->total_scheduled_workouts = WorkoutSchedule::where('user_id', $member->id)
+                    ->where('status', '!=', 'cancelled')
+                    ->count();
+
+                $member->latest_workout = WorkoutSchedule::where('user_id', $member->id)
+                    ->where('status', 'completed')
+                    ->latest()
+                    ->first();
+
                 $member->current_plan = $member->workoutPlans->first();
+                $member->completion_rate = $member->total_scheduled_workouts > 0
+                    ? round(($member->total_completed_workouts / $member->total_scheduled_workouts) * 100)
+                    : 0;
 
                 return $member;
             });
@@ -55,41 +67,21 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
 
-        // 🚫 Cek login & role
-        if (!$trainer || $trainer->role !== 'trainer') {
-            return redirect()->route('login')->with('error', 'Silakan login sebagai trainer terlebih dahulu.');
-        }
-
-        // ✅ Pastikan trainer sudah diverifikasi
-        $isVerified = $trainer->verification_status === 'approved' &&
-            TrainerVerification::where('trainer_id', $trainer->id)
-            ->where('status', 'approved')
-            ->exists();
-
-        if (!$isVerified) {
+        if (!$this->isTrainerVerified($trainer)) {
             return redirect()
-                ->route('trainer.quality.verification.status')
+                ->route('trainer.verification.status')
                 ->with('warning', 'Akun Anda belum diverifikasi sebagai trainer.');
         }
 
-        // 🧍 Ambil member yang benar-benar dibimbing oleh trainer
-        $member = User::where('id', $memberId)
-            ->where('trainer_id', $trainer->id)
-            ->with(['workoutPlans' => function ($query) {
-                $query->latest()->take(1);
-            }, 'workoutSchedules' => function ($query) {
-                $query->where('status', 'completed')->latest()->take(10);
-            }])
-            ->first();
+        $member = $this->getAuthorizedMember($trainer, $memberId);
 
         if (!$member) {
-            abort(403, 'Anda tidak memiliki akses ke member ini.');
+            return redirect()
+                ->route('trainer.programs.index')
+                ->with('error', 'Member tidak ditemukan atau tidak memiliki akses.');
         }
 
-        // ✅ Ambil data program latihan terbaru
         $workoutPlan = $member->workoutPlans->first();
-
-        // 🏋️ Ambil template workout plans untuk rekomendasi
         $recommendedPlans = $this->getRecommendedPlansForMember($member);
 
         return view('trainer.programs.edit', compact('member', 'workoutPlan', 'recommendedPlans'));
@@ -102,126 +94,83 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
 
-        // 🚫 Pastikan hanya bisa mengedit member miliknya
-        $member = User::where('id', $memberId)
-            ->where('trainer_id', $trainer->id)
-            ->first();
+        $member = $this->getAuthorizedMember($trainer, $memberId);
 
         if (!$member) {
-            abort(403, 'Anda tidak memiliki akses untuk mengedit member ini.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak untuk member ini.'
+            ], 403);
         }
 
         // 🧾 Validasi input
-        $request->validate([
+        $validated = $request->validate([
             'workout_title' => 'required|string|max:255',
-            'level' => 'nullable|string|max:50',
-            'duration_weeks' => 'nullable|integer|min:1',
-            'duration_minutes' => 'nullable|integer|min:5',
+            'level' => 'required|in:beginner,intermediate,advanced',
+            'duration_weeks' => 'required|integer|min:1|max:52',
+            'duration_minutes' => 'required|integer|min:10|max:180',
             'description' => 'nullable|string|max:1000',
-            'target_fitness' => 'nullable|string|max:100',
-            'focus_area' => 'nullable|string|max:100',
-            'exercises' => 'nullable|array',
+            'target_fitness' => 'required|in:muscle_gain,fat_loss,maintain,endurance,flexibility',
+            'focus_area' => 'required|string|max:100',
+            'exercises' => 'required|array|min:1',
             'exercises.*.name' => 'required|string|max:255',
-            'exercises.*.sets' => 'nullable|integer|min:1',
-            'exercises.*.reps' => 'nullable|string|max:50',
-            'exercises.*.rest_seconds' => 'nullable|integer|min:0',
+            'exercises.*.type' => 'required|in:strength,cardio,flexibility,core,warmup,cooldown',
+            'exercises.*.sets' => 'required|integer|min:1|max:10',
+            'exercises.*.reps' => 'required|string|max:50',
+            'exercises.*.rest_seconds' => 'required|integer|min:0|max:300',
         ]);
 
-        // 🏋️ Buat atau update workout plan
-        $workoutPlan = WorkoutPlan::updateOrCreate(
-            [
-                'user_id' => $member->id,
-                'trainer_id' => $trainer->id,
-            ],
-            [
-                'title' => $request->workout_title,
-                'level' => $request->level,
-                'duration_weeks' => $request->duration_weeks,
-                'duration_minutes' => $request->duration_minutes,
-                'description' => $request->description,
-                'target_fitness' => $request->target_fitness,
-                'focus_area' => $request->focus_area,
-                'difficulty_level' => $request->level,
-                'status' => 'active',
-                'recommended_by' => 'trainer',
-            ]
-        );
+        // 💾 Gunakan transaction
+        DB::transaction(function () use ($trainer, $member, $validated) {
+            // 🏋️ Buat atau update workout plan
+            $workoutPlan = WorkoutPlan::updateOrCreate(
+                [
+                    'user_id' => $member->id,
+                    'trainer_id' => $trainer->id,
+                ],
+                [
+                    'title' => $validated['workout_title'],
+                    'level' => $validated['level'],
+                    'duration_weeks' => $validated['duration_weeks'],
+                    'duration_minutes' => $validated['duration_minutes'],
+                    'description' => $validated['description'],
+                    'target_fitness' => $validated['target_fitness'],
+                    'focus_area' => $validated['focus_area'],
+                    'difficulty_level' => $validated['level'],
+                    'status' => 'active',
+                    'recommended_by' => 'trainer',
+                ]
+            );
 
-        // 🏃‍♂️ Simpan exercises jika ada
-        if ($request->has('exercises')) {
-            // Hapus exercises lama
+            // 🏃‍♂️ Hapus exercises lama dan buat yang baru
             WorkoutExercise::where('workout_plan_id', $workoutPlan->id)->delete();
 
-            // Simpan exercises baru
-            foreach ($request->exercises as $index => $exercise) {
+            foreach ($validated['exercises'] as $index => $exercise) {
                 WorkoutExercise::create([
                     'workout_plan_id' => $workoutPlan->id,
                     'name' => $exercise['name'],
-                    'type' => $exercise['type'] ?? 'strength',
-                    'sets' => $exercise['sets'] ?? 3,
-                    'reps' => $exercise['reps'] ?? '10-12',
-                    'rest_seconds' => $exercise['rest_seconds'] ?? 60,
-                    'order' => $index,
+                    'type' => $exercise['type'],
+                    'sets' => $exercise['sets'],
+                    'reps' => $exercise['reps'],
+                    'rest_seconds' => $exercise['rest_seconds'],
+                    // ✅ PERBAIKAN: Tidak pakai 'order' karena kolom tidak ada
+                    // 'order' => $index, // DIHAPUS
                 ]);
             }
-        }
 
-        // 🔔 Buat notifikasi untuk member
-        Notification::create([
-            'user_id' => $member->id,
-            'title' => 'Program Latihan Baru 🏋️',
-            'message' => "Trainer {$trainer->name} telah membuat program latihan baru untuk Anda: '{$workoutPlan->title}'. Yuk mulai latihan! 💪",
-            'type' => 'trainer',
-            'read_status' => false,
-        ]);
+            // 🔔 Buat notifikasi untuk member
+            Notification::create([
+                'user_id' => $member->id,
+                'title' => 'Program Latihan Baru 🏋️',
+                'message' => "Trainer {$trainer->name} telah membuat program latihan baru untuk Anda: '{$workoutPlan->title}'. Yuk mulai latihan! 💪",
+                'type' => 'trainer',
+                'read_status' => false,
+            ]);
+        });
 
-        // ✅ Redirect ke halaman index dengan pesan sukses
         return redirect()
             ->route('trainer.programs.index')
-            ->with('success', "✅ Program latihan '{$workoutPlan->title}' untuk {$member->name} berhasil dibuat!");
-    }
-
-    /**
-     * 🎯 Dapatkan rekomendasi workout plans berdasarkan data member
-     */
-    private function getRecommendedPlansForMember($member)
-    {
-        $query = WorkoutPlan::where('status', 'active')
-            ->whereNull('user_id') // Template plans
-            ->where(function ($q) use ($member) {
-                // Rekomendasi berdasarkan BMI jika ada data
-                if ($member->weight && $member->height) {
-                    $heightInMeter = $member->height / 100;
-                    $bmi = $member->weight / ($heightInMeter ** 2);
-
-                    if ($bmi < 18.5) {
-                        $q->orWhere('target_fitness', 'muscle_gain')
-                            ->orWhere('target_fitness', 'bulking');
-                    } elseif ($bmi >= 25) {
-                        $q->orWhere('target_fitness', 'fat_loss')
-                            ->orWhere('target_fitness', 'cutting');
-                    } else {
-                        $q->orWhere('target_fitness', 'maintain')
-                            ->orWhere('target_fitness', 'toning');
-                    }
-                }
-
-                // Rekomendasi berdasarkan gender
-                if ($member->gender) {
-                    if ($member->gender === 'female') {
-                        $q->orWhere('focus_area', 'like', '%toning%')
-                            ->orWhere('focus_area', 'like', '%full_body%');
-                    } else {
-                        $q->orWhere('focus_area', 'like', '%strength%')
-                            ->orWhere('focus_area', 'like', '%muscle%');
-                    }
-                }
-
-                // Plan umum untuk semua
-                $q->orWhereIn('target_fitness', ['general', 'foundation', 'beginner']);
-            });
-
-        return $query->orderBy('difficulty_level')->get();
+            ->with('success', "✅ Program latihan '{$validated['workout_title']}' untuk {$member->name} berhasil dibuat!");
     }
 
     /**
@@ -231,17 +180,24 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
 
-        $member = User::where('id', $memberId)
-            ->where('trainer_id', $trainer->id)
-            ->with(['workoutPlans' => function ($query) {
-                $query->latest()->with(['workoutExercises', 'exercises']);
-            }, 'workoutSchedules' => function ($query) {
-                $query->latest()->with('workoutPlan');
-            }])
-            ->firstOrFail();
+        $member = $this->getAuthorizedMember($trainer, $memberId, [
+            'workoutPlans' => function ($query) {
+                $query->latest()->with(['workoutExercises']);
+                // ✅ PERBAIKAN: Hapus orderBy('order')
+            },
+            'workoutSchedules' => function ($query) {
+                $query->latest()
+                      ->with('workoutPlan')
+                      ->take(10);
+            }
+        ]);
+
+        if (!$member) {
+            abort(404, 'Member tidak ditemukan.');
+        }
 
         $currentPlan = $member->workoutPlans->first();
-        $workoutHistory = $member->workoutSchedules->where('status', 'completed')->take(10);
+        $workoutHistory = $member->workoutSchedules->where('status', 'completed');
 
         return view('trainer.programs.show', compact('member', 'currentPlan', 'workoutHistory'));
     }
@@ -253,74 +209,144 @@ class ProgramController extends Controller
     {
         $trainer = Auth::user();
 
-        $member = User::where('id', $memberId)
-            ->where('trainer_id', $trainer->id)
-            ->with(['workoutSchedules' => function ($query) {
+        $member = $this->getAuthorizedMember($trainer, $memberId, [
+            'workoutSchedules' => function ($query) {
                 $query->where('status', 'completed')
-                    ->with('workoutPlan')
-                    ->latest()
-                    ->take(20);
-            }, 'progressLogs' => function ($query) {
-                $query->latest()->take(10);
-            }])
-            ->firstOrFail();
+                      ->with('workoutPlan')
+                      ->latest()
+                      ->take(20);
+            },
+            'bodyMetrics' => function ($query) {
+                $query->latest()->take(5);
+            }
+        ]);
 
-        // Hitung statistik
-        $totalWorkouts = $member->workoutSchedules->count();
-        $completedWorkouts = $member->workoutSchedules->where('status', 'completed')->count();
-        $completionRate = $totalWorkouts > 0 ? round(($completedWorkouts / $totalWorkouts) * 100) : 0;
+        if (!$member) {
+            abort(404, 'Member tidak ditemukan.');
+        }
 
-        // Workout frequency (per minggu)
-        $recentWorkouts = $member->workoutSchedules->where('completed_at', '>=', now()->subDays(30));
+        // 📈 Hitung statistik
+        $stats = $this->calculateMemberStats($member);
+
+        return view('trainer.programs.progress', compact('member', 'stats'));
+    }
+
+    // ==================== PRIVATE HELPER METHODS ====================
+
+    /**
+     * ✅ Cek verifikasi trainer
+     */
+    private function isTrainerVerified($trainer): bool
+    {
+        return $trainer->verification_status === 'approved' &&
+            TrainerVerification::where('trainer_id', $trainer->id)
+                ->where('status', 'approved')
+                ->exists();
+    }
+
+    /**
+     * 🔒 Dapatkan member yang diotorisasi
+     */
+    private function getAuthorizedMember($trainer, $memberId, $with = [])
+    {
+        $defaultWith = [
+            'workoutPlans' => function ($query) {
+                $query->latest()->take(1);
+            }
+        ];
+
+        $with = array_merge($defaultWith, $with);
+
+        return User::where('id', $memberId)
+            ->where('trainer_id', $trainer->id)
+            ->where('role', 'user')
+            ->with($with)
+            ->first();
+    }
+
+    /**
+     * 🎯 Dapatkan rekomendasi workout plans
+     */
+    private function getRecommendedPlansForMember($member)
+    {
+        return WorkoutPlan::where('status', 'active')
+            ->whereNull('user_id')
+            ->where(function ($query) use ($member) {
+                if ($member->goal_id) {
+                    $query->orWhere('target_fitness', $this->mapGoalToFitnessTarget($member->goal_id));
+                }
+                $query->orWhereIn('difficulty_level', ['beginner', 'intermediate']);
+            })
+            ->orderBy('difficulty_level')
+            ->limit(6)
+            ->get();
+    }
+
+    /**
+     * 🗺️ Map goal_id ke target_fitness
+     */
+    private function mapGoalToFitnessTarget($goalId): string
+    {
+        $mapping = [
+            1 => 'muscle_gain',
+            2 => 'fat_loss',
+            3 => 'endurance',
+            4 => 'maintain',
+        ];
+
+        return $mapping[$goalId] ?? 'general';
+    }
+
+    /**
+     * 📊 Hitung statistik member
+     */
+    private function calculateMemberStats($member): array
+    {
+        $workouts = $member->workoutSchedules;
+        $completedWorkouts = $workouts->where('status', 'completed');
+
+        $recentWorkouts = $completedWorkouts->where('completed_at', '>=', now()->subDays(30));
         $workoutsPerWeek = $recentWorkouts->count() > 0 ? round($recentWorkouts->count() / 4.3, 1) : 0;
 
-        return view('trainer.programs.progress', compact(
-            'member',
-            'totalWorkouts',
-            'completedWorkouts',
-            'completionRate',
-            'workoutsPerWeek'
-        ));
+        $totalScheduled = $workouts->count();
+        $completionRate = $totalScheduled > 0 ? round(($completedWorkouts->count() / $totalScheduled) * 100) : 0;
+
+        return [
+            'total_workouts' => $totalScheduled,
+            'completed_workouts' => $completedWorkouts->count(),
+            'completion_rate' => $completionRate,
+            'workouts_per_week' => $workoutsPerWeek,
+            'current_streak' => $this->calculateCurrentStreak($completedWorkouts),
+        ];
     }
 
     /**
-     * 📋 Halaman daftar & pengajuan verifikasi trainer
+     * 🔥 Hitung streak latihan saat ini
      */
-    public function daftar()
+    private function calculateCurrentStreak($completedWorkouts): int
     {
-        $trainer = Auth::user();
-        $request = TrainerVerification::where('trainer_id', $trainer->id)->latest()->first();
+        $streak = 0;
+        $currentDate = now()->startOfDay();
 
-        return view('trainer.programs.daftar', compact('trainer', 'request'));
+        $workoutDates = $completedWorkouts->pluck('completed_at')
+            ->map(function ($date) {
+                return Carbon::parse($date)->startOfDay();
+            })
+            ->unique()
+            ->sortDesc();
+
+        foreach ($workoutDates as $workoutDate) {
+            if ($workoutDate->equalTo($currentDate->subDays($streak))) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
     }
 
     /**
-     * 📨 Kirim pengajuan verifikasi trainer
+     * ❌ HAPUS method daftar() dan ajukan() - pindahkan ke VerificationController
      */
-    public function ajukan(Request $request)
-    {
-        $trainer = Auth::user();
-
-        $request->validate([
-            'bio' => 'required|string|max:1000',
-            'certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        ]);
-
-        $path = $request->hasFile('certificate')
-            ? $request->file('certificate')->store('certificates', 'public')
-            : null;
-
-        TrainerVerification::create([
-            'trainer_id' => $trainer->id,
-            'certificate' => $path,
-            'bio' => $request->bio,
-            'status' => 'pending',
-        ]);
-
-        $trainer->update(['verification_status' => 'pending']);
-
-        return redirect()
-            ->route('trainer.programs.daftar')
-            ->with('success', '✅ Pengajuan verifikasi telah dikirim. Tunggu persetujuan admin.');
-    }
 }

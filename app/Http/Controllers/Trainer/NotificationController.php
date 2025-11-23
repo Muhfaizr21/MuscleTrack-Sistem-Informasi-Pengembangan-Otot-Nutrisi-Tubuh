@@ -3,50 +3,132 @@
 namespace App\Http\Controllers\Trainer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Notification; // Pastikan Anda punya model ini
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     /**
-     * Tampilkan daftar notifikasi untuk trainer yang login.
+     * 📋 Menampilkan semua notifikasi trainer
      */
     public function index()
     {
         $trainer = Auth::user();
 
-        // Ambil notifikasi (terbaru dulu)
+        // Ambil notifikasi trainer dengan pagination
         $notifications = $trainer->notifications()
             ->latest()
             ->paginate(20);
 
-        // Ambil 5 notifikasi terbaru yang belum dibaca (read_status = 0)
-        // dan tandai "dibaca" (read_status = 1)
-        $trainer->notifications()
-            ->where('read_status', 0) // <-- Ini sudah perbaikan "ciamik"
-            ->take(5)
-            ->update(['read_status' => 1]); // <-- Ini sudah perbaikan "ciamik"
+        // Hitung jumlah notifikasi yang belum dibaca
+        $unreadCount = $trainer->notifications()
+            ->where('read_status', 0)
+            ->count();
 
-        return view('trainer.communication.notifications.index', compact('notifications'));
+        // Tandai 5 notifikasi terbaru yang belum dibaca sebagai sudah dibaca
+        $trainer->notifications()
+            ->where('read_status', 0)
+            ->take(5)
+            ->update(['read_status' => 1]);
+
+        return view('trainer.communication.notifications.index', compact(
+            'notifications',
+            'unreadCount' // ✅ TAMBAHKAN INI
+        ));
     }
 
     /**
-     * Tandai satu notifikasi sebagai sudah dibaca (via POST)
-     * dan redirect ke link notifikasi itu.
+     * ✅ Tandai satu notifikasi sebagai sudah dibaca
      */
     public function markAsRead(Request $request, $id)
     {
         $notification = Notification::where('id', $id)
-            ->where('user_id', Auth::id()) // Pastikan ini notif milik trainer
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Tandai dibaca (jika belum)
-        if ($notification->read_status == 0) { // <-- Ini sudah perbaikan "ciamik"
-            $notification->update(['read_status' => 1]); // <-- Ini sudah perbaikan "ciamik"
+        // Tandai dibaca jika belum
+        if ($notification->read_status == 0) {
+            $notification->update(['read_status' => 1]);
         }
 
-        // (Model Anda tidak punya 'link', jadi kita redirect ke index)
-        return redirect()->route('trainer.communication.notifications.index');
+        return redirect()->route('trainer.communication.notifications.index')
+            ->with('success', 'Notifikasi telah ditandai sebagai dibaca');
+    }
+
+    /**
+     * ✅ Tandai SEMUA notifikasi sebagai sudah dibaca
+     */
+    public function markAllRead(Request $request)
+    {
+        $trainer = Auth::user();
+
+        $updated = $trainer->notifications()
+            ->where('read_status', 0)
+            ->update(['read_status' => 1]);
+
+        return redirect()->route('trainer.communication.notifications.index')
+            ->with('success', "{$updated} notifikasi telah ditandai sebagai dibaca");
+    }
+
+    /**
+     * 🗑️ Hapus notifikasi tertentu
+     */
+    public function destroy($id)
+    {
+        $notification = Notification::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $notification->delete();
+
+        return redirect()->route('trainer.communication.notifications.index')
+            ->with('success', 'Notifikasi berhasil dihapus');
+    }
+
+    /**
+     * 🗑️ Hapus SEMUA notifikasi
+     */
+    public function clearAll(Request $request)
+    {
+        $trainer = Auth::user();
+
+        $deletedCount = $trainer->notifications()->delete();
+
+        return redirect()->route('trainer.communication.notifications.index')
+            ->with('success', "{$deletedCount} notifikasi berhasil dihapus");
+    }
+
+    /**
+     * 🔍 Dapatkan jumlah notifikasi belum dibaca (untuk AJAX/API)
+     */
+    public function getUnreadCount()
+    {
+        $unreadCount = Auth::user()->notifications()
+            ->where('read_status', 0)
+            ->count();
+
+        return response()->json([
+            'unread_count' => $unreadCount
+        ]);
+    }
+
+    /**
+     * 📱 Tandai notifikasi sebagai dibaca via AJAX
+     */
+    public function markAsReadAjax(Request $request, $id)
+    {
+        $notification = Notification::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if ($notification->read_status == 0) {
+            $notification->update(['read_status' => 1]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi ditandai sebagai dibaca'
+        ]);
     }
 }

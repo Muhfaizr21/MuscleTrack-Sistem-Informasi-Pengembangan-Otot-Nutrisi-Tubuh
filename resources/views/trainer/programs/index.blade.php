@@ -70,7 +70,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
                 @foreach($members as $member)
                     <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow">
-                        
+
                         {{-- Member Header --}}
                         <div class="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                             @if($member->avatar)
@@ -105,7 +105,7 @@
                                     </span>
                                 @endif
                             </div>
-                            
+
                             @if($member->current_plan)
                                 <div class="space-y-2">
                                     <p class="text-emerald-400 font-semibold text-sm truncate">
@@ -142,18 +142,18 @@
 
                         {{-- Action Buttons --}}
                         <div class="flex flex-col gap-2">
-                            <a href="{{ route('trainer.programs.edit', ['memberId' => $member->id]) }}" 
+                            <a href="{{ route('trainer.programs.edit', ['memberId' => $member->id]) }}"
                                class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-center py-2 px-3 md:px-4 rounded-lg md:rounded-xl font-semibold transition-all duration-300 hover-glow text-xs md:text-sm">
                                 <span>✏️</span>
                                 {{ $member->current_plan ? 'Edit Program' : 'Create Program' }}
                             </a>
-                            
+
                             <div class="flex gap-2">
-                                <a href="{{ route('trainer.programs.show', $member->id) }}" 
+                                <a href="{{ route('trainer.programs.show', $member->id) }}"
                                    class="flex-1 text-center bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 py-2 px-3 rounded-lg font-semibold transition-all duration-300 border border-blue-500/20 hover:border-blue-500/30 text-xs">
                                     👁️ View
                                 </a>
-                                <a href="{{ route('trainer.programs.progress', $member->id) }}" 
+                                <a href="{{ route('trainer.programs.progress', $member->id) }}"
                                    class="flex-1 text-center bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 py-2 px-3 rounded-lg font-semibold transition-all duration-300 border border-purple-500/20 hover:border-purple-500/30 text-xs">
                                     📊 Progress
                                 </a>
@@ -172,7 +172,7 @@
                     Anda belum memiliki member yang aktif. Member akan muncul di sini setelah mereka berlangganan program Anda.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <a href="{{ route('trainer.profile.edit') }}" 
+                    <a href="{{ route('trainer.profile.edit') }}"
                        class="inline-flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg md:rounded-xl transition-all duration-300 hover-glow text-sm md:text-base">
                         ✨ Improve Your Profile
                     </a>
@@ -184,7 +184,7 @@
         <div class="glass-dark rounded-xl md:rounded-2xl p-4 md:p-6 border border-emerald-500/20">
             <h3 class="text-lg md:text-xl font-black text-white mb-3 md:mb-4">Quick Actions</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                <a href="{{ route('trainer.members.index') }}" 
+                <a href="{{ route('trainer.members.index') }}"
                    class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 hover-glow text-center group">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
                         <span class="text-emerald-400 text-lg">👥</span>
@@ -192,8 +192,8 @@
                     <div class="text-white font-semibold text-sm md:text-base">All Members</div>
                     <div class="text-emerald-400 text-xs">Manage Members</div>
                 </a>
-                
-                <a href="{{ route('trainer.communication.chat.index') }}" 
+
+                <a href="{{ route('trainer.communication.chat.index') }}"
                    class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover-glow text-center group">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
                         <span class="text-blue-400 text-lg">💬</span>
@@ -201,8 +201,8 @@
                     <div class="text-white font-semibold text-sm md:text-base">Messages</div>
                     <div class="text-blue-400 text-xs">Chat with Members</div>
                 </a>
-                
-                <a href="{{ route('trainer.quality.feedback.index') }}" 
+
+                <a href="{{ route('trainer.quality.feedback.index') }}"
                    class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover-glow text-center group">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-purple-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
                         <span class="text-purple-400 text-lg">⭐</span>
@@ -210,8 +210,8 @@
                     <div class="text-white font-semibold text-sm md:text-base">Feedback</div>
                     <div class="text-purple-400 text-xs">View Ratings</div>
                 </a>
-                
-                <a href="{{ route('trainer.programs.daftar') }}" 
+
+                <a href="{{ route('trainer.programs.daftar') }}"
                    class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 hover-glow text-center group">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-amber-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
                         <span class="text-amber-400 text-lg">📋</span>

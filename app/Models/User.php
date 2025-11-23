@@ -171,6 +171,53 @@ class User extends Authenticatable
         return $query->whereHas('devices');
     }
 
+    // === 🆕 SUPPLEMENTS RELATIONSHIPS ===
+
+    /**
+     * Relationship dengan supplements melalui nutrition plans
+     */
+    public function supplements()
+    {
+        return $this->hasManyThrough(
+            Supplement::class,
+            NutritionPlan::class,
+            'user_id', // Foreign key on nutrition_plans table
+            'nutrition_plan_id', // Foreign key on supplements table
+            'id', // Local key on users table
+            'id' // Local key on nutrition_plans table
+        );
+    }
+
+    /**
+     * Relationship untuk mendapatkan jumlah supplements
+     */
+    public function supplementsCount()
+    {
+        return $this->hasManyThrough(
+            Supplement::class,
+            NutritionPlan::class,
+            'user_id',
+            'nutrition_plan_id',
+            'id',
+            'id'
+        )->count();
+    }
+
+    /**
+     * Relationship untuk mendapatkan supplements dengan eager loading
+     */
+    public function supplementsWithDetails()
+    {
+        return $this->hasManyThrough(
+            Supplement::class,
+            NutritionPlan::class,
+            'user_id',
+            'nutrition_plan_id',
+            'id',
+            'id'
+        )->with('nutritionPlan');
+    }
+
     // === 🆕 RELASI BARU UNTUK FITUR HISTORY MEMBER ===
 
     /**

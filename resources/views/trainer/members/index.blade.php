@@ -159,7 +159,7 @@
                             $realTimeStatus = $member->real_time_status;
                         @endphp
 
-                        <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border 
+                        <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border
                                     @if($realTimeStatus['color'] === 'green') border-emerald-500/20 hover:border-emerald-500/40
                                     @elseif($realTimeStatus['color'] === 'yellow') border-yellow-500/20 hover:border-yellow-500/40
                                     @else border-red-500/20 hover:border-red-500/40 @endif
@@ -167,7 +167,7 @@
 
                             {{-- Status Badge --}}
                             <div class="absolute -top-2 -right-2">
-                                <span class="status-badge px-2 py-1 text-xs font-medium rounded-full border 
+                                <span class="status-badge px-2 py-1 text-xs font-medium rounded-full border
                                             @if($realTimeStatus['color'] === 'green') bg-green-500/20 text-green-400 border-green-500/30
                                             @elseif($realTimeStatus['color'] === 'yellow') bg-yellow-500/20 text-yellow-400 border-yellow-500/30
                                             @else bg-red-500/20 text-red-400 border-red-500/30 @endif"
@@ -179,14 +179,14 @@
                             {{-- Member Header --}}
                             <div class="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                                 @if($member->avatar)
-                                    <img src="{{ asset($member->avatar) }}" alt="{{ $member->name }}" class="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl object-cover border-2 
+                                    <img src="{{ asset($member->avatar) }}" alt="{{ $member->name }}" class="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl object-cover border-2
                                                         @if($realTimeStatus['color'] === 'green') border-emerald-500/30 group-hover:border-emerald-500/50
                                                         @elseif($realTimeStatus['color'] === 'yellow') border-yellow-500/30 group-hover:border-yellow-500/50
                                                         @else border-red-500/30 group-hover:border-red-500/50 @endif
                                                         transition-all duration-300 flex-shrink-0">
                                 @else
                                     <div
-                                        class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br 
+                                        class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br
                                                     @if($realTimeStatus['color'] === 'green') from-emerald-500 to-emerald-700
                                                     @elseif($realTimeStatus['color'] === 'yellow') from-yellow-500 to-yellow-700
                                                     @else from-red-500 to-red-700 @endif
@@ -226,7 +226,7 @@
 
                             {{-- Countdown Timer --}}
                             @if($premiumAccess && !$realTimeStatus['is_expired'])
-                                <div class="countdown-timer bg-dark-800/50 rounded-lg md:rounded-xl p-2 md:p-3 border 
+                                <div class="countdown-timer bg-dark-800/50 rounded-lg md:rounded-xl p-2 md:p-3 border
                                                 @if($realTimeStatus['color'] === 'green') border-emerald-500/20
                                                 @elseif($realTimeStatus['color'] === 'yellow') border-yellow-500/20
                                                 @else border-red-500/20 @endif
@@ -291,7 +291,7 @@
                             <div class="text-blue-400 text-xs">Manage Plans</div>
                         </a>
 
-                        <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $members->first()->id ?? 0]) }}"
+                        <a href="{{ route('trainer.programs.index', ['memberId' => $members->first()->id ?? 0]) }}"
                             class="glass rounded-xl md:rounded-2xl p-3 md:p-4 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover-glow text-center group">
                             <div
                                 class="w-8 h-8 md:w-10 md:h-10 bg-purple-500/20 rounded-lg md:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">

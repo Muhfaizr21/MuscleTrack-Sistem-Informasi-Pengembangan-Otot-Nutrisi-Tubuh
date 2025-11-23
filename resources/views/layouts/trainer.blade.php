@@ -714,8 +714,9 @@
                                 </svg>
                                 Program
                             </a>
-                            <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
-                                class="nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
+                            {{-- ✅ PERBAIKAN: Gunakan route nutrition dashboard yang baru --}}
+                            <a href="{{ route('trainer.nutrition.dashboard') }}"
+                                class="nav-item {{ Route::is('trainer.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -895,8 +896,9 @@
                                 </svg>
                                 Program
                             </a>
-                            <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
-                                class="mobile-nav-item {{ Route::is('trainer.programs.nutrition.*') ? 'active' : '' }}">
+                            {{-- ✅ PERBAIKAN: Gunakan route nutrition dashboard yang baru --}}
+                            <a href="{{ route('trainer.nutrition.dashboard') }}"
+                                class="mobile-nav-item {{ Route::is('trainer.nutrition.*') ? 'active' : '' }}">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -1060,12 +1062,47 @@
                         <p class="text-gray-400 text-sm text-center md:text-left">
                             © {{ date('Y') }} MuscleXpert. All rights reserved.
                         </p>
+<<<<<<< Updated upstream
                         <div class="flex items-center gap-6">
                             <a href="#"
                                 class="text-gray-400 hover:text-emerald-400 smooth-transition transform hover:scale-110">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+=======
+                    </div>
+
+                    {{-- Quick Links --}}
+                    <div>
+                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Quick Links</h4>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="{{ route('trainer.dashboard') }}"
+                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('trainer.members.index') }}"
+                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Manajemen
+                                    Member</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('trainer.nutrition.dashboard') }}"
+                                    class="text-gray-400 hover:text-emerald-400 text-sm smooth-transition">Nutrisi</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {{-- Contact Info --}}
+                    <div>
+                        <h4 class="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Support</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center gap-2 text-gray-400 text-sm">
+                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+>>>>>>> Stashed changes
                                 </svg>
                             </a>
                             <a href="#"

@@ -3,6 +3,7 @@
 @section('title', 'Dashboard Trainer')
 
 @section('content')
+<<<<<<< Updated upstream
     {{-- Enhanced Header Section --}}
     <div class="mb-8 md:mb-12">
         <div class="flex items-center gap-3 mb-4">
@@ -10,6 +11,36 @@
             <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
                 Trainer <span class="text-gradient">Dashboard</span>
             </h1>
+=======
+    {{-- Header Section --}}
+    <div class="mb-8">
+        <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+            Trainer <span class="text-gradient">Dashboard</span>
+        </h1>
+        <p class="text-gray-400 text-base md:text-lg max-w-3xl leading-relaxed">
+            Selamat datang kembali, <span class="text-emerald-400 font-semibold">{{ Auth::user()->name }}</span> 👋
+            <br class="hidden sm:block">
+            Gunakan menu di sidebar untuk mengelola member dan program latihan.
+        </p>
+    </div>
+
+    {{-- Stats Overview --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="glass-card rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Total Members</p>
+                    <p class="text-white text-2xl font-bold mt-1">
+                        {{ \App\Models\User::where('trainer_id', Auth::id())->count() }}
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+            </div>
+>>>>>>> Stashed changes
         </div>
         <div class="glass-card rounded-2xl p-6 md:p-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -243,6 +274,7 @@
 
             {{-- Enhanced Card: Program & Nutrition --}}
             @if($firstMember)
+<<<<<<< Updated upstream
                 <a href="{{ route('trainer.programs.index', ['memberId' => $firstMember->id]) }}"
                     class="group glass-card rounded-2xl p-6 smooth-transition hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-2 relative overflow-hidden">
                     <div
@@ -251,6 +283,13 @@
                     <div class="relative z-10 flex items-start gap-4">
                         <div
                             class="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 smooth-transition border border-purple-500/20">
+=======
+                {{-- ✅ PERBAIKAN: Gunakan route yang baru --}}
+                <a href="{{ route('trainer.nutrition.dashboard') }}"
+                    class="group glass-card rounded-2xl p-6 smooth-transition hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 smooth-transition">
+>>>>>>> Stashed changes
                             <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
@@ -305,6 +344,7 @@
 
             {{-- Enhanced Card: Supplements --}}
             @if($firstMember)
+<<<<<<< Updated upstream
                 <a href="{{ route('trainer.programs.nutrition.index', ['memberId' => $firstMember->id]) }}"
                     class="group glass-card rounded-2xl p-6 smooth-transition hover:border-pink-500/40 hover:shadow-xl hover:shadow-pink-500/20 hover:-translate-y-2 relative overflow-hidden">
                     <div
@@ -313,6 +353,13 @@
                     <div class="relative z-10 flex items-start gap-4">
                         <div
                             class="w-14 h-14 bg-gradient-to-br from-pink-500/20 to-pink-600/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 smooth-transition border border-pink-500/20">
+=======
+                {{-- ✅ PERBAIKAN: Gunakan route nutrition index yang baru --}}
+                <a href="{{ route('trainer.nutrition.index', $firstMember->id) }}"
+                    class="group glass-card rounded-2xl p-6 smooth-transition hover:border-pink-500/40 hover:shadow-xl hover:shadow-pink-500/10 hover:-translate-y-1">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-pink-500/20 to-pink-600/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 smooth-transition">
+>>>>>>> Stashed changes
                             <svg class="w-7 h-7 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19.428 15.428a2 2 0 00-1.022-.547l-2.363-.44A2 2 0 0115 13.029V11.5a2 2 0 00-2-2h-2a2 2 0 00-2 2v1.53a2 2 0 01-1.043 1.843l-2.363.44a2 2 0 00-1.022.547l-1.84 2.148A2 2 0 004.16 19.92a2 2 0 001.84 1.08h12a2 2 0 001.84-1.08l-1.84-2.148z">
@@ -413,11 +460,21 @@
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
                             </path>
                         </svg>
+<<<<<<< Updated upstream
                         @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
                             <span
                                 class="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse border-2 border-gray-900">
                                 {{ $unreadNotificationsCount }}
                             </span>
+=======
+                        @php
+                            $unreadNotificationsCount = \App\Models\Notification::where('user_id', Auth::id())->where('read_status', false)->count();
+                        @endphp
+                        @if($unreadNotificationsCount > 0)
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-pulse">
+                            {{ $unreadNotificationsCount }}
+                        </span>
+>>>>>>> Stashed changes
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">

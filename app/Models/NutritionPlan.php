@@ -32,6 +32,14 @@ class NutritionPlan extends Model
     }
 
     /**
+     * ✅ PERBAIKAN: Relasi ke supplements
+     */
+    public function supplements()
+    {
+        return $this->hasMany(Supplement::class);
+    }
+
+    /**
      * Ambil total makronutrien & cairan dalam satu hari (untuk dashboard harian)
      */
     public static function dailyTotal($userId, $day)
@@ -66,5 +74,45 @@ class NutritionPlan extends Model
     {
         return $query->where('target_fitness', $target)
             ->orWhereNull('target_fitness');
+    }
+
+    /**
+     * Hitung total suplemen untuk plan ini
+     */
+    public function getSupplementCountAttribute()
+    {
+        return $this->supplements->count();
+    }
+
+    /**
+     * Format kalori untuk display
+     */
+    public function getFormattedCaloriesAttribute()
+    {
+        return number_format($this->calories) . ' cal';
+    }
+
+    /**
+     * Format protein untuk display
+     */
+    public function getFormattedProteinAttribute()
+    {
+        return $this->protein . 'g';
+    }
+
+    /**
+     * Format carbs untuk display
+     */
+    public function getFormattedCarbsAttribute()
+    {
+        return $this->carbs . 'g';
+    }
+
+    /**
+     * Format fat untuk display
+     */
+    public function getFormattedFatAttribute()
+    {
+        return $this->fat . 'g';
     }
 }

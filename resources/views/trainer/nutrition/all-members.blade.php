@@ -11,11 +11,11 @@
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center animate-glow">
-                        <span class="text-2xl">🥗</span>
+                        <span class="text-2xl">👥</span>
                     </div>
                     <div>
                         <h1 class="text-3xl sm:text-4xl font-black text-white">
-                            Nutrition <span class="text-gradient">Management</span>
+                            All <span class="text-gradient">Members</span> Nutrition
                         </h1>
                         <p class="text-emerald-400/80 text-lg mt-2">Manage nutrition plans and supplements for all your members</p>
                     </div>
@@ -26,7 +26,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        Nutrition Dashboard
+                        Dashboard
                     </a>
                 </div>
             </div>
@@ -42,6 +42,19 @@
                         </svg>
                     </div>
                     <p class="text-emerald-400 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 glass rounded-2xl p-4 border border-red-500/20 animate-pop-in">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-red-400 font-medium">{{ session('error') }}</p>
                 </div>
             </div>
         @endif
@@ -160,13 +173,11 @@
 
                             {{-- Action Buttons --}}
                             <div class="flex gap-2">
-                                {{-- ✅ PERBAIKI ROUTE INI --}}
-                                <a href="{{ route('trainer.nutrition.index', $member->id) }}"
+                                <a href="{{ route('trainer.programs.nutrition.index', $member->id) }}"
                                    class="flex-1 text-center px-3 py-2 text-xs font-medium text-white bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-xl transition-all duration-300">
                                     Manage Nutrition
                                 </a>
-                                {{-- ✅ PERBAIKI ROUTE INI --}}
-                                <a href="{{ route('trainer.nutrition.analysis', $member->id) }}"
+                                <a href="{{ route('trainer.programs.nutrition.analysis', $member->id) }}"
                                    class="px-3 py-2 text-xs font-medium text-blue-400 hover:text-blue-300 border border-blue-500/30 hover:border-blue-500/50 rounded-xl transition-all duration-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -267,16 +278,16 @@
         background-clip: text;
     }
 
+    .glass {
+        background: rgba(10, 10, 10, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
     .glass-dark {
         background: rgba(0, 0, 0, 0.8);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .glass {
-        background: rgba(17, 25, 21, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .animate-glow {
@@ -303,14 +314,14 @@
 </style>
 
 <script>
-    // Search functionality
+    // Simple search functionality
     document.getElementById('searchMembers').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
-        const memberCards = document.querySelectorAll('.grid > div');
+        const memberCards = document.querySelectorAll('.glass.rounded-2xl');
 
         memberCards.forEach(card => {
             const memberName = card.querySelector('h3').textContent.toLowerCase();
-            const memberEmail = card.querySelector('p').textContent.toLowerCase();
+            const memberEmail = card.querySelector('p.text-emerald-400\\/70').textContent.toLowerCase();
 
             if (memberName.includes(searchTerm) || memberEmail.includes(searchTerm)) {
                 card.style.display = 'block';
