@@ -16,6 +16,11 @@ class CommunityMember extends Model
         'joined_at'
     ];
 
+    // ✅ TAMBAHKAN: Date Casting
+    protected $casts = [
+        'joined_at' => 'datetime',
+    ];
+
     // Tambahkan timestamps
     public $timestamps = true;
 

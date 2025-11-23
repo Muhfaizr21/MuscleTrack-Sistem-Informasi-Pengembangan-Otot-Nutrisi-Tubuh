@@ -9,6 +9,7 @@ use App\Models\CommunityPost;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class AdminCommunityController extends Controller
 {
@@ -81,22 +82,28 @@ class AdminCommunityController extends Controller
     }
 
     /**
-     * ⚠️ Reports & Moderation
+     * ⚠️ Reports & Moderation - FIXED VERSION
      */
     public function reports()
     {
-        // Posts dengan reports (jika ada kolom reports)
+        // Posts terbaru untuk moderation
         $reportedPosts = CommunityPost::with(['user', 'community'])
-            ->orderBy('created_at', 'desc')
+            ->withCount(['likes', 'comments'])
+            ->latest()
             ->take(20)
             ->get();
 
-        // Communities dengan masalah
-        $problematicCommunities = Community::withCount('members')
-            ->having('members_count', '<', 5) // Kurang dari 5 member
-            ->orderBy('members_count')
-            ->take(10)
-            ->get();
+        // FIX: Communities dengan masalah (kurang dari 5 member)
+        // HAPUS kondisi is_suspended karena kolom tidak ada di database
+        $problematicCommunities = Community::with(['creator'])
+            ->withCount(['members', 'posts'])
+            ->get()
+            ->filter(function($community) {
+                // Hanya filter berdasarkan jumlah member < 5
+                return $community->members_count < 5;
+            })
+            ->sortBy('members_count')
+            ->take(10);
 
         return view('admin.communities.reports', compact(
             'reportedPosts',
@@ -109,16 +116,25 @@ class AdminCommunityController extends Controller
      */
     public function activity()
     {
-        // Aktivitas terbaru
+        // Aktivitas terbaru - posts
         $recentPosts = CommunityPost::with(['user', 'community'])
+            ->withCount(['likes', 'comments'])
             ->latest()
             ->take(20)
             ->get();
 
+        // Recent members - handle joined_at dengan aman
         $recentMembers = CommunityMember::with(['user', 'community'])
             ->latest()
             ->take(20)
-            ->get();
+            ->get()
+            ->map(function ($member) {
+                // Pastikan joined_at adalah Carbon instance
+                if (!$member->joined_at instanceof Carbon) {
+                    $member->joined_at = Carbon::parse($member->joined_at);
+                }
+                return $member;
+            });
 
         // Top communities by activity
         $activeCommunities = Community::withCount('posts')
@@ -130,6 +146,22 @@ class AdminCommunityController extends Controller
             'recentPosts',
             'recentMembers',
             'activeCommunities'
+        ));
+    }
+
+    /**
+     * 🔍 Show Community Detail
+     */
+    public function show(Community $community)
+    {
+        $community->load(['creator', 'members.user', 'posts.user']);
+        $memberCount = $community->members()->count();
+        $postCount = $community->posts()->count();
+
+        return view('admin.communities.show', compact(
+            'community',
+            'memberCount',
+            'postCount'
         ));
     }
 
@@ -164,10 +196,11 @@ class AdminCommunityController extends Controller
     public function destroyPost(CommunityPost $post)
     {
         try {
+            $postTitle = $post->title ?: 'Post';
             $post->delete();
 
             return redirect()->back()
-                ->with('success', 'Post berhasil dihapus!');
+                ->with('success', "Post '{$postTitle}' berhasil dihapus!");
 
         } catch (\Exception $e) {
             return redirect()->back()
@@ -176,36 +209,110 @@ class AdminCommunityController extends Controller
     }
 
     /**
-     * ⏸️ Suspend Community
+     * ⏸️ Suspend Community - DIHAPUS karena tidak ada kolom is_suspended
      */
-    public function suspend(Community $community)
+    // public function suspend(Community $community)
+    // {
+    //     try {
+    //         $community->update(['is_suspended' => true]);
+    //         return redirect()->back()
+    //             ->with('warning', "Community '{$community->name}' telah di-suspend!");
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()
+    //             ->with('error', 'Gagal mensuspend community: ' . $e->getMessage());
+    //     }
+    // }
+
+    /**
+     * ▶️ Activate Community - DIHAPUS karena tidak ada kolom is_suspended
+     */
+    // public function activate(Community $community)
+    // {
+    //     try {
+    //         $community->update(['is_suspended' => false]);
+    //         return redirect()->back()
+    //             ->with('success', "Community '{$community->name}' telah diaktifkan kembali!");
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()
+    //             ->with('error', 'Gagal mengaktifkan community: ' . $e->getMessage());
+    //     }
+    // }
+
+    /**
+     * 📊 Community Statistics
+     */
+    public function statistics()
     {
-        try {
-            $community->update(['is_suspended' => true]);
+        $totalCommunities = Community::count();
+        $totalMembers = CommunityMember::count();
+        $totalPosts = CommunityPost::count();
 
-            return redirect()->back()
-                ->with('warning', 'Community telah di-suspend!');
+        $publicCommunities = Community::where('is_public', true)->count();
+        $privateCommunities = Community::where('is_public', false)->count();
+        // $suspendedCommunities = Community::where('is_suspended', true)->count(); // DIHAPUS
 
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mensuspend community: ' . $e->getMessage());
-        }
+        // Communities dengan pertumbuhan tercepat (7 hari terakhir)
+        $recentCommunities = Community::where('created_at', '>=', now()->subDays(7))
+            ->count();
+
+        // Top 10 communities dengan member terbanyak
+        $topCommunities = Community::withCount('members')
+            ->orderBy('members_count', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('admin.communities.statistics', compact(
+            'totalCommunities',
+            'totalMembers',
+            'totalPosts',
+            'publicCommunities',
+            'privateCommunities',
+            // 'suspendedCommunities', // DIHAPUS
+            'recentCommunities',
+            'topCommunities'
+        ));
     }
 
     /**
-     * ▶️ Activate Community
+     * 🔧 Bulk Actions - DIPERBAIKI
      */
-    public function activate(Community $community)
+    public function bulkActions(Request $request)
     {
-        try {
-            $community->update(['is_suspended' => false]);
+        $request->validate([
+            'action' => 'required|in:delete', // Hanya delete yang tersedia
+            'community_ids' => 'required|array',
+            'community_ids.*' => 'exists:communities,id'
+        ]);
 
-            return redirect()->back()
-                ->with('success', 'Community telah diaktifkan kembali!');
+        $action = $request->action;
+        $communityIds = $request->community_ids;
+
+        try {
+            switch ($action) {
+                case 'delete':
+                    $communities = Community::whereIn('id', $communityIds)->get();
+                    foreach ($communities as $community) {
+                        // Hapus gambar jika ada
+                        if ($community->image) {
+                            Storage::disk('public')->delete($community->image);
+                        }
+                        if ($community->cover_image) {
+                            Storage::disk('public')->delete($community->cover_image);
+                        }
+                        $community->delete();
+                    }
+                    $message = count($communityIds) . ' communities telah dihapus!';
+                    break;
+
+                default:
+                    $message = 'Aksi tidak dikenali!';
+                    break;
+            }
+
+            return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mengaktifkan community: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal melakukan aksi bulk: ' . $e->getMessage());
         }
     }
 }
