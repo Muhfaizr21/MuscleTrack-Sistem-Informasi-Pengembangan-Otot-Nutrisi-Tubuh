@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" x-data="{ isSidebarOpen: false }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,29 +39,32 @@
             z-index: -1;
             opacity: 0.15;
         }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-black text-gray-200">
     <div class="parallax-bg"></div>
 
-    <div x-data="{ isSidebarOpen: false }">
+    <!-- Sidebar -->
+    <x-admin.sidebar />
 
-        <x-admin.sidebar />
-
-        <div x-show="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-20 md:hidden" x-cloak></div>
-
-        <main class="flex-1 md:pl-64">
-
-            <x-admin.header />
-
-            <div class="py-12">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {{ $slot }}
-                </div>
-            </div>
-
-        </main>
+    <!-- Overlay untuk mobile -->
+    <div x-show="isSidebarOpen"
+         @click="isSidebarOpen = false"
+         class="fixed inset-0 bg-black/50 z-20 md:hidden"
+         x-cloak>
     </div>
+
+    <main class="flex-1 md:pl-64">
+        <!-- Header -->
+        <x-admin.header />
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                {{ $slot }}
+            </div>
+        </div>
+    </main>
 
     @stack('scripts')
 </body>

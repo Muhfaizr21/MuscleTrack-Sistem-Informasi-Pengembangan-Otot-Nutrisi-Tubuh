@@ -3,7 +3,6 @@
            transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out
            flex flex-col"
     :class="{ 'translate-x-0': isSidebarOpen }"
-    x-data="{ isSidebarOpen: false }"
     @keydown.escape="isSidebarOpen = false">
 
     <!-- Header -->
