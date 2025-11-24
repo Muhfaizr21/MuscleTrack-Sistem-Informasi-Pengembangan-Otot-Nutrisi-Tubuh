@@ -2,7 +2,9 @@
     class="bg-slate-900/80 backdrop-blur-lg border-r border-slate-700/50 w-64 min-h-screen py-8 px-4 fixed top-0 left-0 z-30
            transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out
            flex flex-col"
-    :class="{ 'translate-x-0': isSidebarOpen }">
+    :class="{ 'translate-x-0': isSidebarOpen }"
+    x-data="{ isSidebarOpen: false }"
+    @keydown.escape="isSidebarOpen = false">
 
     <!-- Header -->
     <div class="px-4 mb-8 flex-shrink-0">
@@ -29,6 +31,7 @@
                 <!-- Dashboard -->
                 <li>
                     <a href="{{ route('admin.dashboard') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.dashboard')
                                  ? 'text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg shadow-green-500/20 transform scale-105'
@@ -45,6 +48,7 @@
                 <!-- Manajemen User -->
                 <li>
                     <a href="{{ route('admin.users.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.users.*')
                                  ? 'text-white bg-gradient-to-r from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/20 transform scale-105'
@@ -61,6 +65,7 @@
                 <!-- Member Premium -->
                 <li>
                     <a href="{{ route('admin.trainer-memberships.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.trainer-memberships.*')
                                  ? 'text-white bg-gradient-to-r from-amber-500 to-yellow-600 shadow-lg shadow-amber-500/20 transform scale-105'
@@ -77,6 +82,7 @@
                 <!-- Manajemen Trainer -->
                 <li>
                     <a href="{{ route('admin.trainers.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.trainers.*')
                                  ? 'text-white bg-gradient-to-r from-orange-500 to-amber-600 shadow-lg shadow-orange-500/20 transform scale-105'
@@ -93,6 +99,7 @@
                 <!-- 🏋️ Exercise Library -->
                 <li>
                     <a href="{{ route('admin.exercises.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.exercises.*')
                                  ? 'text-white bg-gradient-to-r from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/20 transform scale-105'
@@ -109,6 +116,7 @@
                 <!-- Program Latihan -->
                 <li>
                     <a href="{{ route('admin.workout-plans.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.workout-plans.*')
                                  ? 'text-white bg-gradient-to-r from-orange-500 to-red-600 shadow-lg shadow-orange-500/20 transform scale-105'
@@ -125,6 +133,7 @@
                 <!-- Program Nutrisi -->
                 <li>
                     <a href="{{ route('admin.nutrition-programs.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.nutrition-programs.*')
                                  ? 'text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 transform scale-105'
@@ -141,6 +150,7 @@
                 <!-- 👥 Community Management -->
                 <li>
                     <a href="{{ route('admin.communities.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.communities.*')
                                  ? 'text-white bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20 transform scale-105'
@@ -157,6 +167,7 @@
                 <!-- Goals -->
                 <li>
                     <a href="{{ route('admin.goals.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.goals.*')
                                  ? 'text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg shadow-violet-500/20 transform scale-105'
@@ -173,6 +184,7 @@
                 <!-- Broadcast -->
                 <li>
                     <a href="{{ route('admin.broadcast.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.broadcast.*')
                                  ? 'text-white bg-gradient-to-r from-pink-500 to-rose-600 shadow-lg shadow-pink-500/20 transform scale-105'
@@ -189,6 +201,7 @@
                 <!-- Pesan Kontak -->
                 <li>
                     <a href="{{ route('admin.contact.index') }}"
+                       @click="isSidebarOpen = false"
                        class="group flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.contact.*')
                                  ? 'text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/20 transform scale-105'
