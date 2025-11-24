@@ -282,4 +282,34 @@ class AdminCommunityController extends Controller
             return redirect()->back()->with('error', 'Gagal melakukan aksi bulk: ' . $e->getMessage());
         }
     }
+    public function suspend(Community $community)
+    {
+        try {
+            $community->update(['is_suspended' => true]);
+
+            return redirect()->back()
+                ->with('success', "Community {$community->name} has been suspended successfully.");
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal men-suspend community: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ▶️ Activate Community
+     */
+    public function activate(Community $community)
+    {
+        try {
+            $community->update(['is_suspended' => false]);
+
+            return redirect()->back()
+                ->with('success', "Community {$community->name} has been activated successfully.");
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengaktifkan community: ' . $e->getMessage());
+        }
+    }
 }

@@ -179,11 +179,14 @@ Route::middleware(['auth', 'role:admin'])
             Route::get('/dashboard', [AdminCommunityController::class, 'dashboard'])->name('dashboard');
             Route::get('/reports', [AdminCommunityController::class, 'reports'])->name('reports');
             Route::get('/statistics', [AdminCommunityController::class, 'statistics'])->name('statistics');
-              Route::get('/{community}', [AdminCommunityController::class, 'show'])->name('show');
             Route::get('/activity', [AdminCommunityController::class, 'activity'])->name('activity');
+            Route::get('/{community}', [AdminCommunityController::class, 'show'])->name('show');
+
+            // Community Management Actions
+            Route::post('/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('suspend');
+            Route::post('/{community}/activate', [AdminCommunityController::class, 'activate'])->name('activate');
             Route::delete('/{community}', [AdminCommunityController::class, 'destroy'])->name('destroy');
             Route::delete('/posts/{post}', [AdminCommunityController::class, 'destroyPost'])->name('posts.destroy');
-
         });
     });
 
