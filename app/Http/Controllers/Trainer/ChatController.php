@@ -15,14 +15,14 @@ use Exception;
 class ChatController extends Controller
 {
     /**
-     * 💬 Tampilkan daftar member dan area chat dengan filter tanggal
+     * 💬 Tampilkan daftar member + chat + filter tanggal
      */
     public function index(Request $request)
     {
         try {
             $trainer = Auth::user();
 
-            // 🔹 Ambil semua member yang terhubung dengan trainer
+            // Ambil semua member yang dimiliki trainer
             $members = User::where('trainer_id', $trainer->id)
                 ->where('role', 'user')
                 ->withCount([
@@ -34,10 +34,11 @@ class ChatController extends Controller
                 ])
                 ->get();
 
-            // 🔹 Tentukan member aktif
+            // Tentukan user aktif
             $user = null;
             if ($request->has('user')) {
                 $user = User::find($request->user);
+
                 if (!$user) {
                     Log::warning('User not found in chat index', [
                         'requested_user_id' => $request->user,
@@ -48,8 +49,7 @@ class ChatController extends Controller
                 $user = $members->first();
             }
 
-            // 🔹 Filter tanggal (opsional)
-            $dateFilter = $request->input('date'); // format: YYYY-MM-DD
+            $dateFilter = $request->input('date');
             $chats = collect();
 
             if ($user) {
@@ -58,10 +58,9 @@ class ChatController extends Controller
 
                 if ($dateFilter) {
                     try {
-                        $parsedDate = Carbon::parse($dateFilter)->toDateString();
-                        $query->whereDate('timestamp', $parsedDate);
+                        $query->whereDate('timestamp', Carbon::parse($dateFilter)->toDateString());
                     } catch (Exception $e) {
-                        Log::error('Invalid date filter in chat index', [
+                        Log::error('Invalid date filter', [
                             'date_filter' => $dateFilter,
                             'error' => $e->getMessage()
                         ]);
@@ -70,44 +69,27 @@ class ChatController extends Controller
 
                 $chats = $query->orderBy('timestamp', 'asc')->get();
 
-                // 🔹 Tandai pesan dari user sebagai sudah dibaca
-                try {
-                    $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
-                        ->where('user_id', $user->id)
-                        ->where('sender_type', 'user')
-                        ->where('read_status', false)
-                        ->update(['read_status' => true]);
+                // Update read_status pada pesan user
+                $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
+                    ->where('user_id', $user->id)
+                    ->where('sender_type', 'user')
+                    ->where('read_status', false)
+                    ->update(['read_status' => true]);
 
-                    Log::info('Messages marked as read in index', [
-                        'trainer_id' => $trainer->id,
-                        'user_id' => $user->id,
-                        'updated_count' => $updatedCount
-                    ]);
-                } catch (Exception $e) {
-                    Log::error('Failed to mark messages as read', [
-                        'trainer_id' => $trainer->id,
-                        'user_id' => $user->id,
-                        'error' => $e->getMessage()
-                    ]);
-                }
-            }
-
-            // 🔹 Daftar tanggal unik (untuk filter dropdown)
-            try {
-                $availableDates = TrainerChat::where('trainer_id', $trainer->id)
-                    ->when($user, fn($q) => $q->where('user_id', $user->id))
-                    ->selectRaw('DATE(timestamp) as date')
-                    ->distinct()
-                    ->orderBy('date', 'desc')
-                    ->pluck('date');
-            } catch (Exception $e) {
-                Log::error('Failed to get available dates for chat', [
+                Log::info('Messages marked as read (index)', [
                     'trainer_id' => $trainer->id,
-                    'user_id' => $user?->id,
-                    'error' => $e->getMessage()
+                    'user_id' => $user->id,
+                    'updated_count' => $updatedCount
                 ]);
-                $availableDates = collect();
             }
+
+            // Daftar tanggal unik
+            $availableDates = TrainerChat::where('trainer_id', $trainer->id)
+                ->when($user, fn($q) => $q->where('user_id', $user->id))
+                ->selectRaw('DATE(timestamp) as date')
+                ->distinct()
+                ->orderBy('date', 'desc')
+                ->pluck('date');
 
             return view('trainer.communication.chat', compact(
                 'trainer',
@@ -121,15 +103,14 @@ class ChatController extends Controller
             Log::error('Error in ChatController@index', [
                 'trainer_id' => Auth::id(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
             ]);
 
-            return back()->with('error', 'Terjadi kesalahan sistem. Silakan coba lagi.');
+            return back()->with('error', 'Terjadi kesalahan sistem.');
         }
     }
 
     /**
-     * 📨 Kirim pesan (real-time)
+     * 📨 Kirim pesan ke user
      */
     public function store(Request $request)
     {
@@ -140,35 +121,31 @@ class ChatController extends Controller
             ]);
 
             $trainer = Auth::user();
-            $user = User::findOrFail($request->user_id);
+            $user    = User::findOrFail($request->user_id);
 
-            // 🔒 Cegah kirim pesan ke user lain - FIX: Gunakan perbandingan string
-            if ((string)$user->trainer_id !== (string)$trainer->id) {
+            // Cegah kirim pesan ke user milik trainer lain
+            if ($user->trainer_id != $trainer->id) {
                 Log::warning('Unauthorized chat attempt', [
                     'trainer_id' => $trainer->id,
-                    'trainer_id_type' => gettype($trainer->id),
-                    'target_user_id' => $user->id,
-                    'target_user_trainer_id' => $user->trainer_id,
-                    'target_user_trainer_id_type' => gettype($user->trainer_id)
+                    'target_user_id' => $user->id
                 ]);
                 return response()->json(['error' => 'Tidak dapat mengirim pesan ke user lain.'], 403);
             }
 
-            // 🔹 Simpan pesan baru
+            // Simpan pesan
             $chat = TrainerChat::create([
-                'trainer_id' => $trainer->id,
-                'user_id' => $user->id,
-                'message' => $request->message,
+                'trainer_id'  => $trainer->id,
+                'user_id'     => $user->id,
+                'message'     => $request->message,
                 'sender_type' => 'trainer',
-                'timestamp' => now(),
+                'timestamp'   => now(),
                 'read_status' => false,
             ]);
 
-            Log::info('Trainer message sent successfully', [
+            Log::info('Trainer message sent', [
                 'trainer_id' => $trainer->id,
                 'user_id' => $user->id,
-                'chat_id' => $chat->id,
-                'message_length' => strlen($request->message)
+                'chat_id' => $chat->id
             ]);
 
             return response()->json([
@@ -178,26 +155,18 @@ class ChatController extends Controller
                 'timestamp' => $chat->timestamp->format('H:i'),
                 'date' => $chat->timestamp->format('Y-m-d'),
             ]);
-        } catch (ModelNotFoundException $e) {
-            Log::error('User not found in chat store', [
-                'requested_user_id' => $request->user_id,
+        } catch (Exception $e) {
+            Log::error('Error sending message', [
                 'trainer_id' => Auth::id(),
                 'error' => $e->getMessage()
             ]);
-            return response()->json(['error' => 'User tidak ditemukan.'], 404);
-        } catch (Exception $e) {
-            Log::error('Error sending message in ChatController@store', [
-                'trainer_id' => Auth::id(),
-                'user_id' => $request->user_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json(['error' => 'Gagal mengirim pesan. Silakan coba lagi.'], 500);
+
+            return response()->json(['error' => 'Gagal mengirim pesan.'], 500);
         }
     }
 
     /**
-     * ✅ Tandai semua pesan dari user sebagai sudah dibaca
+     * ✅ Tandai semua pesan user sebagai sudah dibaca
      */
     public function markAllRead(Request $request)
     {
@@ -207,10 +176,9 @@ class ChatController extends Controller
             ]);
 
             $trainer = Auth::user();
-            $userId = $request->input('user_id');
+            $userId  = (int) $request->input('user_id'); // ensure INT
 
-            // FIX: Gunakan casting string untuk konsistensi
-            $updatedCount = TrainerChat::where('trainer_id', (string)$trainer->id)
+            $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
                 ->where('user_id', $userId)
                 ->where('sender_type', 'user')
                 ->where('read_status', false)
@@ -219,8 +187,7 @@ class ChatController extends Controller
             Log::info('Messages marked as read via API', [
                 'trainer_id' => $trainer->id,
                 'user_id' => $userId,
-                'updated_count' => $updatedCount,
-                'trainer_id_used_in_query' => (string)$trainer->id
+                'updated_count' => $updatedCount
             ]);
 
             return response()->json([
@@ -228,18 +195,17 @@ class ChatController extends Controller
                 'updated_count' => $updatedCount
             ]);
         } catch (Exception $e) {
-            Log::error('Error marking messages as read in ChatController@markAllRead', [
+            Log::error('Error marking messages read', [
                 'trainer_id' => Auth::id(),
-                'user_id' => $request->user_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
-            return response()->json(['error' => 'Gagal menandai pesan sebagai sudah dibaca.'], 500);
+
+            return response()->json(['error' => 'Gagal menandai pesan.'], 500);
         }
     }
 
     /**
-     * 🗑️ Hapus pesan milik trainer
+     * 🗑 Hapus pesan milik trainer
      */
     public function destroy($id)
     {
@@ -247,42 +213,26 @@ class ChatController extends Controller
             $trainer = Auth::user();
             $chat = TrainerChat::findOrFail($id);
 
-            // FIX: Gunakan casting string untuk konsistensi
-            if ((string)$chat->trainer_id !== (string)$trainer->id || $chat->sender_type !== 'trainer') {
-                Log::warning('Unauthorized chat deletion attempt', [
+            if ($chat->trainer_id != $trainer->id || $chat->sender_type !== 'trainer') {
+                Log::warning('Unauthorized deletion attempt', [
                     'trainer_id' => $trainer->id,
-                    'trainer_id_type' => gettype($trainer->id),
-                    'chat_id' => $id,
-                    'chat_trainer_id' => $chat->trainer_id,
-                    'chat_trainer_id_type' => gettype($chat->trainer_id),
-                    'chat_sender_type' => $chat->sender_type
+                    'chat_id' => $id
                 ]);
-                abort(403, 'Anda tidak dapat menghapus pesan milik member.');
+                abort(403, 'Anda tidak dapat menghapus pesan member.');
             }
 
             $chat->delete();
 
-            Log::info('Chat message deleted successfully', [
+            Log::info('Chat deleted', [
                 'trainer_id' => $trainer->id,
                 'chat_id' => $id
             ]);
 
             return response()->json(['success' => true]);
         } catch (ModelNotFoundException $e) {
-            Log::error('Chat message not found for deletion', [
-                'chat_id' => $id,
-                'trainer_id' => Auth::id(),
-                'error' => $e->getMessage()
-            ]);
             return response()->json(['error' => 'Pesan tidak ditemukan.'], 404);
         } catch (Exception $e) {
-            Log::error('Error deleting chat message in ChatController@destroy', [
-                'trainer_id' => Auth::id(),
-                'chat_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json(['error' => 'Gagal menghapus pesan. Silakan coba lagi.'], 500);
+            return response()->json(['error' => 'Gagal menghapus pesan.'], 500);
         }
     }
 }
