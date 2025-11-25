@@ -211,33 +211,65 @@ class ChatController extends Controller
         DB::beginTransaction();
         try {
             $trainer = Auth::user();
+
+            Log::info('Delete Chat Attempt', [
+                'trainer_id' => $trainer->id,
+                'chat_id' => $id,
+            ]);
+
             $chat = TrainerChat::findOrFail($id);
 
-            // hanya pesan dari trainer yg boleh dihapus
+            // Validasi: pesan hanya boleh dihapus jika dikirim trainer
             if ($chat->trainer_id != $trainer->id || $chat->sender_type !== 'trainer') {
-                Log::warning('Unauthorized deletion attempt', [
+
+                Log::warning('Unauthorized delete attempt', [
                     'trainer_id' => $trainer->id,
                     'chat_id' => $id,
-                    'chat_sender_type' => $chat->sender_type
+                    'chat_trainer_id' => $chat->trainer_id,
+                    'sender_type' => $chat->sender_type
                 ]);
+
                 return response()->json(['error' => 'Anda tidak dapat menghapus pesan member.'], 403);
             }
 
-            $chat->delete();
+            // Log sebelum dihapus
+            Log::info('Deleting chat...', [
+                'chat_id' => $chat->id,
+                'message' => $chat->message,
+                'timestamp' => $chat->timestamp,
+                'sender_type' => $chat->sender_type,
+            ]);
 
+            $chat->delete();
             DB::commit();
+
+            Log::info('Chat deleted successfully', [
+                'chat_id' => $id,
+                'trainer_id' => $trainer->id
+            ]);
 
             return response()->json(['success' => true]);
         } catch (ModelNotFoundException $e) {
+
             DB::rollBack();
+
+            Log::error('Chat not found while deleting', [
+                'chat_id' => $id,
+                'trainer_id' => Auth::id(),
+            ]);
+
             return response()->json(['error' => 'Pesan tidak ditemukan.'], 404);
         } catch (Exception $e) {
+
             DB::rollBack();
+
             Log::error('Error deleting chat message', [
                 'trainer_id' => Auth::id(),
                 'chat_id' => $id,
-                'error' => $e->getMessage()
+                'error_message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
+
             return response()->json(['error' => 'Gagal menghapus pesan.'], 500);
         }
     }
