@@ -22,7 +22,7 @@ class ChatController extends Controller
         try {
             $trainer = Auth::user();
 
-            // Ambil semua member yang dimiliki trainer
+            // Ambil semua member yang dimiliki trainer + unread count (pesan dari user)
             $members = User::where('trainer_id', $trainer->id)
                 ->where('role', 'user')
                 ->withCount([
@@ -34,11 +34,10 @@ class ChatController extends Controller
                 ])
                 ->get();
 
-            // Tentukan user aktif
+            // tentukan user aktif
             $user = null;
-            if ($request->has('user')) {
+            if ($request->filled('user')) {
                 $user = User::find($request->user);
-
                 if (!$user) {
                     Log::warning('User not found in chat index', [
                         'requested_user_id' => $request->user,
@@ -69,7 +68,7 @@ class ChatController extends Controller
 
                 $chats = $query->orderBy('timestamp', 'asc')->get();
 
-                // Update read_status pada pesan user
+                // Tandai pesan dari USER sebagai sudah dibaca (hanya pesan user->trainer)
                 $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
                     ->where('user_id', $user->id)
                     ->where('sender_type', 'user')
@@ -83,7 +82,7 @@ class ChatController extends Controller
                 ]);
             }
 
-            // Daftar tanggal unik
+            // daftar tanggal unik
             $availableDates = TrainerChat::where('trainer_id', $trainer->id)
                 ->when($user, fn($q) => $q->where('user_id', $user->id))
                 ->selectRaw('DATE(timestamp) as date')
@@ -155,6 +154,13 @@ class ChatController extends Controller
                 'timestamp' => $chat->timestamp->format('H:i'),
                 'date' => $chat->timestamp->format('Y-m-d'),
             ]);
+        } catch (ModelNotFoundException $e) {
+            Log::error('User not found in chat store', [
+                'requested_user_id' => $request->user_id,
+                'trainer_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+            return response()->json(['error' => 'User tidak ditemukan.'], 404);
         } catch (Exception $e) {
             Log::error('Error sending message', [
                 'trainer_id' => Auth::id(),
@@ -166,7 +172,7 @@ class ChatController extends Controller
     }
 
     /**
-     * ✅ Tandai semua pesan user sebagai sudah dibaca
+     * ✅ Tandai semua pesan user sebagai sudah dibaca (API)
      */
     public function markAllRead(Request $request)
     {
