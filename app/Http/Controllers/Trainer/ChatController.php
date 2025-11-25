@@ -23,7 +23,6 @@ class ChatController extends Controller
         try {
             $trainer = Auth::user();
 
-            // Ambil semua member yang dimiliki trainer + unread count (pesan dari user)
             $members = User::where('trainer_id', $trainer->id)
                 ->where('role', 'user')
                 ->withCount([
@@ -35,23 +34,16 @@ class ChatController extends Controller
                 ])
                 ->get();
 
-            // Tentukan user aktif
             $user = null;
+
+            // Tentukan member aktif
             if ($request->filled('user')) {
                 $user = User::where('id', $request->user)
                     ->where('trainer_id', $trainer->id)
                     ->first();
-
-                if (!$user) {
-                    Log::warning('User not found or unauthorized in chat index', [
-                        'requested_user_id' => $request->user,
-                        'trainer_id' => $trainer->id
-                    ]);
-                }
             } elseif ($members->count() === 1) {
                 $user = $members->first();
-            } elseif ($members->count() > 0 && !$request->has('user')) {
-                // Default ke member pertama jika ada multiple members
+            } elseif ($members->count() > 0) {
                 $user = $members->first();
             }
 
@@ -75,20 +67,14 @@ class ChatController extends Controller
 
                 $chats = $query->orderBy('timestamp', 'asc')->get();
 
-                // DEBUG: Cek pesan yang belum dibaca sebelum update
+                // Cek unread
                 $unreadBefore = TrainerChat::where('trainer_id', $trainer->id)
                     ->where('user_id', $user->id)
                     ->where('sender_type', 'user')
                     ->where('read_status', false)
                     ->count();
 
-                Log::info('DEBUG - Unread messages before marking as read', [
-                    'trainer_id' => $trainer->id,
-                    'user_id' => $user->id,
-                    'unread_count' => $unreadBefore
-                ]);
-
-                // Tandai pesan dari USER sebagai sudah dibaca (hanya pesan user->trainer)
+                // Update read only jika ada unread
                 if ($unreadBefore > 0) {
                     $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
                         ->where('user_id', $user->id)
@@ -99,13 +85,11 @@ class ChatController extends Controller
                     Log::info('Messages marked as read (index)', [
                         'trainer_id' => $trainer->id,
                         'user_id' => $user->id,
-                        'updated_count' => $updatedCount,
-                        'unread_before' => $unreadBefore
+                        'updated_count' => $updatedCount
                     ]);
                 }
             }
 
-            // Daftar tanggal unik
             $availableDates = TrainerChat::where('trainer_id', $trainer->id)
                 ->when($user, fn($q) => $q->where('user_id', $user->id))
                 ->selectRaw('DATE(timestamp) as date')
@@ -146,31 +130,17 @@ class ChatController extends Controller
             $trainer = Auth::user();
             $user = User::findOrFail($request->user_id);
 
-            // Cegah kirim pesan ke user milik trainer lain
             if ($user->trainer_id != $trainer->id) {
-                Log::warning('Unauthorized chat attempt', [
-                    'trainer_id' => $trainer->id,
-                    'target_user_id' => $user->id,
-                    'user_trainer_id' => $user->trainer_id
-                ]);
                 return response()->json(['error' => 'Tidak dapat mengirim pesan ke user lain.'], 403);
             }
 
-            // Simpan pesan
             $chat = TrainerChat::create([
                 'trainer_id'  => $trainer->id,
                 'user_id'     => $user->id,
                 'message'     => trim($request->message),
                 'sender_type' => 'trainer',
                 'timestamp'   => now(),
-                'read_status' => true, // Pesan trainer otomatis terbaca
-            ]);
-
-            Log::info('Trainer message sent', [
-                'trainer_id' => $trainer->id,
-                'user_id' => $user->id,
-                'chat_id' => $chat->id,
-                'message' => substr($request->message, 0, 50) // Log sebagian pesan untuk debug
+                'read_status' => true,
             ]);
 
             DB::commit();
@@ -182,21 +152,11 @@ class ChatController extends Controller
                 'timestamp' => $chat->timestamp->format('H:i'),
                 'date' => $chat->timestamp->format('Y-m-d'),
             ]);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            Log::error('User not found in chat store', [
-                'requested_user_id' => $request->user_id,
-                'trainer_id' => Auth::id(),
-                'error' => $e->getMessage()
-            ]);
-            return response()->json(['error' => 'User tidak ditemukan.'], 404);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error sending message', [
                 'trainer_id' => Auth::id(),
-                'user_id' => $request->user_id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json(['error' => 'Gagal mengirim pesan.'], 500);
@@ -217,64 +177,28 @@ class ChatController extends Controller
             $trainer = Auth::user();
             $userId  = $request->input('user_id');
 
-            // Pastikan user milik trainer ini
             $user = User::where('id', $userId)
                 ->where('trainer_id', $trainer->id)
                 ->first();
 
             if (!$user) {
-                Log::warning('Unauthorized mark as read attempt', [
-                    'trainer_id' => $trainer->id,
-                    'user_id' => $userId
-                ]);
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
-            // DEBUG: Cek pesan yang belum dibaca sebelum update
-            $unreadBefore = TrainerChat::where('trainer_id', $trainer->id)
+            $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
                 ->where('user_id', $userId)
                 ->where('sender_type', 'user')
                 ->where('read_status', false)
-                ->count();
-
-            Log::info('DEBUG - Unread messages before API mark as read', [
-                'trainer_id' => $trainer->id,
-                'user_id' => $userId,
-                'unread_count' => $unreadBefore
-            ]);
-
-            $updatedCount = 0;
-            if ($unreadBefore > 0) {
-                $updatedCount = TrainerChat::where('trainer_id', $trainer->id)
-                    ->where('user_id', $userId)
-                    ->where('sender_type', 'user')
-                    ->where('read_status', false)
-                    ->update(['read_status' => true]);
-            }
-
-            Log::info('Messages marked as read via API', [
-                'trainer_id' => $trainer->id,
-                'user_id' => $userId,
-                'updated_count' => $updatedCount,
-                'unread_before' => $unreadBefore
-            ]);
+                ->update(['read_status' => true]);
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'updated_count' => $updatedCount,
-                'unread_before' => $unreadBefore
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error marking messages read', [
-                'trainer_id' => Auth::id(),
-                'user_id' => $request->user_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json(['error' => 'Gagal menandai pesan.'], 500);
         }
     }
@@ -289,11 +213,11 @@ class ChatController extends Controller
             $trainer = Auth::user();
             $chat = TrainerChat::findOrFail($id);
 
+            // hanya pesan dari trainer yg boleh dihapus
             if ($chat->trainer_id != $trainer->id || $chat->sender_type !== 'trainer') {
                 Log::warning('Unauthorized deletion attempt', [
                     'trainer_id' => $trainer->id,
                     'chat_id' => $id,
-                    'chat_trainer_id' => $chat->trainer_id,
                     'chat_sender_type' => $chat->sender_type
                 ]);
                 return response()->json(['error' => 'Anda tidak dapat menghapus pesan member.'], 403);
@@ -301,20 +225,11 @@ class ChatController extends Controller
 
             $chat->delete();
 
-            Log::info('Chat deleted', [
-                'trainer_id' => $trainer->id,
-                'chat_id' => $id
-            ]);
-
             DB::commit();
 
             return response()->json(['success' => true]);
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
-            Log::error('Chat message not found for deletion', [
-                'chat_id' => $id,
-                'trainer_id' => Auth::id()
-            ]);
             return response()->json(['error' => 'Pesan tidak ditemukan.'], 404);
         } catch (Exception $e) {
             DB::rollBack();
