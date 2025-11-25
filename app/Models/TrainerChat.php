@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 
 class TrainerChat extends Model
 {
@@ -40,6 +39,14 @@ class TrainerChat extends Model
     }
 
     /**
+     * Set timestamp attribute dengan format yang benar
+     */
+    public function setTimestampAttribute($value)
+    {
+        $this->attributes['timestamp'] = $value ? Carbon::parse($value) : now();
+    }
+
+    /**
      * Relasi ke trainer.
      */
     public function trainer()
@@ -66,6 +73,30 @@ class TrainerChat extends Model
     }
 
     /**
+     * Scope: pesan yang belum dibaca
+     */
+    public function scopeUnread(Builder $query): Builder
+    {
+        return $query->where('read_status', false);
+    }
+
+    /**
+     * Scope: pesan dari user
+     */
+    public function scopeFromUser(Builder $query): Builder
+    {
+        return $query->where('sender_type', 'user');
+    }
+
+    /**
+     * Scope: pesan dari trainer
+     */
+    public function scopeFromTrainer(Builder $query): Builder
+    {
+        return $query->where('sender_type', 'trainer');
+    }
+
+    /**
      * Event boot.
      */
     protected static function boot()
@@ -73,30 +104,40 @@ class TrainerChat extends Model
         parent::boot();
 
         static::creating(function ($chat) {
-            if (Auth::check()) {
-                $user = Auth::user();
-                $chat->sender_type = $user->role === 'trainer' ? 'trainer' : 'user';
+            // Set timestamp jika tidak diset
+            if (empty($chat->timestamp)) {
+                $chat->timestamp = now();
+            }
+
+            // Set read_status berdasarkan sender_type
+            if (empty($chat->read_status)) {
+                // Pesan dari trainer otomatis terbaca, pesan dari user belum terbaca
+                $chat->read_status = $chat->sender_type === 'trainer';
             }
         });
     }
 
     /**
-     * Enkripsi pesan sebelum disimpan.
+     * Cek apakah pesan sudah dibaca
      */
-    public function setMessageAttribute($value): void
+    public function isRead(): bool
     {
-        $this->attributes['message'] = Crypt::encryptString($value);
+        return (bool) $this->read_status;
     }
 
     /**
-     * Dekripsi pesan saat diambil.
+     * Tandai pesan sebagai sudah dibaca
      */
-    public function getMessageAttribute($value): string
+    public function markAsRead(): bool
     {
-        try {
-            return Crypt::decryptString($value);
-        } catch (\Exception $e) {
-            return $value;
-        }
+        return $this->update(['read_status' => true]);
+    }
+
+    /**
+     * Tandai pesan sebagai belum dibaca
+     */
+    public function markAsUnread(): bool
+    {
+        return $this->update(['read_status' => false]);
     }
 }
