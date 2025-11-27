@@ -19,6 +19,11 @@ class CommunityPost extends Model
         'comment_count',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // Relationship dengan komunitas
     public function community()
     {
@@ -47,5 +52,11 @@ class CommunityPost extends Model
     public function isLikedBy($userId)
     {
         return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    // Accessor untuk image URL
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? \Storage::url($this->image) : null;
     }
 }

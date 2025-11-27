@@ -290,12 +290,12 @@ Route::middleware(['auth', 'role:trainer'])
 
         // Quality
         Route::prefix('quality')->name('quality.')->group(function () {
-    Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
-    Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback');
-    Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
-    Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
-});
-    });// <- TUTUP GROUP TRAINER YANG TERTINGGAL
+            Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
+            Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback');
+            Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
+            Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
+        });
+    }); // <- TUTUP GROUP TRAINER YANG TERTINGGAL
 
 // ==========================
 // 🧍 USER ROUTES
@@ -407,6 +407,7 @@ Route::middleware(['auth', 'role:user'])
             Route::delete('/{community}', [UserCommunityController::class, 'destroy'])->name('destroy');
 
             // Membership
+            // Di dalam group prefix('communities')
             Route::post('/{community}/join', [UserCommunityController::class, 'join'])->name('join');
             Route::post('/{community}/leave', [UserCommunityController::class, 'leave'])->name('leave');
 
@@ -451,7 +452,7 @@ Route::get('/test-midtrans', function () {
     return [
         'server_key'   => config('midtrans.server_key'),
         'client_key'   => config('midtrans.client_key'),
-        'is_production'=> config('midtrans.is_production'),
+        'is_production' => config('midtrans.is_production'),
         'merchant_id'  => config('midtrans.merchant_id'),
         'all_midtrans_config' => config('midtrans')
     ];
@@ -461,4 +462,4 @@ Route::get('/test-midtrans', function () {
 // ==========================
 // ⚙️ LARAVEL DEFAULT AUTH
 // ==========================
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

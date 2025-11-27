@@ -30,11 +30,10 @@ class UserCommunityController extends Controller
             ->paginate(12);
 
         // Get joined community IDs
-        $joinedCommunities = $user->communityMemberships()->pluck('community_id')->toArray();
+        $joinedCommunities = $user->communityMembers()->pluck('community_id')->toArray();
 
         return view('user.communities.index', compact('communities', 'joinedCommunities'));
     }
-
 
     public function create()
     {
@@ -69,6 +68,11 @@ class UserCommunityController extends Controller
             'joined_at' => now()
         ]);
 
+        // Update member count
+        $community->update([
+            'member_count' => $community->members()->count()
+        ]);
+
         return redirect()->route('user.communities.show', $community)->with('success', 'Community created successfully!');
     }
 
@@ -87,7 +91,7 @@ class UserCommunityController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        $memberCount = $community->members()->count();
+        $memberCount = $community->member_count;
         $isAdmin = $community->members()
             ->where('user_id', $user->id)
             ->where('role', 'admin')

@@ -284,40 +284,29 @@ class User extends Authenticatable
     }
 
     // === 👥 COMMUNITY RELATIONSHIPS ===
+    // app/Models/User.php
 
-    // Relationship dengan komunitas yang diikuti (melalui CommunityMember)
-    public function communityMemberships()
+    // Community relationships
+    public function communityMembers()
     {
         return $this->hasMany(CommunityMember::class);
     }
 
-    // Relationship dengan komunitas yang diikuti (many-to-many)
-    public function communities()
-    {
-        return $this->belongsToMany(Community::class, 'community_members', 'user_id', 'community_id')
-            ->withPivot('role')
-            ->withTimestamps();
-    }
-
-    // Relationship dengan posts yang dibuat
     public function communityPosts()
     {
         return $this->hasMany(CommunityPost::class);
     }
 
-    // Relationship dengan komentar yang dibuat
     public function postComments()
     {
         return $this->hasMany(PostComment::class);
     }
 
-    // Relationship dengan likes pada post
     public function postLikes()
     {
         return $this->hasMany(PostLike::class);
     }
 
-    // Relationship dengan likes pada komentar
     public function commentLikes()
     {
         return $this->hasMany(CommentLike::class);

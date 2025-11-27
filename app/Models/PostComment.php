@@ -17,6 +17,11 @@ class PostComment extends Model
         'like_count',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // Relationship dengan post
     public function post()
     {
@@ -38,7 +43,7 @@ class PostComment extends Model
     // Relationship dengan replies (child comments)
     public function replies()
     {
-        return $this->hasMany(PostComment::class, 'parent_id');
+        return $this->hasMany(PostComment::class, 'parent_id')->orderBy('created_at', 'asc');
     }
 
     // Relationship dengan likes pada komentar
@@ -51,5 +56,11 @@ class PostComment extends Model
     public function isLikedBy($userId)
     {
         return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    // Scope untuk komentar utama (bukan reply)
+    public function scopeMainComments($query)
+    {
+        return $query->whereNull('parent_id');
     }
 }

@@ -295,24 +295,13 @@
                                                 <h3 class="text-xl font-bold text-white mb-2 hover:text-emerald-400 transition-colors">
                                                     {{ $community->name }}
                                                 </h3>
-                                                <div class="flex items-center gap-4 text-sm">
-                                                    <div class="flex items-center gap-2 text-emerald-400">
-                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                                                        </svg>
-                                                        <span class="font-semibold">{{ $community->member_count }}</span>
-                                                        <span class="text-gray-500">members</span>
-                                                    </div>
-                                                    <div class="text-gray-600">•</div>
-                                                    <div class="flex items-center gap-2 text-blue-400">
-                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
-                                                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
-                                                        </svg>
-                                                        <span class="font-semibold">{{ $community->posts_count }}</span>
-                                                        <span class="text-gray-500">posts</span>
-                                                    </div>
-                                                </div>
+                                                <!-- Ganti bagian ini: -->
+<div class="flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    </svg>
+    <span>{{ $community->member_count }} members</span>
+</div>
                                             </div>
 
                                             <!-- Privacy Badge -->

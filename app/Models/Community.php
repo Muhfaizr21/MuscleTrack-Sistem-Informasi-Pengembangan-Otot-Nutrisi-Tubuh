@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\CommunityMember;
+use App\Models\CommunityPost;
 
 class Community extends Model
 {
@@ -21,13 +24,17 @@ class Community extends Model
         'post_count',
     ];
 
+    protected $casts = [
+        'is_public' => 'boolean',
+    ];
+
     // Relationship dengan user yang membuat komunitas
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    // Relationship dengan anggota komunitas (melalui pivot table)
+    // Relationship dengan anggota komunitas
     public function members()
     {
         return $this->hasMany(CommunityMember::class);
@@ -37,14 +44,6 @@ class Community extends Model
     public function posts()
     {
         return $this->hasMany(CommunityPost::class);
-    }
-
-    // Relationship many-to-many dengan users
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'community_members', 'community_id', 'user_id')
-            ->withPivot('role')
-            ->withTimestamps();
     }
 
     // Helper untuk mengecek apakah user adalah anggota
