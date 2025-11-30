@@ -315,34 +315,6 @@ class User extends Authenticatable
         return $this->hasMany(WorkoutSchedule::class);
     }
 
-    // === 👥 COMMUNITY RELATIONSHIPS ===
-    // app/Models/User.php
-
-    // Community relationships
-    public function communityMembers()
-    {
-        return $this->hasMany(CommunityMember::class);
-    }
-
-    public function communityPosts()
-    {
-        return $this->hasMany(CommunityPost::class);
-    }
-
-    public function postComments()
-    {
-        return $this->hasMany(PostComment::class);
-    }
-
-    public function postLikes()
-    {
-        return $this->hasMany(PostLike::class);
-    }
-
-    public function commentLikes()
-    {
-        return $this->hasMany(CommentLike::class);
-    }
 
     /**
      * Accessor untuk cek apakah user aktif sebagai member trainer tertentu

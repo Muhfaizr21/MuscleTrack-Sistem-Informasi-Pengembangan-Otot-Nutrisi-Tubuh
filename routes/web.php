@@ -422,50 +422,8 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
 
-        // ==========================
-        // 👥 COMMUNITY ROUTES
-        // ==========================
-        Route::prefix('communities')->name('communities.')->group(function () {
-            // Community Management
-            Route::get('/', [UserCommunityController::class, 'index'])->name('index');
-            Route::get('/create', [UserCommunityController::class, 'create'])->name('create');
-            Route::post('/', [UserCommunityController::class, 'store'])->name('store');
-            Route::get('/{community}', [UserCommunityController::class, 'show'])->name('show');
-            Route::get('/{community}/edit', [UserCommunityController::class, 'edit'])->name('edit');
-            Route::put('/{community}', [UserCommunityController::class, 'update'])->name('update');
-            Route::delete('/{community}', [UserCommunityController::class, 'destroy'])->name('destroy');
-
-            // Membership
-            Route::post('/{community}/join', [UserCommunityController::class, 'join'])->name('join');
-            Route::post('/{community}/leave', [UserCommunityController::class, 'leave'])->name('leave');
-
-            // Posts
-            Route::post('/{community}/posts', [UserCommunityPostController::class, 'store'])->name('posts.store');
-            Route::put('/posts/{post}', [UserCommunityPostController::class, 'update'])->name('posts.update');
-            Route::delete('/posts/{post}', [UserCommunityPostController::class, 'destroy'])->name('posts.destroy');
-
-            // Comments
-            Route::post('/posts/{post}/comments', [UserCommunityCommentController::class, 'store'])->name('posts.comments.store');
-            Route::put('/comments/{comment}', [UserCommunityCommentController::class, 'update'])->name('posts.comments.update');
-            Route::delete('/comments/{comment}', [UserCommunityCommentController::class, 'destroy'])->name('posts.comments.destroy');
-
-            // Likes
-            Route::post('/posts/{post}/like', [UserCommunityLikeController::class, 'store'])->name('posts.like');
-            Route::post('/comments/{comment}/like', [UserCommunityLikeController::class, 'commentLike'])->name('comments.like');
-        });
     });
 
-// ==========================
-// 🐛 DEBUG ROUTES
-// ==========================
-Route::get('/debug/communities/{community}', function ($community) {
-    $community = \App\Models\Community::find($community);
-    return [
-        'community' => $community,
-        'posts' => $community->posts()->with('likes', 'comments')->get(),
-        'members' => $community->members,
-    ];
-});
 
 // ==========================
 // ⚙️ LARAVEL DEFAULT AUTH
