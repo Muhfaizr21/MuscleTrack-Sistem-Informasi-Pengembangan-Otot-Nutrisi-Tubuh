@@ -4,6 +4,7 @@
 
 @section('styles')
 <style>
+    /* Base Styles */
     .community-header {
         background: rgba(17, 25, 21, 0.8);
         backdrop-filter: blur(15px) saturate(180%);
@@ -25,18 +26,18 @@
     }
 
     .community-avatar {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         border: 6px solid rgba(17, 25, 21, 0.95);
         background: rgba(17, 25, 21, 0.95);
         border-radius: 20px;
         position: absolute;
-        top: -50px;
-        left: 2rem;
+        top: -40px;
+        left: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 40px;
+        font-size: 32px;
         font-weight: bold;
         color: #00ffcc;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -140,13 +141,13 @@
     }
 
     .replies-section {
-        margin-left: 2rem;
+        margin-left: 1rem;
         margin-top: 0.75rem;
         padding-left: 1rem;
         border-left: 2px solid rgba(0, 255, 170, 0.2);
     }
 
-    /* New Styles for Form Improvements */
+    /* Form Styles */
     .form-input {
         background: rgba(10, 15, 13, 0.8);
         border: 1px solid rgba(0, 255, 170, 0.3);
@@ -215,7 +216,7 @@
     }
 
     .image-preview {
-        max-width: 300px;
+        max-width: 100%;
         max-height: 200px;
         border-radius: 8px;
         object-fit: cover;
@@ -296,11 +297,121 @@
     .role-admin { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
     .role-moderator { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
     .role-member { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 640px) {
+        .community-header {
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .community-cover {
+            height: 150px;
+        }
+        
+        .community-info {
+            padding: 1.5rem 1rem;
+        }
+        
+        .community-avatar {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 1rem;
+            font-size: 24px;
+            border-width: 4px;
+        }
+        
+        .post-card {
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .create-post-card {
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .btn-admin, .btn-back {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+        
+        .admin-controls {
+            gap: 8px;
+        }
+        
+        .replies-section {
+            margin-left: 0.5rem;
+            padding-left: 0.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .community-cover {
+            height: 120px;
+        }
+        
+        .community-info {
+            padding: 1.25rem 0.75rem;
+        }
+        
+        .community-avatar {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 0.75rem;
+            font-size: 20px;
+        }
+        
+        .post-card {
+            padding: 0.75rem;
+        }
+        
+        .create-post-card {
+            padding: 0.75rem;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+        
+        .form-input, .form-select {
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+        
+        .image-upload-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+
+    /* Tablet Styles */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .community-avatar {
+            width: 90px;
+            height: 90px;
+            top: -45px;
+            font-size: 36px;
+        }
+    }
+
+    /* Desktop Styles */
+    @media (min-width: 1025px) {
+        .community-avatar {
+            width: 100px;
+            height: 100px;
+            top: -50px;
+            font-size: 40px;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Back Button and Admin Controls -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <!-- Back Button -->
@@ -308,7 +419,8 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
-            Back to Communities
+            <span class="hidden sm:inline">Back to Communities</span>
+            <span class="sm:hidden">Back</span>
         </a>
 
         <!-- Admin Controls -->
@@ -319,14 +431,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
-                Edit Community
+                <span class="hidden sm:inline">Edit Community</span>
+                <span class="sm:hidden">Edit</span>
             </a>
             <a href="{{ route('user.communities.members', $community->slug) }}" class="btn-admin">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
-                Manage Members
+                <span class="hidden sm:inline">Manage Members</span>
+                <span class="sm:hidden">Members</span>
             </a>
         </div>
         @endif
@@ -351,26 +465,26 @@
                 @endif
             </div>
 
-            <div class="ml-32">
-                <div class="flex items-start justify-between mb-4">
+            <div class="ml-0 sm:ml-32">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h1 class="text-3xl font-bold text-white">{{ $community->name }}</h1>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ $community->name }}</h1>
                             @if($isMember && $userRole)
-                            <span class="role-badge role-{{ $userRole }}">
+                            <span class="role-badge role-{{ $userRole }} self-start sm:self-auto">
                                 {{ $userRole }}
                             </span>
                             @endif
                         </div>
-                        <p class="text-gray-400">{{ $community->description }}</p>
+                        <p class="text-gray-400 text-sm sm:text-base">{{ $community->description }}</p>
                     </div>
                     
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-end sm:justify-start">
                         @if($isMember)
                         <form action="{{ route('user.communities.leave', $community->slug) }}" method="POST">
                             @csrf
                             <button type="submit" 
-                                    class="action-btn bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30"
+                                    class="action-btn bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30 text-xs sm:text-sm"
                                     onclick="return confirm('Are you sure you want to leave this community?')">
                                 Leave
                             </button>
@@ -378,7 +492,7 @@
                         @else
                         <form action="{{ route('user.communities.join', $community->slug) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn-premium px-4 py-2 text-sm">
+                            <button type="submit" class="btn-premium px-4 py-2 text-xs sm:text-sm">
                                 Join Community
                             </button>
                         </form>
@@ -386,23 +500,23 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-6 text-sm">
+                <div class="flex flex-wrap items-center gap-4 text-sm">
                     <div class="flex items-center gap-2 text-gray-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         {{ $community->member_count }} members
                     </div>
                     <div class="flex items-center gap-2 text-gray-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                   d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                         </svg>
                         {{ $community->post_count }} posts
                     </div>
                     <div class="flex items-center gap-2 text-gray-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
@@ -432,8 +546,8 @@
             </div>
             
             <!-- Post Type and Image Upload -->
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                     <!-- Post Type Select -->
                     <select name="type" class="form-select">
                         <option value="discussion">💬 Discussion</option>
@@ -450,12 +564,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
-                        Add Image
+                        <span>Add Image</span>
                     </label>
                 </div>
                 
                 <!-- Submit Button -->
-                <button type="submit" class="btn-premium px-6 py-2 text-sm font-semibold">
+                <button type="submit" class="btn-premium px-6 py-2 text-sm font-semibold self-start sm:self-auto">
                     Post
                 </button>
             </div>
@@ -482,7 +596,7 @@
             @foreach($posts as $post)
             <div class="post-card">
                 <!-- Post Header -->
-                <div class="flex items-start justify-between mb-3">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-emerald-neon to-emerald-deep rounded-xl flex items-center justify-center text-white font-bold text-sm">
                             {{ strtoupper(substr($post->user->name, 0, 1)) }}
@@ -492,7 +606,7 @@
                             <p class="text-gray-400 text-sm">{{ $post->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
-                    <span class="post-type-badge post-type-{{ $post->type }}">
+                    <span class="post-type-badge post-type-{{ $post->type }} self-start sm:self-auto">
                         {{ $post->type }}
                     </span>
                 </div>
@@ -504,7 +618,7 @@
                     @if($post->image)
                     <div class="mt-3">
                         <img src="{{ $post->image_url }}" alt="Post image" 
-                             class="rounded-xl max-w-md max-h-96 object-cover border border-emerald-500/20">
+                             class="rounded-xl w-full max-w-md max-h-96 object-cover border border-emerald-500/20">
                     </div>
                     @endif
                 </div>

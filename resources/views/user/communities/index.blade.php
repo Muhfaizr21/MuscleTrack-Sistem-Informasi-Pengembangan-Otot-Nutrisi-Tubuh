@@ -4,6 +4,7 @@
 
 @section('styles')
     <style>
+        /* Base Styles */
         .community-card {
             background: rgba(17, 25, 21, 0.8);
             backdrop-filter: blur(15px) saturate(180%);
@@ -30,7 +31,23 @@
             overflow: hidden;
         }
 
-        
+        .community-avatar {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(17, 25, 21, 0.95);
+            background: rgba(17, 25, 21, 0.95);
+            border-radius: 16px;
+            position: absolute;
+            top: -30px;
+            left: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ffcc;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
         .community-content {
             padding: 1.5rem;
@@ -171,7 +188,7 @@
             overflow: hidden;
         }
 
-        /* Responsive improvements */
+        /* Mobile Responsive Styles */
         @media (max-width: 640px) {
             .community-content {
                 padding: 1rem;
@@ -181,60 +198,175 @@
             .community-cover {
                 height: 100px;
             }
+
+            .community-avatar {
+                width: 50px;
+                height: 50px;
+                top: -25px;
+                left: 1rem;
+                font-size: 20px;
+                border-width: 3px;
+            }
+
+            .create-community-card {
+                min-height: 250px;
+                padding: 1.5rem;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .action-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .stats-item {
+                font-size: 11px;
+            }
+
+            .empty-state {
+                padding: 2rem 1rem;
+            }
+
+            .empty-state-icon {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .community-avatar {
+                width: 70px;
+                height: 70px;
+                top: -35px;
+                font-size: 28px;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1025px) {
+            .community-avatar {
+                width: 80px;
+                height: 80px;
+                top: -40px;
+                font-size: 32px;
+            }
+        }
+
+        /* Small Mobile Styles */
+        @media (max-width: 480px) {
+            .community-content {
+                padding: 0.75rem;
+                padding-top: 2.25rem;
+            }
+
+            .community-cover {
+                height: 80px;
+            }
+
+            .community-avatar {
+                width: 45px;
+                height: 45px;
+                top: -22px;
+                left: 0.75rem;
+                font-size: 18px;
+            }
+
+            .create-community-card {
+                min-height: 200px;
+                padding: 1rem;
+            }
+
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .action-btn {
+                padding: 5px 10px;
+                font-size: 10px;
+            }
+        }
+
+        /* Grid Responsiveness */
+        @media (max-width: 480px) {
+            .grid {
+                gap: 0.75rem;
+            }
+        }
+
+        /* Header Responsiveness */
+        @media (max-width: 640px) {
+            .glass-card {
+                padding: 1.5rem !important;
+            }
+
+            .glass-card h1 {
+                font-size: 1.75rem !important;
+            }
+
+            .glass-card p {
+                font-size: 0.875rem !important;
+            }
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
         <!-- Header Section -->
-        <div class="glass-card rounded-2xl p-6 sm:p-8 mb-8">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="glass-card rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
                 <div class="flex-1">
-                    <h1 class="text-3xl sm:text-4xl font-bold text-white mb-3">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3">
                         Fitness Communities
                     </h1>
-                    <p class="text-gray-400 text-base sm:text-lg max-w-2xl">
+                    <p class="text-gray-400 text-sm sm:text-base lg:text-lg max-w-2xl">
                         Join communities, share your progress, and connect with fellow fitness enthusiasts.
                         Build your network and achieve your fitness goals together.
                     </p>
                 </div>
                 <a href="{{ route('user.communities.create') }}"
-                    class="btn-premium px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap self-start lg:self-auto">
+                    class="btn-premium px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap self-start lg:self-auto mt-2 lg:mt-0">
                     + Create Community
                 </a>
             </div>
         </div>
 
         <!-- Tabs Navigation -->
-        <div class="flex space-x-2 mb-8 overflow-x-auto pb-2">
-            <button class="tab-btn whitespace-nowrap active" data-tab="all">
+        <div class="flex space-x-1 sm:space-x-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-hide">
+            <button class="tab-btn whitespace-nowrap text-xs sm:text-sm active" data-tab="all">
                 All Communities
             </button>
-            <button class="tab-btn whitespace-nowrap" data-tab="joined">
+            <button class="tab-btn whitespace-nowrap text-xs sm:text-sm" data-tab="joined">
                 My Communities
             </button>
-            <button class="tab-btn whitespace-nowrap" data-tab="public">
+            <button class="tab-btn whitespace-nowrap text-xs sm:text-sm" data-tab="public">
                 Public Communities
             </button>
         </div>
 
         <!-- Communities Grid -->
-        <div class="space-y-8">
+        <div class="space-y-6 sm:space-y-8">
             <!-- All Communities Tab -->
             <div id="tab-all" class="tab-content">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     <!-- Create Community Card -->
                     <a href="{{ route('user.communities.create') }}" class="create-community-card">
                         <div
-                            class="w-16 h-16 bg-gradient-to-br from-emerald-neon to-emerald-deep rounded-2xl flex items-center justify-center mb-4">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-neon to-emerald-deep rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
+                            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
                                 </path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white text-center">Create Community</h3>
-                        <p class="text-gray-400 text-center text-sm">Start your own fitness community</p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white text-center">Create Community</h3>
+                        <p class="text-gray-400 text-center text-xs sm:text-sm">Start your own fitness community</p>
                     </a>
 
                     <!-- Community Cards -->
@@ -250,11 +382,21 @@
                                 @endif
                             </div>
 
+                            <!-- Community Avatar -->
+                            <div class="community-avatar">
+                                @if($community->image)
+                                    <img src="{{ $community->image_url }}" alt="{{ $community->name }}"
+                                        class="w-full h-full object-cover rounded-xl">
+                                @else
+                                    {{ strtoupper(substr($community->name, 0, 1)) }}
+                                @endif
+                            </div>
 
                             <!-- Community Info -->
                             <div class="community-content">
-                                <div class="flex items-start justify-between mb-3">
-                                    <h3 class="font-bold text-white text-lg truncate" title="{{ $community->name }}">
+                                <div class="flex items-start justify-between mb-2 sm:mb-3">
+                                    <h3 class="font-bold text-white text-base sm:text-lg truncate"
+                                        title="{{ $community->name }}">
                                         {{ $community->name }}
                                     </h3>
                                     @if($community->is_public)
@@ -270,15 +412,16 @@
                                     @endif
                                 </div>
 
-                                <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                                <p class="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-1">
                                     {{ $community->description }}
                                 </p>
 
                                 <!-- Stats -->
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center gap-4">
+                                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                    <div class="flex items-center gap-2 sm:gap-4">
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                                 </path>
@@ -286,7 +429,8 @@
                                             {{ $community->members_count }}
                                         </div>
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
                                                 </path>
@@ -298,11 +442,12 @@
 
                                 <!-- Action Buttons -->
                                 <div class="flex items-center justify-between mt-auto">
-                                    <span class="text-xs text-gray-500 truncate" title="by {{ $community->creator->name }}">
-                                        by {{ \Illuminate\Support\Str::limit($community->creator->name, 15) }}
+                                    <span class="text-xs text-gray-500 truncate flex-1 mr-2"
+                                        title="by {{ $community->creator->name }}">
+                                        by {{ \Illuminate\Support\Str::limit($community->creator->name, 12) }}
                                     </span>
 
-                                    <div class="flex space-x-2">
+                                    <div class="flex space-x-1 sm:space-x-2 flex-shrink-0">
                                         @if(in_array($community->id, $joinedCommunities->toArray()))
                                             <a href="{{ route('user.communities.show', $community->slug) }}"
                                                 class="action-btn btn-show">
@@ -331,7 +476,7 @@
 
             <!-- Joined Communities Tab -->
             <div id="tab-joined" class="tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     @php
                         $joinedCommunitiesList = $communities->filter(function ($community) use ($joinedCommunities) {
                             return in_array($community->id, $joinedCommunities->toArray());
@@ -361,21 +506,22 @@
 
                                 <!-- Community Info -->
                                 <div class="community-content">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <h3 class="font-bold text-white text-lg truncate">{{ $community->name }}</h3>
+                                    <div class="flex items-start justify-between mb-2 sm:mb-3">
+                                        <h3 class="font-bold text-white text-base sm:text-lg truncate">{{ $community->name }}</h3>
                                         <span class="joined-badge text-xs">
                                             Joined
                                         </span>
                                     </div>
 
-                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                                    <p class="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-1">
                                         {{ $community->description }}
                                     </p>
 
                                     <!-- Stats -->
-                                    <div class="flex items-center gap-4 mb-4">
+                                    <div class="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                                 </path>
@@ -383,7 +529,8 @@
                                             {{ $community->members_count }}
                                         </div>
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
                                                 </path>
@@ -395,7 +542,7 @@
                                     <!-- Action Button -->
                                     <div class="mt-auto">
                                         <a href="{{ route('user.communities.show', $community->slug) }}"
-                                            class="action-btn btn-show w-full text-center">
+                                            class="action-btn btn-show w-full text-center block">
                                             Enter Community
                                         </a>
                                     </div>
@@ -406,15 +553,17 @@
                         <div class="col-span-full">
                             <div class="empty-state">
                                 <div class="empty-state-icon">
-                                    <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
                                         </path>
                                     </svg>
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-400 mb-2">No Communities Joined</h3>
-                                <p class="text-gray-500 mb-4">You haven't joined any communities yet.</p>
-                                <a href="#tab-all" class="tab-btn active" data-tab="all">
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-400 mb-2">No Communities Joined</h3>
+                                <p class="text-gray-500 text-sm sm:text-base mb-3 sm:mb-4">You haven't joined any communities
+                                    yet.</p>
+                                <a href="#tab-all" class="tab-btn active text-xs sm:text-sm" data-tab="all">
                                     Explore Communities
                                 </a>
                             </div>
@@ -425,7 +574,7 @@
 
             <!-- Public Communities Tab -->
             <div id="tab-public" class="tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     @php
                         $publicCommunities = $communities->where('is_public', true);
                     @endphp
@@ -453,21 +602,22 @@
 
                                 <!-- Community Info -->
                                 <div class="community-content">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <h3 class="font-bold text-white text-lg truncate">{{ $community->name }}</h3>
+                                    <div class="flex items-start justify-between mb-2 sm:mb-3">
+                                        <h3 class="font-bold text-white text-base sm:text-lg truncate">{{ $community->name }}</h3>
                                         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
                                             Public
                                         </span>
                                     </div>
 
-                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-1">
+                                    <p class="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 flex-1">
                                         {{ $community->description }}
                                     </p>
 
                                     <!-- Stats -->
-                                    <div class="flex items-center gap-4 mb-4">
+                                    <div class="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                                 </path>
@@ -475,7 +625,8 @@
                                             {{ $community->members_count }}
                                         </div>
                                         <div class="stats-item">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
                                                 </path>
@@ -486,11 +637,11 @@
 
                                     <!-- Action Buttons -->
                                     <div class="flex items-center justify-between mt-auto">
-                                        <span class="text-xs text-gray-500">
-                                            by {{ \Illuminate\Support\Str::limit($community->creator->name, 15) }}
+                                        <span class="text-xs text-gray-500 flex-1 mr-2">
+                                            by {{ \Illuminate\Support\Str::limit($community->creator->name, 12) }}
                                         </span>
 
-                                        <div class="flex space-x-2">
+                                        <div class="flex space-x-1 sm:space-x-2 flex-shrink-0">
                                             <a href="{{ route('user.communities.show', $community->slug) }}"
                                                 class="action-btn btn-show">
                                                 Show
@@ -513,14 +664,16 @@
                         <div class="col-span-full">
                             <div class="empty-state">
                                 <div class="empty-state-icon">
-                                    <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
                                         </path>
                                     </svg>
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-400 mb-2">No Public Communities</h3>
-                                <p class="text-gray-500">There are no public communities available at the moment.</p>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-400 mb-2">No Public Communities</h3>
+                                <p class="text-gray-500 text-sm sm:text-base">There are no public communities available at the
+                                    moment.</p>
                             </div>
                         </div>
                     @endif
@@ -530,7 +683,7 @@
 
         <!-- Pagination -->
         @if($communities->hasPages())
-            <div class="mt-8">
+            <div class="mt-6 sm:mt-8">
                 {{ $communities->links() }}
             </div>
         @endif
