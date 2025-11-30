@@ -462,8 +462,144 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
+    // Simple and reliable like functionality
+    document.addEventListener('click', function(e) {
+        // Handle post likes
+        if (e.target.closest('.like-btn')) {
+            e.preventDefault();
+            const button = e.target.closest('.like-btn');
+            const postId = button.dataset.postId;
+            const isLiked = button.dataset.liked === 'true';
+            const likesCount = button.querySelector('.likes-count');
+            
+            console.log('Post Like - ID:', postId, 'Currently liked:', isLiked);
+            
+            // Toggle UI immediately
+            if (isLiked) {
+                button.classList.remove('liked', 'text-red-400');
+                button.classList.add('text-gray-400');
+                button.dataset.liked = 'false';
+                button.querySelector('svg').setAttribute('fill', 'none');
+                likesCount.textContent = parseInt(likesCount.textContent) - 1;
+            } else {
+                button.classList.add('liked', 'text-red-400');
+                button.classList.remove('text-gray-400');
+                button.dataset.liked = 'true';
+                button.querySelector('svg').setAttribute('fill', 'currentColor');
+                likesCount.textContent = parseInt(likesCount.textContent) + 1;
+            }
+            
+            // Send AJAX request
+            fetch(`/user/communities/posts/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Like success:', data);
+                if (data.likes_count !== undefined) {
+                    likesCount.textContent = data.likes_count;
+                }
+            })
+            .catch(error => {
+                console.error('Like error:', error);
+                // Revert on error
+                if (isLiked) {
+                    button.classList.add('liked', 'text-red-400');
+                    button.classList.remove('text-gray-400');
+                    button.dataset.liked = 'true';
+                    button.querySelector('svg').setAttribute('fill', 'currentColor');
+                    likesCount.textContent = parseInt(likesCount.textContent) + 1;
+                } else {
+                    button.classList.remove('liked', 'text-red-400');
+                    button.classList.add('text-gray-400');
+                    button.dataset.liked = 'false';
+                    button.querySelector('svg').setAttribute('fill', 'none');
+                    likesCount.textContent = parseInt(likesCount.textContent) - 1;
+                }
+            });
+        }
+        
+        // Handle comment likes
+        if (e.target.closest('.comment-like-btn')) {
+            e.preventDefault();
+            const button = e.target.closest('.comment-like-btn');
+            const commentId = button.dataset.commentId;
+            const isLiked = button.dataset.liked === 'true';
+            const likesCount = button.querySelector('.comment-likes-count');
+            
+            console.log('Comment Like - ID:', commentId, 'Currently liked:', isLiked);
+            
+            // Toggle UI immediately
+            if (isLiked) {
+                button.classList.remove('text-red-400');
+                button.classList.add('text-gray-400');
+                button.dataset.liked = 'false';
+                button.querySelector('svg').setAttribute('fill', 'none');
+                likesCount.textContent = parseInt(likesCount.textContent) - 1;
+            } else {
+                button.classList.add('text-red-400');
+                button.classList.remove('text-gray-400');
+                button.dataset.liked = 'true';
+                button.querySelector('svg').setAttribute('fill', 'currentColor');
+                likesCount.textContent = parseInt(likesCount.textContent) + 1;
+            }
+            
+            // Send AJAX request
+            fetch(`/user/communities/comments/${commentId}/like`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Comment like success:', data);
+                if (data.likes_count !== undefined) {
+                    likesCount.textContent = data.likes_count;
+                }
+            })
+            .catch(error => {
+                console.error('Comment like error:', error);
+                // Revert on error
+                if (isLiked) {
+                    button.classList.add('text-red-400');
+                    button.classList.remove('text-gray-400');
+                    button.dataset.liked = 'true';
+                    button.querySelector('svg').setAttribute('fill', 'currentColor');
+                    likesCount.textContent = parseInt(likesCount.textContent) + 1;
+                } else {
+                    button.classList.remove('text-red-400');
+                    button.classList.add('text-gray-400');
+                    button.dataset.liked = 'false';
+                    button.querySelector('svg').setAttribute('fill', 'none');
+                    likesCount.textContent = parseInt(likesCount.textContent) - 1;
+                }
+            });
+        }
+        
+        // Handle comment toggle
+        if (e.target.closest('.comment-toggle')) {
+            e.preventDefault();
+            const button = e.target.closest('.comment-toggle');
+            const postId = button.dataset.postId;
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.classList.toggle('hidden');
+        }
+    });
+
     // Image preview functionality
-    document.getElementById('post-image').addEventListener('change', function(e) {
+    document.getElementById('post-image')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -480,12 +616,75 @@
         document.getElementById('image-preview').classList.add('hidden');
     }
 
-    // Like functionality for posts
+    // Edit post functionality
+    function editPost(postId) {
+        const postElement = document.getElementById(`post-${postId}`);
+        const content = postElement.querySelector('p').textContent;
+        const type = postElement.querySelector('.type-badge').textContent.toLowerCase().replace(' ', '_');
+        
+        document.querySelector('#edit-post-form textarea').value = content;
+        document.querySelector('#edit-post-form select').value = type;
+        document.querySelector('#edit-post-form').action = `/user/communities/posts/${postId}`;
+        
+        document.getElementById('edit-post-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('edit-post-modal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('edit-post-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditModal();
+        }
+    });
+
+    // Auto-focus comment input when comments section is opened
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.comment-toggle')) {
+            const postId = e.target.closest('.comment-toggle').dataset.postId;
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            const commentInput = commentsSection?.querySelector('.comment-input');
+            if (commentInput && !commentsSection.classList.contains('hidden')) {
+                setTimeout(() => commentInput.focus(), 100);
+            }
+        }
+    });
+
+    // Debug info
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Community page loaded successfully');
+        console.log('Like buttons:', document.querySelectorAll('.like-btn').length);
+        console.log('Comment like buttons:', document.querySelectorAll('.comment-like-btn').length);
+    });
+</script>
+    // Image preview functionality
+    document.getElementById('post-image')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview-img').src = e.target.result;
+                document.getElementById('image-preview').classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function removeImage() {
+        document.getElementById('post-image').value = '';
+        document.getElementById('image-preview').classList.add('hidden');
+    }
+
+    // Like functionality for posts - FIXED URL & METHOD
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', function() {
             const postId = this.dataset.postId;
             const isLiked = this.dataset.liked === 'true';
             const likesCount = this.querySelector('.likes-count');
+            
+            console.log('Like button clicked - Post ID:', postId, 'Currently liked:', isLiked);
             
             // Toggle UI immediately for better UX
             if (isLiked) {
@@ -502,7 +701,7 @@
                 likesCount.textContent = parseInt(likesCount.textContent) + 1;
             }
             
-            // Send AJAX request
+            // Send AJAX request - FIXED URL (sesuai route list)
             fetch(`/user/communities/posts/${postId}/like`, {
                 method: 'POST',
                 headers: {
@@ -511,15 +710,17 @@
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({})
+                credentials: 'same-origin'
             })
             .then(response => {
+                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
+                console.log('Success response:', data);
                 // Update count from server response
                 if (data.likes_count !== undefined) {
                     likesCount.textContent = data.likes_count;
@@ -541,33 +742,38 @@
                     this.querySelector('svg').setAttribute('fill', 'none');
                     likesCount.textContent = parseInt(likesCount.textContent) - 1;
                 }
+                
+                // Show error message
+                alert('Failed to like post. Please try again.');
             });
         });
     });
 
-    // Like functionality for comments
+    // Like functionality for comments - FIXED URL & METHOD
     document.querySelectorAll('.comment-like-btn').forEach(button => {
         button.addEventListener('click', function() {
             const commentId = this.dataset.commentId;
             const isLiked = this.dataset.liked === 'true';
             const likesCount = this.querySelector('.comment-likes-count');
             
+            console.log('Comment like button clicked - Comment ID:', commentId, 'Currently liked:', isLiked);
+            
             // Toggle UI immediately for better UX
             if (isLiked) {
-                this.classList.remove('liked', 'text-red-400');
+                this.classList.remove('text-red-400');
                 this.classList.add('text-gray-400');
                 this.dataset.liked = 'false';
                 this.querySelector('svg').setAttribute('fill', 'none');
                 likesCount.textContent = parseInt(likesCount.textContent) - 1;
             } else {
-                this.classList.add('liked', 'text-red-400');
+                this.classList.add('text-red-400');
                 this.classList.remove('text-gray-400');
                 this.dataset.liked = 'true';
                 this.querySelector('svg').setAttribute('fill', 'currentColor');
                 likesCount.textContent = parseInt(likesCount.textContent) + 1;
             }
             
-            // Send AJAX request
+            // Send AJAX request - FIXED URL (sesuai route list)
             fetch(`/user/communities/comments/${commentId}/like`, {
                 method: 'POST',
                 headers: {
@@ -576,15 +782,17 @@
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({})
+                credentials: 'same-origin'
             })
             .then(response => {
+                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
+                console.log('Success response:', data);
                 // Update count from server response
                 if (data.likes_count !== undefined) {
                     likesCount.textContent = data.likes_count;
@@ -594,18 +802,21 @@
                 console.error('Error:', error);
                 // Revert UI on error
                 if (isLiked) {
-                    this.classList.add('liked', 'text-red-400');
+                    this.classList.add('text-red-400');
                     this.classList.remove('text-gray-400');
                     this.dataset.liked = 'true';
                     this.querySelector('svg').setAttribute('fill', 'currentColor');
                     likesCount.textContent = parseInt(likesCount.textContent) + 1;
                 } else {
-                    this.classList.remove('liked', 'text-red-400');
+                    this.classList.remove('text-red-400');
                     this.classList.add('text-gray-400');
                     this.dataset.liked = 'false';
                     this.querySelector('svg').setAttribute('fill', 'none');
                     likesCount.textContent = parseInt(likesCount.textContent) - 1;
                 }
+                
+                // Show error message
+                alert('Failed to like comment. Please try again.');
             });
         });
     });
@@ -674,5 +885,11 @@
             postElement.style.animation = 'pulse 2s';
         }
     }
+
+    // Debug: Log semua like buttons saat page load
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Like buttons found:', document.querySelectorAll('.like-btn').length);
+        console.log('Comment like buttons found:', document.querySelectorAll('.comment-like-btn').length);
+    });
 </script>
 @endpush

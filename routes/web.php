@@ -73,6 +73,7 @@ use App\Http\Controllers\User\{
     UserCommunityCommentController,
     UserCommunityLikeController
 };
+use Google\Service\ServiceControl\Auth;
 
 /*
 |----------------------------------------------------------------------
@@ -81,39 +82,42 @@ use App\Http\Controllers\User\{
 */
 
 // ==========================
-// 🏠 HALAMAN UTAMA
+// 🏠 HALAMAN UTAMA & PUBLIC ROUTES
 // ==========================
 Route::get('/', fn() => view('welcome'))->name('home');
 
+// Public Articles
+Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
+Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
+
+Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
+
+// Contact
+Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
 
 // ==========================
-// 🏠 GOOGLE OAUTH ROUTES (FINAL)
+// 🔐 AUTHENTICATION ROUTES
 // ==========================
+
+// Google OAuth
 Route::controller(GoogleController::class)->group(function () {
-
-    // LOGIN GOOGLE
     Route::get('auth/google', 'redirectToGoogle')->name('login.google');
     Route::get('auth/google/callback', 'handleGoogleCallback');
-
-    // REGISTER VIA GOOGLE (FIXED)
     Route::get('/register/google', 'redirectToGoogle')->name('register.google');
-
-    // COMPLETE REGISTRATION FORM
     Route::get('register/google/complete', 'showCompleteRegistrationForm')->name('register.google.complete');
     Route::post('register/google/complete', 'completeRegistration')->name('register.google.complete.store');
 });
 
-
-// ==========================
-// 🔐 AUTH (LOGIN, LOGOUT, FORGOT PASSWORD)
-// ==========================
+// Traditional Auth
 Route::controller(AuthenticatedSessionController::class)->group(function () {
     Route::get('/login', 'create')->name('login');
     Route::post('/login', 'store');
     Route::post('/logout', 'destroy')->name('logout');
 });
 
-// Forgot Password
+// Password Reset
 Route::middleware('guest')->group(function () {
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
@@ -121,6 +125,23 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
+// ==========================
+// 💳 PAYMENT ROUTES
+// ==========================
+Route::middleware('auth')->group(function () {
+    Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
+});
+
+// Payment Debug
+Route::get('/test-midtrans', function () {
+    return [
+        'server_key'   => config('midtrans.server_key'),
+        'client_key'   => config('midtrans.client_key'),
+        'is_production' => config('midtrans.is_production'),
+        'merchant_id'  => config('midtrans.merchant_id'),
+        'all_midtrans_config' => config('midtrans')
+    ];
+});
 
 // ==========================
 // 🧑‍💼 ADMIN ROUTES
@@ -130,25 +151,25 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
+        // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // Exercises
-        Route::resource('exercises', ExerciseController::class);
-
-        // Other CRUD Resources
+        // CRUD Resources
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
+            'exercises' => ExerciseController::class,
             'nutrition-programs' => NutritionProgramController::class,
             'goals' => GoalController::class,
             'workout-plans' => WorkoutPlanController::class,
             'body-metrics' => BodyMetricController::class,
         ]);
 
+        // Trainer Memberships
         Route::resource('trainer-memberships', TrainerMemberController::class)
             ->except(['show', 'edit', 'update']);
 
-        // Notifications Broadcast
+        // Notifications
         Route::get('broadcast', [NotificationBroadcasterController::class, 'index'])->name('broadcast.index');
         Route::post('broadcast', [NotificationBroadcasterController::class, 'store'])->name('broadcast.store');
 
@@ -157,7 +178,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact.show');
         Route::delete('contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact.destroy');
 
-        // Settings, Profile & Support
+        // Settings & Profile
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
@@ -174,6 +195,7 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/{trainer}', [TrainerManagementController::class, 'destroy'])->name('destroy');
         });
 
+        // Communities Management
         Route::prefix('communities')->name('communities.')->group(function () {
             Route::get('/', [AdminCommunityController::class, 'index'])->name('index');
             Route::get('/dashboard', [AdminCommunityController::class, 'dashboard'])->name('dashboard');
@@ -182,14 +204,13 @@ Route::middleware(['auth', 'role:admin'])
             Route::get('/activity', [AdminCommunityController::class, 'activity'])->name('activity');
             Route::get('/{community}', [AdminCommunityController::class, 'show'])->name('show');
 
-            // Community Management Actions
+            // Community Actions
             Route::post('/{community}/suspend', [AdminCommunityController::class, 'suspend'])->name('suspend');
             Route::post('/{community}/activate', [AdminCommunityController::class, 'activate'])->name('activate');
             Route::delete('/{community}', [AdminCommunityController::class, 'destroy'])->name('destroy');
             Route::delete('/posts/{post}', [AdminCommunityController::class, 'destroyPost'])->name('posts.destroy');
         });
     });
-
 
 // ==========================
 // 🧑‍🏫 TRAINER ROUTES
@@ -199,9 +220,10 @@ Route::middleware(['auth', 'role:trainer'])
     ->name('trainer.')
     ->group(function () {
 
+        // Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
 
-        // Members
+        // Members Management
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
             Route::get('/{member}', [MemberController::class, 'show'])->name('show');
@@ -211,7 +233,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/check-status', [MemberController::class, 'checkAllMembersStatus'])->name('check-status');
         });
 
-        // Profile
+        // Profile Management
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [TrainerProfileController::class, 'index'])->name('index');
             Route::get('/edit', [TrainerProfileController::class, 'edit'])->name('edit');
@@ -223,7 +245,7 @@ Route::middleware(['auth', 'role:trainer'])
 
         // Communication
         Route::prefix('communication')->name('communication.')->group(function () {
-            // Chat Routes
+            // Chat
             Route::get('/chat', [TrainerChatController::class, 'index'])->name('chat.index');
             Route::post('/chat', [TrainerChatController::class, 'store'])->name('chat.store');
             Route::delete('/chat/{id}', [TrainerChatController::class, 'destroy'])->name('chat.destroy');
@@ -236,7 +258,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/notifications/{id}', [TrainerNotificationController::class, 'destroy'])->name('notifications.destroy');
         });
 
-        // Programs
+        // Programs Management
         Route::prefix('programs')->name('programs.')->group(function () {
             Route::get('/', [ProgramController::class, 'index'])->name('index');
             Route::get('/create', [ProgramController::class, 'create'])->name('create');
@@ -245,11 +267,14 @@ Route::middleware(['auth', 'role:trainer'])
             Route::get('/{memberId}/edit', [ProgramController::class, 'edit'])->name('edit');
             Route::patch('/{memberId}/update', [ProgramController::class, 'update'])->name('update');
             Route::delete('/{memberId}', [ProgramController::class, 'destroy'])->name('destroy');
+
+            // Progress Tracking
             Route::get('/{memberId}/progress', [ProgramController::class, 'progress'])->name('progress');
             Route::get('/{memberId}/progress/create', [ProgramController::class, 'createProgress'])->name('progress.create');
             Route::post('/{memberId}/progress', [ProgramController::class, 'storeProgress'])->name('progress.store');
+            Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
 
-            // Nutrition Routes
+            // Nutrition Management
             Route::prefix('{memberId}/nutrition')->name('nutrition.')->group(function () {
                 Route::get('/', [NutritionManagementController::class, 'index'])->name('index');
                 Route::get('/create', [NutritionManagementController::class, 'create'])->name('create');
@@ -258,23 +283,22 @@ Route::middleware(['auth', 'role:trainer'])
                 Route::patch('/{planId}', [NutritionManagementController::class, 'update'])->name('update');
                 Route::delete('/{planId}', [NutritionManagementController::class, 'destroy'])->name('destroy');
 
+                // Supplements
                 Route::post('/supplements', [NutritionManagementController::class, 'storeSupplement'])->name('supplement.store');
                 Route::delete('/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
 
+                // Analysis & Recommendations
                 Route::get('/analysis', [NutritionManagementController::class, 'analysis'])->name('analysis');
-
                 Route::post('/{planId}/recommend', [NutritionManagementController::class, 'recommend'])->name('recommend');
                 Route::post('/{planId}/unrecommend', [NutritionManagementController::class, 'unrecommend'])->name('unrecommend');
             });
-
-            Route::post('/{memberId}/progress-note', [ProgramController::class, 'storeProgressNote'])->name('progress.note.store');
 
             // Program Registration
             Route::get('/daftar', [ProgramController::class, 'daftar'])->name('daftar');
             Route::post('/daftar', [ProgramController::class, 'ajukan'])->name('ajukan');
         });
 
-        // ✅ TAMBAHKAN: Nutrition Routes Standar (di LUAR group programs agar tidak butuh memberId)
+        // Standalone Nutrition Routes
         Route::prefix('nutrition')->name('nutrition.')->group(function () {
             Route::get('/dashboard', [NutritionManagementController::class, 'dashboard'])->name('dashboard');
             Route::get('/create/{memberId}', [NutritionManagementController::class, 'create'])->name('create');
@@ -288,14 +312,14 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/{memberId}/supplements/{supplementId}', [NutritionManagementController::class, 'destroySupplement'])->name('supplement.destroy');
         });
 
-        // Quality
+        // Quality & Feedback
         Route::prefix('quality')->name('quality.')->group(function () {
             Route::get('/verification-status', [QualityController::class, 'showVerificationStatus'])->name('verification.status');
             Route::get('/feedback', [QualityController::class, 'feedbackIndex'])->name('feedback');
             Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
             Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
         });
-    }); // <- TUTUP GROUP TRAINER YANG TERTINGGAL
+    });
 
 // ==========================
 // 🧍 USER ROUTES
@@ -305,8 +329,10 @@ Route::middleware(['auth', 'role:user'])
     ->name('user.')
     ->group(function () {
 
+        // Dashboard
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
+        // Resources
         Route::resources([
             'progress' => UserProgressController::class,
             'protein' => UserProteinController::class,
@@ -315,7 +341,7 @@ Route::middleware(['auth', 'role:user'])
             'weekly-summary' => UserSummaryController::class,
         ]);
 
-        // Start/Complete workout
+        // Workout Actions
         Route::post('/workout/{schedule}/start', [UserSummaryController::class, 'startWorkout'])->name('workout.start');
         Route::post('/workout/{schedule}/complete', [UserSummaryController::class, 'completeWorkout'])->name('workout.complete');
 
@@ -328,35 +354,35 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/typing', [UserChatController::class, 'typing'])->name('typing');
         });
 
-        // Training
+        // Training & Trainer Management
         Route::prefix('training')->name('training.')->group(function () {
             Route::get('/', [UserTrainingController::class, 'index'])->name('index');
             Route::get('/trainer/{trainerId}', [UserTrainingController::class, 'show'])->name('show');
             Route::post('/order/{trainerId}', [UserTrainingController::class, 'order'])->name('order');
             Route::get('/payment/{paymentId}', [UserTrainingController::class, 'payment'])->name('payment');
-
             Route::get('/invoice/{paymentId}', [UserTrainingController::class, 'invoice'])->name('invoice');
             Route::get('/refresh-status/{paymentId}', [UserTrainingController::class, 'refreshPaymentStatus'])->name('refresh-status');
-
             Route::get('/confirm-payment/{paymentId}', [UserTrainingController::class, 'confirmPayment'])->name('confirm-payment');
             Route::post('/cancel-order/{paymentId}', [UserTrainingController::class, 'cancelOrder'])->name('cancel-order');
 
+            // Trainer Management
             Route::get('/my-trainer', [UserTrainingController::class, 'myTrainer'])->name('my-trainer');
             Route::get('/switch-trainer', [UserTrainingController::class, 'showSwitchTrainer'])->name('switch-trainer');
             Route::post('/switch-trainer/{newTrainerId}', [UserTrainingController::class, 'switchTrainer'])->name('switch-trainer.process');
 
+            // Ratings & Reviews
             Route::get('/rate/{trainerId}', [UserTrainingController::class, 'createRating'])->name('rate');
             Route::post('/rate/{trainerId}', [UserTrainingController::class, 'storeRating'])->name('rate.store');
             Route::put('/rating/{feedbackId}', [UserTrainingController::class, 'updateRating'])->name('rating.update');
-
             Route::get('/history', [UserTrainingController::class, 'trainerHistory'])->name('history');
             Route::get('/my-ratings', [UserTrainingController::class, 'myRatings'])->name('my-ratings');
 
+            // AI Chat
             Route::post('/ai-chat', [UserTrainingController::class, 'chatAI'])->name('ai.chat');
             Route::post('/reset-ai-chat', [UserTrainingController::class, 'resetAIChatCount'])->name('reset-ai-chat');
         });
 
-        // Profile
+        // Profile Management
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('index');
             Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
@@ -366,7 +392,7 @@ Route::middleware(['auth', 'role:user'])
             Route::patch('/password', [UserProfileController::class, 'updatePassword'])->name('password.update');
         });
 
-        // User Articles
+        // Articles
         Route::get('/articles', [UserArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/{article}', [UserArticleController::class, 'show'])->name('articles.show');
 
@@ -378,14 +404,17 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/{id}/read', [UserNotificationController::class, 'markAsRead'])->name('read');
             Route::delete('/{id}', [UserNotificationController::class, 'destroy'])->name('destroy');
 
+            // AJAX Endpoints
             Route::get('/unread-count', [UserNotificationController::class, 'getUnreadCount'])->name('unreadCount');
             Route::post('/{id}/read-ajax', [UserNotificationController::class, 'markAsReadAjax'])->name('readAjax');
             Route::get('/filter', [UserNotificationController::class, 'filter'])->name('filter');
 
+            // Preferences
             Route::post('/reminder-preferences', [UserNotificationController::class, 'saveReminderPreferences'])->name('reminder-preferences');
             Route::post('/toggle-reminder', [UserNotificationController::class, 'toggleQuickReminder'])->name('toggle-reminder');
             Route::post('/test-reminder', [UserNotificationController::class, 'testReminder'])->name('test-reminder');
 
+            // Push Notifications
             Route::post('/test-push', [UserNotificationController::class, 'testPushNotification'])->name('testPush');
             Route::post('/fcm-token', [UserNotificationController::class, 'storeFCMToken'])->name('storeFCMToken');
             Route::delete('/fcm-token', [UserNotificationController::class, 'removeFCMToken'])->name('removeFCMToken');
@@ -394,10 +423,10 @@ Route::middleware(['auth', 'role:user'])
         });
 
         // ==========================
-        // 👥 COMMUNITY
+        // 👥 COMMUNITY ROUTES
         // ==========================
         Route::prefix('communities')->name('communities.')->group(function () {
-
+            // Community Management
             Route::get('/', [UserCommunityController::class, 'index'])->name('index');
             Route::get('/create', [UserCommunityController::class, 'create'])->name('create');
             Route::post('/', [UserCommunityController::class, 'store'])->name('store');
@@ -407,7 +436,6 @@ Route::middleware(['auth', 'role:user'])
             Route::delete('/{community}', [UserCommunityController::class, 'destroy'])->name('destroy');
 
             // Membership
-            // Di dalam group prefix('communities')
             Route::post('/{community}/join', [UserCommunityController::class, 'join'])->name('join');
             Route::post('/{community}/leave', [UserCommunityController::class, 'leave'])->name('leave');
 
@@ -427,37 +455,17 @@ Route::middleware(['auth', 'role:user'])
         });
     });
 
-
 // ==========================
-// 🌐 PUBLIC ROUTES
+// 🐛 DEBUG ROUTES
 // ==========================
-Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
-Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
-
-Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
-Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
-
-Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
-Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
-
-
-// ==========================
-// 💳 PAYMENT MIDTRANS
-// ==========================
-Route::middleware('auth')->group(function () {
-    Route::post('/payment/create', [PaymentController::class, 'createPayment'])->name('payment.create');
-});
-
-Route::get('/test-midtrans', function () {
+Route::get('/debug/communities/{community}', function ($community) {
+    $community = \App\Models\Community::find($community);
     return [
-        'server_key'   => config('midtrans.server_key'),
-        'client_key'   => config('midtrans.client_key'),
-        'is_production' => config('midtrans.is_production'),
-        'merchant_id'  => config('midtrans.merchant_id'),
-        'all_midtrans_config' => config('midtrans')
+        'community' => $community,
+        'posts' => $community->posts()->with('likes', 'comments')->get(),
+        'members' => $community->members,
     ];
 });
-
 
 // ==========================
 // ⚙️ LARAVEL DEFAULT AUTH

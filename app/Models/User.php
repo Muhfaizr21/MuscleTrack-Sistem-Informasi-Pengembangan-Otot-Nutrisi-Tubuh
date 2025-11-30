@@ -30,6 +30,38 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function hasRole($role)
+    {
+        // Jika menggunakan field 'role'
+        return $this->role === $role;
+
+        // Atau jika menggunakan relationships
+        // return $this->roles->contains('name', $role);
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin()
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Check if user is trainer
+     */
+    public function isTrainer()
+    {
+        return $this->hasRole('trainer');
+    }
+
+    /**
+     * Check if user is regular user
+     */
+    public function isUser()
+    {
+        return $this->hasRole('user');
+    }
     // === 🏋️‍♂️ Relasi ke Goal ===
     public function goal()
     {

@@ -46,7 +46,7 @@ class PostComment extends Model
         return $this->hasMany(PostComment::class, 'parent_id')->orderBy('created_at', 'asc');
     }
 
-    // Relationship dengan likes pada komentar
+    // Relationship dengan likes pada komentar - FIXED
     public function likes()
     {
         return $this->hasMany(CommentLike::class, 'comment_id');
@@ -56,6 +56,12 @@ class PostComment extends Model
     public function isLikedBy($userId)
     {
         return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    // Update like count
+    public function updateLikeCount()
+    {
+        $this->update(['like_count' => $this->likes()->count()]);
     }
 
     // Scope untuk komentar utama (bukan reply)
