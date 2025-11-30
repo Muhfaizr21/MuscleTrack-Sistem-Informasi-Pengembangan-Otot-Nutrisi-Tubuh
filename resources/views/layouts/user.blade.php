@@ -385,7 +385,8 @@
                                         ['route' => 'user.weekly-summary.index', 'label' => 'Weekly Summary', 'icon' => '📈'],
                                         ['route' => 'user.chat.index', 'label' => 'Trainer Chat', 'icon' => '💬'],
                                         ['route' => 'user.training.my-trainer', 'label' => 'My Trainer', 'icon' => '👨‍🏫'],
-                                        ['route' => 'user.profile.index', 'label' => 'My Profile', 'icon' => '👤']
+                                        ['route' => 'user.profile.index', 'label' => 'My Profile', 'icon' => '👤'],
+                                        ['route' => 'user.communities.index', 'label' => 'Communities', 'icon' => '👥']
                                     ];
                                 @endphp
 

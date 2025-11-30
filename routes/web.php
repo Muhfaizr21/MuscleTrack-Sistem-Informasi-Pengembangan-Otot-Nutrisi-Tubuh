@@ -50,7 +50,8 @@ use App\Http\Controllers\Trainer\{
     ProgramController,
     QualityController,
     NutritionManagementController,
-    TrainerProfileController
+    TrainerProfileController,
+    TrainerCommunityController
 };
 
 // ==========================
@@ -319,6 +320,28 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
             Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
         });
+
+        // ==========================
+        // 🧑‍🏫 TRAINER COMMUNITY ROUTES  
+        // ==========================
+        Route::prefix('communities')->name('communities.')->group(function () {
+            Route::get('/', [TrainerCommunityController::class, 'index'])->name('index');
+            Route::get('/create', [TrainerCommunityController::class, 'create'])->name('create');
+            Route::post('/', [TrainerCommunityController::class, 'store'])->name('store');
+            Route::get('/{community:slug}', [TrainerCommunityController::class, 'show'])->name('show');
+            Route::get('/{community:slug}/edit', [TrainerCommunityController::class, 'edit'])->name('edit');
+            Route::put('/{community:slug}', [TrainerCommunityController::class, 'update'])->name('update');
+            Route::delete('/{community:slug}', [TrainerCommunityController::class, 'destroy'])->name('destroy');
+
+            // Management
+            Route::get('/{community:slug}/members', [TrainerCommunityController::class, 'members'])->name('members');
+            Route::post('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'updateMemberRole'])->name('members.role');
+            Route::delete('/{community:slug}/members/{user}', [TrainerCommunityController::class, 'removeMember'])->name('members.remove');
+
+            // Posts Management
+            Route::delete('/posts/{post}', [TrainerCommunityController::class, 'destroyPost'])->name('posts.destroy');
+            Route::delete('/comments/{comment}', [TrainerCommunityController::class, 'destroyComment'])->name('comments.destroy');
+        });
     });
 
 // ==========================
@@ -421,7 +444,52 @@ Route::middleware(['auth', 'role:user'])
             Route::get('/devices', [UserNotificationController::class, 'getUserDevices'])->name('devices');
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
+        // ==========================
+        // 🧍 USER COMMUNITY ROUTES
+        // ==========================
+        Route::prefix('communities')->name('communities.')->group(function () {
+            Route::get('/', [UserCommunityController::class, 'index'])->name('index');
+            Route::get('/create', [UserCommunityController::class, 'create'])->name('create');
+            Route::post('/', [UserCommunityController::class, 'store'])->name('store');
+            Route::get('/{community:slug}', [UserCommunityController::class, 'show'])->name('show');
+            Route::get('/{community:slug}/edit', [UserCommunityController::class, 'edit'])->name('edit');
+            Route::put('/{community:slug}', [UserCommunityController::class, 'update'])->name('update');
+            Route::delete('/{community:slug}', [UserCommunityController::class, 'destroy'])->name('destroy');
 
+            // Membership
+            Route::post('/{community:slug}/join', [UserCommunityController::class, 'join'])->name('join');
+            Route::post('/{community:slug}/leave', [UserCommunityController::class, 'leave'])->name('leave');
+
+            // Posts
+            Route::post('/{community:slug}/posts', [UserCommunityPostController::class, 'store'])->name('posts.store');
+            Route::put('/posts/{post}', [UserCommunityPostController::class, 'update'])->name('posts.update');
+            Route::delete('/posts/{post}', [UserCommunityPostController::class, 'destroy'])->name('posts.destroy');
+
+            // Comments
+            Route::post('/posts/{post}/comments', [UserCommunityCommentController::class, 'store'])->name('comments.store');
+            Route::put('/comments/{comment}', [UserCommunityCommentController::class, 'update'])->name('comments.update');
+            Route::delete('/comments/{comment}', [UserCommunityCommentController::class, 'destroy'])->name('comments.destroy');
+
+            // Likes
+            Route::post('/posts/{post}/like', [UserCommunityLikeController::class, 'likePost'])->name('posts.like');
+            Route::post('/posts/{post}/unlike', [UserCommunityLikeController::class, 'unlikePost'])->name('posts.unlike');
+            Route::post('/comments/{comment}/like', [UserCommunityLikeController::class, 'likeComment'])->name('comments.like');
+            Route::post('/comments/{comment}/unlike', [UserCommunityLikeController::class, 'unlikeComment'])->name('comments.unlike');
+
+            // Members Management Routes
+            // Members Management Routes
+            Route::get('/{community:slug}/members', [UserCommunityController::class, 'members'])->name('members');
+            Route::post('/{community:slug}/members/{user}/promote', [UserCommunityController::class, 'promoteToModerator'])->name('members.promote');
+            Route::post('/{community:slug}/members/{user}/demote', [UserCommunityController::class, 'demoteToMember'])->name('members.demote');
+            Route::delete('/{community:slug}/members/{user}', [UserCommunityController::class, 'removeMember'])->name('members.remove');
+
+            // Membership Approval Routes (for private communities)
+            Route::post('/{community:slug}/members/{user}/approve', [UserCommunityController::class, 'approveMember'])->name('members.approve');
+            Route::post('/{community:slug}/members/{user}/reject', [UserCommunityController::class, 'rejectMember'])->name('members.reject');
+
+            // Ownership Transfer
+            Route::post('/{community:slug}/transfer-ownership/{user}', [UserCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
+        });
     });
 
 

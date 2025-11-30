@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use App\Services\GeminiService;
+use App\Models\PostComment;
+use App\Policies\PostCommentPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,12 @@ class AppServiceProvider extends ServiceProvider
             return new GeminiService();
         });
     }
+
+    protected $policies = [
+        PostComment::class => PostCommentPolicy::class,
+        // Tambahkan policy lainnya di sini
+    ];
+
 
     /**
      * Bootstrap any application services.

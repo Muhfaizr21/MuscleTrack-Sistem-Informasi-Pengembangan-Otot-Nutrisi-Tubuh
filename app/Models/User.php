@@ -399,4 +399,58 @@ class User extends Authenticatable
                 ->where('payment_status', 'paid');
         });
     }
+
+    // Tambahkan di model User.php
+
+    // === 🏘️ RELASI KOMUNITAS ===
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_members')
+            ->withPivot('role', 'joined_at')
+            ->withTimestamps();
+    }
+
+    public function communityMemberships()
+    {
+        return $this->hasMany(CommunityMember::class);
+    }
+
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    public function postComments()
+    {
+        return $this->hasMany(PostComment::class);
+    }
+
+    public function postLikes()
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function commentLikes()
+    {
+        return $this->hasMany(CommentLike::class);
+    }
+
+    /**
+     * Scope untuk mendapatkan komunitas yang diikuti user
+     */
+    public function scopeJoinedCommunities($query)
+    {
+        return $query->whereHas('communities');
+    }
+
+    /**
+     * Scope untuk mendapatkan user berdasarkan role di komunitas
+     */
+    public function scopeWithCommunityRole($query, $communityId, $role)
+    {
+        return $query->whereHas('communityMemberships', function ($q) use ($communityId, $role) {
+            $q->where('community_id', $communityId)
+                ->where('role', $role);
+        });
+    }
 }

@@ -131,8 +131,7 @@
                     <div
                         class="inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-green-500/15 backdrop-blur-sm border border-green-500/20 mb-6">
                         <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span class="text-sm font-semibold text-green-400 uppercase tracking-wider">AI-Powered
-                            Fitness</span>
+                        <span class="text-sm font-semibold text-green-400 uppercase tracking-wider">join now for your health experience</span>
                     </div>
 
                     <h1 class="font-bold text-4xl sm:text-5xl text-white mb-3">
