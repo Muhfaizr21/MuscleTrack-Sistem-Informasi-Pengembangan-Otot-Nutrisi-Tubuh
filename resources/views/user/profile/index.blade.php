@@ -25,7 +25,8 @@
                         <div class="text-emerald-400 font-bold text-xs md:text-sm uppercase tracking-wider mb-1 md:mb-2">
                             Account Status</div>
                         <p class="text-white font-semibold text-sm md:text-base">Active • Member since
-                            {{ $user->created_at->format('M Y') }}</p>
+                            {{ $user->created_at->format('M Y') }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -86,7 +87,7 @@
                             <div class="relative inline-block group">
                                 <div class="relative">
                                     <img id="avatarPreview"
-                                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png') }}"
+                                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('aset/icon-user.jpg') }}"
                                         alt="Profile Photo"
                                         class="w-24 h-24 md:w-32 md:h-32 object-cover rounded-xl md:rounded-2xl border-4 border-emerald-500/30 shadow-lg md:shadow-2xl shadow-emerald-500/20 transition-all duration-300 group-hover:border-emerald-500/60 cursor-pointer">
 
@@ -129,7 +130,8 @@
 
                             {{-- User Info --}}
                             <h3 class="font-serif text-xl md:text-2xl font-black text-white mt-3 md:mt-4 truncate">
-                                {{ $user->name }}</h3>
+                                {{ $user->name }}
+                            </h3>
                             <p class="text-emerald-400/80 text-xs md:text-sm mt-1 truncate">{{ $user->email }}</p>
 
                             {{-- Member Badge --}}
@@ -198,7 +200,8 @@
                                         <div class="min-w-0">
                                             <p class="text-emerald-400/80 text-xs md:text-sm font-medium mb-1">Age</p>
                                             <p class="text-white text-lg md:text-xl font-bold truncate">
-                                                {{ $user->age ?? 'Not set' }}</p>
+                                                {{ $user->age ?? 'Not set' }}
+                                            </p>
                                         </div>
                                         <div
                                             class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0 ml-2">
@@ -274,46 +277,46 @@
 
                             {{-- BMI Calculation (if height and weight are set) --}}
                             @if($user->height && $user->weight)
-                                                    @php
-                                                        $heightInMeters = $user->height / 100;
-                                                        $bmi = $user->weight / ($heightInMeters * $heightInMeters);
-                                                        $bmiCategory = '';
-                                                        $bmiColor = 'text-emerald-400';
+                                @php
+                                    $heightInMeters = $user->height / 100;
+                                    $bmi = $user->weight / ($heightInMeters * $heightInMeters);
+                                    $bmiCategory = '';
+                                    $bmiColor = 'text-emerald-400';
 
-                                                        if ($bmi < 18.5) {
-                                                            $bmiCategory = 'Underweight';
-                                                            $bmiColor = 'text-blue-400';
-                                                        } elseif ($bmi >= 18.5 && $bmi < 25) {
-                                                            $bmiCategory = 'Normal weight';
-                                                            $bmiColor = 'text-emerald-400';
-                                                        } elseif ($bmi >= 25 && $bmi < 30) {
-                                                            $bmiCategory = 'Overweight';
-                                                            $bmiColor = 'text-amber-400';
-                                                        } else {
-                                                            $bmiCategory = 'Obesity';
-                                                            $bmiColor = 'text-red-400';
-                                                        }
-                                                    @endphp
+                                    if ($bmi < 18.5) {
+                                        $bmiCategory = 'Underweight';
+                                        $bmiColor = 'text-blue-400';
+                                    } elseif ($bmi >= 18.5 && $bmi < 25) {
+                                        $bmiCategory = 'Normal weight';
+                                        $bmiColor = 'text-emerald-400';
+                                    } elseif ($bmi >= 25 && $bmi < 30) {
+                                        $bmiCategory = 'Overweight';
+                                        $bmiColor = 'text-amber-400';
+                                    } else {
+                                        $bmiCategory = 'Obesity';
+                                        $bmiColor = 'text-red-400';
+                                    }
+                                @endphp
 
                                 <div
-                                                        class="mt-4 md:mt-6 glass rounded-lg md:rounded-xl p-3 md:p-4 border border-emerald-500/20 bg-emerald-500/5">
-                                                        <div class="flex items-center justify-between">
-                                                            <div class="min-w-0">
-                                                                <p class="text-emerald-400/80 text-xs md:text-sm font-medium mb-1">Body Mass Index
-                                                                    (BMI)</p>
-                                                                <p class="text-white text-xl md:text-2xl font-bold">{{ number_format($bmi, 1) }}</p>
-                                                                <p class="{{ $bmiColor }} text-xs md:text-sm font-medium mt-1">{{ $bmiCategory }}
-                                                                </p>
-                                                            </div>
-                                                            <div class="text-right flex-shrink-0 ml-2">
-                                                                <div
-                                                                    class="w-10 h-10 md:w-12 md:h-12 bg-emerald-500/10 rounded-lg md:rounded-xl flex items-center justify-center border border-emerald-500/20">
-                                                                    <span class="text-emerald-400 text-base md:text-lg">💪</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <p class="text-emerald-400/60 text-xs mt-1 md:mt-2">Based on your height and weight</p>
-                                                    </div>
+                                    class="mt-4 md:mt-6 glass rounded-lg md:rounded-xl p-3 md:p-4 border border-emerald-500/20 bg-emerald-500/5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="min-w-0">
+                                            <p class="text-emerald-400/80 text-xs md:text-sm font-medium mb-1">Body Mass Index
+                                                (BMI)</p>
+                                            <p class="text-white text-xl md:text-2xl font-bold">{{ number_format($bmi, 1) }}</p>
+                                            <p class="{{ $bmiColor }} text-xs md:text-sm font-medium mt-1">{{ $bmiCategory }}
+                                            </p>
+                                        </div>
+                                        <div class="text-right flex-shrink-0 ml-2">
+                                            <div
+                                                class="w-10 h-10 md:w-12 md:h-12 bg-emerald-500/10 rounded-lg md:rounded-xl flex items-center justify-center border border-emerald-500/20">
+                                                <span class="text-emerald-400 text-base md:text-lg">💪</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-emerald-400/60 text-xs mt-1 md:mt-2">Based on your height and weight</p>
+                                </div>
                             @endif
                         </div>
                     </div>

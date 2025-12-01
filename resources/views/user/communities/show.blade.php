@@ -147,6 +147,22 @@
         border-left: 2px solid rgba(0, 255, 170, 0.2);
     }
 
+    /* Avatar Styles */
+    .user-avatar {
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .user-avatar-initial {
+        background: linear-gradient(135deg, #10b981, #059669);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
     /* Form Styles */
     .form-input {
         background: rgba(10, 15, 13, 0.8);
@@ -387,26 +403,6 @@
             font-size: 12px;
         }
     }
-
-    /* Tablet Styles */
-    @media (min-width: 641px) and (max-width: 1024px) {
-        .community-avatar {
-            width: 90px;
-            height: 90px;
-            top: -45px;
-            font-size: 36px;
-        }
-    }
-
-    /* Desktop Styles */
-    @media (min-width: 1025px) {
-        .community-avatar {
-            width: 100px;
-            height: 100px;
-            top: -50px;
-            font-size: 40px;
-        }
-    }
 </style>
 @endsection
 
@@ -598,8 +594,17 @@
                 <!-- Post Header -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-neon to-emerald-deep rounded-xl flex items-center justify-center text-white font-bold text-sm">
-                            {{ strtoupper(substr($post->user->name, 0, 1)) }}
+                        <!-- User Avatar -->
+                        <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+                            @if($post->user->avatar)
+                                <img src="{{ asset('storage/' . $post->user->avatar) }}" 
+                                     alt="{{ $post->user->name }}"
+                                     class="w-full h-full object-cover user-avatar">
+                            @else
+                                <div class="w-full h-full user-avatar-initial user-avatar">
+                                    {{ strtoupper(substr($post->user->name, 0, 1)) }}
+                                </div>
+                            @endif
                         </div>
                         <div>
                             <h4 class="font-semibold text-white">{{ $post->user->name }}</h4>
@@ -665,8 +670,17 @@
                     <form action="{{ route('user.communities.comments.store', $post->id) }}" method="POST" class="mb-4">
                         @csrf
                         <div class="flex gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-emerald-neon to-emerald-deep rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            <!-- Current User Avatar -->
+                            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                @if(auth()->user()->avatar)
+                                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}" 
+                                         alt="{{ auth()->user()->name }}"
+                                         class="w-full h-full object-cover user-avatar">
+                                @else
+                                    <div class="w-full h-full user-avatar-initial user-avatar">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="flex-1">
                                 <textarea name="content" rows="2" 

@@ -89,6 +89,7 @@ class UserProfileController extends Controller
     /**
      * Update user avatar secara langsung
      */
+
     public function updateAvatar(Request $request)
     {
         $request->validate([
@@ -106,11 +107,13 @@ class UserProfileController extends Controller
             // Store new avatar
             $file = $request->file('avatar');
             $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Simpan di folder avatars
             $avatarPath = $file->storeAs('avatars', $filename, 'public');
 
-            // Update user avatar
+            // Update user avatar - simpan relative path tanpa 'avatars/'
             $user->update([
-                'avatar' => $avatarPath,
+                'avatar' => $avatarPath, // Ini akan menyimpan 'avatars/filename.jpg'
             ]);
 
             return redirect()->route('user.profile.index')->with('success', 'Foto profil berhasil diperbarui!');
