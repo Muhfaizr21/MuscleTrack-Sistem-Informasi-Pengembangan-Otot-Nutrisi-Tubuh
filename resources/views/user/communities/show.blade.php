@@ -595,17 +595,17 @@
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                     <div class="flex items-center gap-3">
                         <!-- User Avatar -->
-                        <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
-                            @if($post->user->avatar)
-                                <img src="{{ asset('storage/' . $post->user->avatar) }}" 
-                                     alt="{{ $post->user->name }}"
-                                     class="w-full h-full object-cover user-avatar">
-                            @else
-                                <div class="w-full h-full user-avatar-initial user-avatar">
-                                    {{ strtoupper(substr($post->user->name, 0, 1)) }}
-                                </div>
-                            @endif
-                        </div>
+<div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+    @if($post->user->avatar)
+        <img src="{{ asset('storage/' . $post->user->avatar) }}" 
+             alt="{{ $post->user->name }}"
+             class="w-full h-full object-cover user-avatar">
+    @else
+        <img src="{{ asset('aset/icon-user.jpg') }}" 
+             alt="{{ $post->user->name }}"
+             class="w-full h-full object-cover user-avatar">
+    @endif
+</div>
                         <div>
                             <h4 class="font-semibold text-white">{{ $post->user->name }}</h4>
                             <p class="text-gray-400 text-sm">{{ $post->created_at->diffForHumans() }}</p>
