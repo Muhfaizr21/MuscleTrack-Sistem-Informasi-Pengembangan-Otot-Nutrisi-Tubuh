@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trainer Panel - @yield('title', 'Dashboard')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    {{-- TAMBAHKAN INI: CSS untuk halaman communities --}}
+    @hasSection('styles')
+        @yield('styles')
+    @endif
 
     {{-- AlpineJS untuk interaktivitas --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -1101,7 +1106,10 @@
         </div>
     </div>
 
-    @yield('scripts')
+    {{-- TAMBAHKAN INI: Script untuk halaman communities --}}
+    @hasSection('scripts')
+        @yield('scripts')
+    @endif
 </body>
 
 </html>

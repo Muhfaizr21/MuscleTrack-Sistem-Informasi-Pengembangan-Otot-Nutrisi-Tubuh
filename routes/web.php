@@ -212,7 +212,6 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/posts/{post}', [AdminCommunityController::class, 'destroyPost'])->name('posts.destroy');
         });
     });
-
 // ==========================
 // 🧑‍🏫 TRAINER ROUTES
 // ==========================
@@ -325,6 +324,7 @@ Route::middleware(['auth', 'role:trainer'])
         // 🧑‍🏫 TRAINER COMMUNITY ROUTES  
         // ==========================
         Route::prefix('communities')->name('communities.')->group(function () {
+            // Main Community Routes
             Route::get('/', [TrainerCommunityController::class, 'index'])->name('index');
             Route::get('/create', [TrainerCommunityController::class, 'create'])->name('create');
             Route::post('/', [TrainerCommunityController::class, 'store'])->name('store');
@@ -333,14 +333,36 @@ Route::middleware(['auth', 'role:trainer'])
             Route::put('/{community:slug}', [TrainerCommunityController::class, 'update'])->name('update');
             Route::delete('/{community:slug}', [TrainerCommunityController::class, 'destroy'])->name('destroy');
 
-            // Management
+            // Membership Management
+            Route::post('/{community:slug}/join', [TrainerCommunityController::class, 'join'])->name('join');
+            Route::post('/{community:slug}/leave', [TrainerCommunityController::class, 'leave'])->name('leave');
+
+            // Members Management - GET untuk menampilkan halaman
             Route::get('/{community:slug}/members', [TrainerCommunityController::class, 'members'])->name('members');
-            Route::post('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'updateMemberRole'])->name('members.role');
+
+            // Members Management Actions - POST untuk aksi
+            Route::post('/{community:slug}/members/{user}/approve', [TrainerCommunityController::class, 'approveMember'])->name('members.approve');
+            Route::post('/{community:slug}/members/{user}/reject', [TrainerCommunityController::class, 'rejectMember'])->name('members.reject');
+            Route::post('/{community:slug}/members/{user}/promote', [TrainerCommunityController::class, 'promoteMember'])->name('members.promote');
+            Route::post('/{community:slug}/members/{user}/demote', [TrainerCommunityController::class, 'demoteMember'])->name('members.demote');
             Route::delete('/{community:slug}/members/{user}', [TrainerCommunityController::class, 'removeMember'])->name('members.remove');
 
+            // Transfer Ownership - PERBAIKAN: harus menggunakan POST dengan parameter user
+            Route::post('/{community:slug}/transfer-ownership/{user}', [TrainerCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
+
             // Posts Management
+            Route::post('/{community:slug}/posts', [TrainerCommunityController::class, 'storePost'])->name('posts.store');
+            Route::put('/posts/{post}', [TrainerCommunityController::class, 'updatePost'])->name('posts.update');
             Route::delete('/posts/{post}', [TrainerCommunityController::class, 'destroyPost'])->name('posts.destroy');
+            Route::post('/posts/{post}/like', [TrainerCommunityController::class, 'likePost'])->name('posts.like');
+            Route::post('/posts/{post}/unlike', [TrainerCommunityController::class, 'unlikePost'])->name('posts.unlike');
+
+            // Comments Management
+            Route::post('/posts/{post}/comments', [TrainerCommunityController::class, 'storeComment'])->name('comments.store');
+            Route::put('/comments/{comment}', [TrainerCommunityController::class, 'updateComment'])->name('comments.update');
             Route::delete('/comments/{comment}', [TrainerCommunityController::class, 'destroyComment'])->name('comments.destroy');
+            Route::post('/comments/{comment}/like', [TrainerCommunityController::class, 'likeComment'])->name('comments.like');
+            Route::post('/comments/{comment}/unlike', [TrainerCommunityController::class, 'unlikeComment'])->name('comments.unlike');
         });
     });
 
