@@ -97,6 +97,10 @@ Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name(
 // Contact
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
+//about us
+Route::get('/about', function () {
+    return view('about.about');
+})->name('about');
 
 // ==========================
 // 🔐 AUTHENTICATION ROUTES
@@ -321,7 +325,7 @@ Route::middleware(['auth', 'role:trainer'])
         });
 
         // ==========================
-        // 🧑‍🏫 TRAINER COMMUNITY ROUTES  
+        // 🧑‍🏫 TRAINER COMMUNITY ROUTES
         // ==========================
         Route::prefix('communities')->name('communities.')->group(function () {
             // Main Community Routes

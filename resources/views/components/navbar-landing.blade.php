@@ -23,6 +23,11 @@
                     class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-300">
                     Home
                 </a>
+                <!-- TAMBAHKAN ABOUT US DISINI -->
+                <a href="{{ route('about') }}"
+                    class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-300">
+                    About Us
+                </a>
                 <a href="{{ route('public.articles.index') }}"
                     class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all duration-300">
                     Tips & Articles
@@ -161,6 +166,15 @@
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 Home
+            </a>
+            <!-- TAMBAHKAN ABOUT US DI MOBILE MENU -->
+            <a href="{{ route('about') }}" @click="isNavOpen = false"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                About Us
             </a>
             <a href="{{ route('public.articles.index') }}" @click="isNavOpen = false"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 group">
