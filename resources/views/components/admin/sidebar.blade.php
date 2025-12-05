@@ -111,6 +111,21 @@
                         <span class="font-semibold">Exercise Library</span>
                     </a>
                 </li>
+                <li>
+    <a href="{{ route('admin.articles.index') }}"
+       @click="isSidebarOpen = false"
+       class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
+              {{ request()->routeIs('admin.articles.*')
+                 ? 'text-white bg-gradient-to-r from-fuchsia-500 to-pink-600 shadow-lg shadow-fuchsia-500/20 transform scale-105'
+                 : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105' }}">
+        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-fuchsia-500/20 to-pink-600/20 flex items-center justify-center group-hover:from-fuchsia-500/30 group-hover:to-pink-600/30 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+            </svg>
+        </div>
+        <span class="font-semibold">Kelola Artikel</span>
+    </a>
+</li>
 
                 <!-- Program Latihan -->
                 <li>

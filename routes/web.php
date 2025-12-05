@@ -14,7 +14,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 // 🌐 PUBLIC/CORE CONTROLLERS
 // ==========================
 use App\Http\Controllers\ContactFormController;
-use App\Http\Controllers\NewsArticleController;
+use App\Http\Controllers\PublicArticleController;
 use App\Http\Controllers\PaymentController;
 
 // ==========================
@@ -74,7 +74,6 @@ use App\Http\Controllers\User\{
     UserCommunityCommentController,
     UserCommunityLikeController
 };
-use Google\Service\ServiceControl\Auth;
 
 /*
 |----------------------------------------------------------------------
@@ -85,19 +84,25 @@ use Google\Service\ServiceControl\Auth;
 // ==========================
 // 🏠 HALAMAN UTAMA & PUBLIC ROUTES
 // ==========================
-Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
 
-// Public Articles
-Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
-Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
+// Public Articles - GUNAKAN SATU SET SAJA untuk menghindari duplikasi
+Route::get('/articles', [PublicArticleController::class, 'index'])->name('public.articles.index');
+Route::get('/articles/{slug}', [PublicArticleController::class, 'show'])->name('public.articles.show');
 
-Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
-Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
+// HAPUS INI karena duplikat:
+// Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
+// Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
+// Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
+// Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
 
 // Contact
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactFormController::class, 'store'])->name('contact.store');
-//about us
+
+// About us
 Route::get('/about', function () {
     return view('about.about');
 })->name('about');
@@ -216,6 +221,7 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/posts/{post}', [AdminCommunityController::class, 'destroyPost'])->name('posts.destroy');
         });
     });
+
 // ==========================
 // 🧑‍🏫 TRAINER ROUTES
 // ==========================
@@ -470,6 +476,7 @@ Route::middleware(['auth', 'role:user'])
             Route::get('/devices', [UserNotificationController::class, 'getUserDevices'])->name('devices');
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
+
         // ==========================
         // 🧍 USER COMMUNITY ROUTES
         // ==========================
@@ -503,7 +510,6 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/comments/{comment}/unlike', [UserCommunityLikeController::class, 'unlikeComment'])->name('comments.unlike');
 
             // Members Management Routes
-            // Members Management Routes
             Route::get('/{community:slug}/members', [UserCommunityController::class, 'members'])->name('members');
             Route::post('/{community:slug}/members/{user}/promote', [UserCommunityController::class, 'promoteToModerator'])->name('members.promote');
             Route::post('/{community:slug}/members/{user}/demote', [UserCommunityController::class, 'demoteToMember'])->name('members.demote');
@@ -516,8 +522,8 @@ Route::middleware(['auth', 'role:user'])
             // Ownership Transfer
             Route::post('/{community:slug}/transfer-ownership/{user}', [UserCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
         });
-    });
 
+    });
 
 // ==========================
 // ⚙️ LARAVEL DEFAULT AUTH

@@ -41,6 +41,15 @@ class NewsArticle extends Model
     }
 
     /**
+     * 𝗔𝗗𝗗 𝗧𝗛𝗜𝗦 𝗠𝗘𝗧𝗛𝗢𝗗: Get the route key for the model
+     * Ini memungkinkan route model binding menggunakan slug
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
      * Format tanggal rapi (misal: 31 Okt 2025)
      */
     public function getFormattedDateAttribute()

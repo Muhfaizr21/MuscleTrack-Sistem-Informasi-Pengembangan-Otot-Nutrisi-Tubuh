@@ -44,17 +44,71 @@
 
         <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
 
+            <!-- Search and Filter Section -->
+            <div class="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Artikel Terbaru</h2>
+                    <p class="text-slate-400">Temukan ilmu terbaru tentang fitness, nutrisi, dan gaya hidup sehat</p>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="flex flex-wrap gap-2">
+                    <a href="/articles"
+                       class="px-4 py-2 rounded-lg {{ !request('category') ? 'bg-green-500 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }} transition-colors">
+                        Semua
+                    </a>
+                    @php
+                        $categories = ['Fitness', 'Nutrition', 'Health', 'Lifestyle', 'Training'];
+                    @endphp
+                    @foreach($categories as $category)
+                        <a href="/articles?category={{ $category }}"
+                           class="px-4 py-2 rounded-lg {{ request('category') == $category ? 'bg-green-500 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }} transition-colors">
+                            {{ $category }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
             @if($articles->count() > 0)
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($articles as $article)
                         <div class="group relative rounded-3xl overflow-hidden backdrop-blur-xl bg-slate-800/40 border border-slate-700/30 shadow-2xl shadow-black/30 hover:shadow-green-500/10 transition-all duration-500 transform hover:-translate-y-2">
                             <!-- Article Image -->
-                            <a href="/articles_publik/{{ $article->slug }}" class="block relative overflow-hidden">
-                                <img
-                                    src="{{ Storage::url($article->image) ?? ($article->image_url ?? 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop') }}"
-                                    alt="{{ $article->title }}"
-                                    class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
-                                >
+                            <a href="/articles/{{ $article->slug }}"
+                               class="block relative overflow-hidden fix-clickable-link">
+                                @if($article->image)
+                                    @if(filter_var($article->image, FILTER_VALIDATE_URL))
+                                        <!-- Jika gambar adalah URL eksternal -->
+                                        <img
+                                            src="{{ $article->image }}"
+                                            alt="{{ $article->title }}"
+                                            class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
+                                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'"
+                                        >
+                                    @else
+                                        <!-- Jika gambar disimpan di storage lokal -->
+                                        @php
+                                            $imagePath = $article->image;
+                                            // Hapus 'storage/' dari depan jika ada
+                                            if (strpos($imagePath, 'storage/') === 0) {
+                                                $imagePath = substr($imagePath, 8);
+                                            }
+                                        @endphp
+                                        <img
+                                            src="{{ asset('storage/' . $imagePath) }}"
+                                            alt="{{ $article->title }}"
+                                            class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
+                                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'"
+                                        >
+                                    @endif
+                                @else
+                                    <!-- Fallback jika tidak ada gambar -->
+                                    <div class="w-full aspect-[16/10] bg-gradient-to-br from-green-500/20 to-emerald-600/20 flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                                 <!-- Category Badge -->
                                 <div class="absolute top-4 left-4">
@@ -66,7 +120,7 @@
 
                             <!-- Article Content -->
                             <div class="p-6">
-                                <a href="/articles_publik/{{ $article->slug }}" class="block">
+                                <a href="/articles/{{ $article->slug }}" class="block fix-clickable-link">
                                     <h3 class="text-xl font-bold text-white group-hover:text-green-400 transition-colors duration-300 line-clamp-2">
                                         {{ $article->title }}
                                     </h3>
@@ -95,8 +149,8 @@
 
                                 <!-- Read More -->
                                 <div class="mt-4 pt-4 border-t border-slate-700/50">
-                                    <a href="/articles_publik/{{ $article->slug }}"
-                                       class="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-semibold text-sm transition-colors duration-300 group/read">
+                                    <a href="/articles/{{ $article->slug }}"
+                                       class="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-semibold text-sm transition-colors duration-300 group/read fix-clickable-link">
                                         <span>Baca Selengkapnya</span>
                                         <svg class="w-4 h-4 transform group-hover/read:translate-x-1 transition-transform duration-300"
                                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,8 +180,18 @@
                     </div>
                     <h3 class="text-2xl font-bold text-slate-300 mb-2">Belum ada artikel</h3>
                     <p class="text-slate-500 max-w-md mx-auto">
-                        Artikel sedang dalam persiapan. Nantikan update terbaru dari tim MuscleXpert!
+                        @if(request('category'))
+                            Tidak ada artikel dalam kategori "{{ request('category') }}".
+                        @else
+                            Artikel sedang dalam persiapan. Nantikan update terbaru dari tim MuscleXpert!
+                        @endif
                     </p>
+                    @if(request('category'))
+                        <a href="/articles"
+                           class="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300">
+                            Lihat Semua Artikel
+                        </a>
+                    @endif
                 </div>
             @endif
 
@@ -184,6 +248,32 @@
             transition-property: color, background-color, border-color, transform, box-shadow;
             transition-duration: 300ms;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* FIX: Force semua link artikel bisa diklik */
+        .fix-clickable-link {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            position: relative;
+            z-index: 9999 !important;
+        }
+
+        /* FIX: Pastikan parent tidak nge-block */
+        .group .fix-clickable-link,
+        .group\/* .fix-clickable-link,
+        [class*="group"] .fix-clickable-link {
+            pointer-events: auto !important;
+        }
+
+        /* FIX: Pastikan tidak ada overlay yang nge-block */
+        .absolute.inset-0 {
+            pointer-events: none !important;
+        }
+
+        /* Pastikan gambar tidak overflow */
+        img {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 

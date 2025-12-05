@@ -82,46 +82,7 @@
                 </div>
 
                 {{-- Support --}}
-                <div>
-                    <h3 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                        <div class="w-1 h-6 bg-gradient-to-b from-blue-400 to-cyan-500 rounded-full"></div>
-                        Support
-                    </h3>
-                    <ul class="space-y-4">
-                        <li>
-                            <a href="#" class="text-slate-400 hover:text-green-400 transition-colors duration-300 flex items-center gap-2 group">
-                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Help Center
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-slate-400 hover:text-green-400 transition-colors duration-300 flex items-center gap-2 group">
-                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Privacy Policy
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-slate-400 hover:text-green-400 transition-colors duration-300 flex items-center gap-2 group">
-                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                Terms of Service
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-slate-400 hover:text-green-400 transition-colors duration-300 flex items-center gap-2 group">
-                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                                FAQ
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+
             </div>
         </div>
 
@@ -131,7 +92,7 @@
                 <div class="text-slate-400 text-sm">
                     © 2025 <span class="text-green-400 font-semibold">MuscleXpert</span>. All rights reserved.
                 </div>
-               A
+
             </div>
         </div>
     </div>
