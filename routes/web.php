@@ -522,6 +522,9 @@ Route::middleware(['auth', 'role:user'])
             // Ownership Transfer
             Route::post('/{community:slug}/transfer-ownership/{user}', [UserCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
         });
+        Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
 
     });
 
