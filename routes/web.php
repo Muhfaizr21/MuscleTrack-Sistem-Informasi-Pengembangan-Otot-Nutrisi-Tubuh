@@ -349,6 +349,8 @@ Route::middleware(['auth', 'role:trainer'])
 
             // Members Management - GET untuk menampilkan halaman
             Route::get('/{community:slug}/members', [TrainerCommunityController::class, 'members'])->name('members');
+            Route::get('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'editRole'])->name('members.role');
+            Route::post('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'updateRole'])->name('members.role.update');
 
             // Members Management Actions - POST untuk aksi
             Route::post('/{community:slug}/members/{user}/approve', [TrainerCommunityController::class, 'approveMember'])->name('members.approve');
