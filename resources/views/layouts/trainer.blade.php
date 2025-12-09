@@ -660,6 +660,7 @@
     </style>
 </head>
 
+
 <body class="text-gray-100 min-h-screen flex flex-col">
     <!-- Background Elements -->
     <div class="grid-pattern"></div>

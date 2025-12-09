@@ -226,7 +226,6 @@ Route::middleware(['auth', 'role:trainer'])
 
         // Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
-
         // Members Management
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
@@ -329,6 +328,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/feedback', [QualityController::class, 'sendFeedback'])->name('feedback.store');
             Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
         });
+
 
         // ==========================
         // 🧑‍🏫 TRAINER COMMUNITY ROUTES
