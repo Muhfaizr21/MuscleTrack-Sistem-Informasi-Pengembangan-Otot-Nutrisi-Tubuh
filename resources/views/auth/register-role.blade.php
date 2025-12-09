@@ -256,7 +256,7 @@
                     @endif
 
                     <!-- Role Selection Section -->
-                    <div class="mb-6" x-data="{ role: 'user' }">
+                    <div class="mb-6" x-data="{ role: '{{ old('role', 'user') }}' }">
                         <label class="block text-sm font-medium text-slate-300 mb-3 text-center">Pilih Peran
                             Anda:</label>
 
@@ -304,7 +304,7 @@
 
                     <!-- Registration Form -->
                     <form method="POST" action="{{ route('register') }}"
-                        x-data="{ role: 'user', showPassword: false, showConfirmPassword: false }">
+                        x-data="{ role: '{{ old('role', 'user') }}', showPassword: false, showConfirmPassword: false }">
                         @csrf
                         <input type="hidden" name="role" x-model="role">
 
@@ -323,6 +323,9 @@
                                     </svg>
                                 </div>
                             </div>
+                            @error('name')
+                                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Email Field -->
@@ -340,6 +343,9 @@
                                     </svg>
                                 </div>
                             </div>
+                            @error('email')
+                                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Password Field -->
@@ -367,6 +373,9 @@
                                     </button>
                                 </div>
                             </div>
+                            @error('password')
+                                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Confirm Password Field -->
@@ -376,7 +385,7 @@
                                 <input :type="showConfirmPassword ? 'text' : 'password'" name="password_confirmation"
                                     required
                                     class="input-field w-full rounded-xl py-3 px-4 text-slate-200 placeholder-slate-500"
-                                    placeholder="Ulangi password">
+                                    placeholder="Ulangi password" id="password_confirmation">
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                     <button type="button" @click="showConfirmPassword = !showConfirmPassword"
                                         class="text-slate-500 hover:text-slate-300">
@@ -395,13 +404,17 @@
                                     </button>
                                 </div>
                             </div>
+                            @error('password_confirmation')
+                                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Terms and Conditions -->
                         <div class="flex items-start text-sm text-slate-400 mb-6">
-                            <input type="checkbox" name="terms" required
-                                class="rounded border-slate-600 bg-slate-700/60 text-green-500 focus:ring-green-400 mt-1">
-                            <span class="ml-2">
+                            <input type="checkbox" name="terms" id="terms" required
+                                class="rounded border-slate-600 bg-slate-700/60 text-green-500 focus:ring-green-400 mt-1"
+                                {{ old('terms') ? 'checked' : '' }}>
+                            <label for="terms" class="ml-2 cursor-pointer">
                                 Saya setuju dengan
                                 <a href="#" class="text-green-400 hover:text-green-300 transition-colors">Syarat &
                                     Ketentuan</a>
@@ -409,8 +422,11 @@
                                 <a href="#" class="text-green-400 hover:text-green-300 transition-colors">Kebijakan
                                     Privasi</a>
                                 MuscleXpert
-                            </span>
+                            </label>
                         </div>
+                        @error('terms')
+                            <p class="mt-1 mb-4 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
 
                         <!-- Register Button -->
                         <button type="submit"
