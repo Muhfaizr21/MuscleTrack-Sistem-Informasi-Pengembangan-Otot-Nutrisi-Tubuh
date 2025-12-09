@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class ChatController extends Controller
+// UBAH NAMA CLASS DISINI:
+class TrainerChatController extends Controller  // <- PERUBAHAN PENTING!
 {
     /**
      * 💬 Tampilkan daftar member + chat + filter tanggal
@@ -28,6 +29,13 @@ class ChatController extends Controller
                 ->where('role', 'user')
                 ->withCount([
                     'trainerChatsAsUser as unread_count' => function ($query) use ($trainer) {
+                        $query->where('trainer_id', $trainer->id)
+                            ->where('sender_type', 'user')
+                            ->where('read_status', false);
+                    },
+                ])
+                ->withCount([
+                    'trainerChatsAsUser as trainer_chats_as_user_count' => function ($query) use ($trainer) {
                         $query->where('trainer_id', $trainer->id)
                             ->where('sender_type', 'user')
                             ->where('read_status', false);
@@ -79,7 +87,10 @@ class ChatController extends Controller
                 ->selectRaw('DATE(timestamp) as date')
                 ->distinct()
                 ->orderBy('date', 'desc')
-                ->pluck('date');
+                ->pluck('date')
+                ->map(function ($date) {
+                    return Carbon::parse($date)->format('Y-m-d');
+                });
 
             return view('trainer.communication.chat', compact(
                 'trainer',
@@ -90,7 +101,7 @@ class ChatController extends Controller
                 'dateFilter'
             ));
         } catch (Exception $e) {
-            Log::error('Error in ChatController@index', [
+            Log::error('Error in TrainerChatController@index', [
                 'trainer_id' => Auth::id(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -180,7 +191,7 @@ class ChatController extends Controller
             $chat = TrainerChat::findOrFail($id);
 
             // Validasi: pesan hanya boleh dihapus jika dikirim oleh trainer ini
-            if (!$chat->canBeDeletedByTrainer($trainer->id)) {
+            if ($chat->trainer_id !== $trainer->id || $chat->sender_type !== 'trainer') {
                 Log::warning('Unauthorized delete attempt', [
                     'trainer_id' => $trainer->id,
                     'chat_id' => $id,
@@ -190,14 +201,14 @@ class ChatController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'error' => 'Anda tidak dapat menghapus pesan ini.'
+                    'error' => 'Anda hanya dapat menghapus pesan yang Anda kirim sendiri.'
                 ], 403);
             }
 
             // Simpan info sebelum dihapus untuk log
             $chatInfo = [
                 'id' => $chat->id,
-                'message' => substr($chat->message, 0, 100), // Ambil 100 karakter pertama
+                'message' => substr($chat->message, 0, 100),
                 'timestamp' => $chat->timestamp,
                 'sender_type' => $chat->sender_type,
             ];
@@ -334,7 +345,7 @@ class ChatController extends Controller
                         'sender_type' => $msg->sender_type,
                         'read_status' => $msg->read_status,
                         'timestamp' => $msg->timestamp->format('Y-m-d H:i:s'),
-                        'can_delete' => $msg->canBeDeletedByTrainer(Auth::id())
+                        'can_delete' => $msg->trainer_id === Auth::id() && $msg->sender_type === 'trainer'
                     ];
                 });
 
@@ -345,6 +356,36 @@ class ChatController extends Controller
                 'messages' => $messages
             ]);
         } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 🆕 Get unread messages count for sidebar
+     */
+    public function getUnreadCount(Request $request)
+    {
+        try {
+            $trainer = Auth::user();
+
+            $unreadCount = TrainerChat::where('trainer_id', $trainer->id)
+                ->where('sender_type', 'user')
+                ->where('read_status', false)
+                ->count();
+
+            return response()->json([
+                'success' => true,
+                'unread_count' => $unreadCount
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error getting unread count', [
+                'trainer_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()

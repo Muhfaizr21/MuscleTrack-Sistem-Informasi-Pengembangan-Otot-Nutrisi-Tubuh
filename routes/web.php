@@ -45,7 +45,7 @@ use App\Http\Controllers\Admin\{
 use App\Http\Controllers\Trainer\{
     DashboardController as TrainerDashboardController,
     MemberController,
-    ChatController as TrainerChatController,
+    TrainerChatController as TrainerChatController,
     NotificationController as TrainerNotificationController,
     ProgramController,
     QualityController,
@@ -91,12 +91,6 @@ Route::get('/', function () {
 // Public Articles - GUNAKAN SATU SET SAJA untuk menghindari duplikasi
 Route::get('/articles', [PublicArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles/{slug}', [PublicArticleController::class, 'show'])->name('public.articles.show');
-
-// HAPUS INI karena duplikat:
-// Route::get('/articles_publik', [NewsArticleController::class, 'index'])->name('public.articles.index');
-// Route::get('/articles_publik/{article:slug}', [NewsArticleController::class, 'show'])->name('public.articles.show');
-// Route::get('/articles', [NewsArticleController::class, 'index'])->name('articles.index');
-// Route::get('/articles/{article}', [NewsArticleController::class, 'show'])->name('articles.show');
 
 // Contact
 Route::get('/contact', [ContactFormController::class, 'index'])->name('contact.index');
@@ -253,13 +247,19 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
         });
 
-        // Communication
+        // Communication - PERBAIKAN: Hapus duplikat 'chat' dalam prefix
         Route::prefix('communication')->name('communication.')->group(function () {
-            // Chat
-            Route::get('/chat', [TrainerChatController::class, 'index'])->name('chat.index');
-            Route::post('/chat', [TrainerChatController::class, 'store'])->name('chat.store');
-            Route::delete('/chat/{id}', [TrainerChatController::class, 'destroy'])->name('chat.destroy');
-            Route::post('/chat/read', [TrainerChatController::class, 'markAllRead'])->name('chat.markAllRead');
+            // Chat Routes - Fixed: menggunakan TrainerChatController dengan benar
+            Route::prefix('chat')->name('chat.')->group(function () {
+                Route::get('/', [TrainerChatController::class, 'index'])->name('index');
+                Route::post('/', [TrainerChatController::class, 'store'])->name('store');
+                Route::delete('/{id}', [TrainerChatController::class, 'destroy'])->name('destroy');
+                Route::post('/mark-read', [TrainerChatController::class, 'markAllRead'])->name('markAllRead');
+
+                // Debug routes (optional)
+                Route::get('/debug', [TrainerChatController::class, 'debugReadStatus'])->name('debug');
+                Route::get('/unread-count', [TrainerChatController::class, 'getUnreadCount'])->name('unreadCount');
+            });
 
             // Notifications
             Route::get('/notifications', [TrainerNotificationController::class, 'index'])->name('notifications.index');
@@ -359,7 +359,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/{community:slug}/members/{user}/demote', [TrainerCommunityController::class, 'demoteMember'])->name('members.demote');
             Route::delete('/{community:slug}/members/{user}', [TrainerCommunityController::class, 'removeMember'])->name('members.remove');
 
-            // Transfer Ownership - PERBAIKAN: harus menggunakan POST dengan parameter user
+            // Transfer Ownership
             Route::post('/{community:slug}/transfer-ownership/{user}', [TrainerCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
 
             // Posts Management
@@ -524,11 +524,14 @@ Route::middleware(['auth', 'role:user'])
             // Ownership Transfer
             Route::post('/{community:slug}/transfer-ownership/{user}', [UserCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
         });
-        Route::fallback(function () {
+    });
+
+
+
+// 404 Fallback
+Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
-
-    });
 
 // ==========================
 // ⚙️ LARAVEL DEFAULT AUTH
