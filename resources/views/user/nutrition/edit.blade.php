@@ -13,9 +13,9 @@
                     </div>
                     <div>
                         <h1 class="text-3xl font-black text-white">
-                            Edit <span class="text-gradient">Nutrition Menu</span>
+                            Edit <span class="text-gradient">Menu Nutrisi</span>
                         </h1>
-                        <p class="text-emerald-400/80 text-lg mt-2">Update your meal information</p>
+                        <p class="text-emerald-400/80 text-lg mt-2">Perbarui informasi menu makanan/minuman Anda</p>
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-red-400 font-medium">Please check the form for errors:</p>
+                            <p class="text-red-400 font-medium">Mohon periksa form untuk kesalahan:</p>
                             <ul class="text-red-400/80 text-sm mt-1 list-disc list-inside">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -68,74 +68,94 @@
 
                     {{-- Meal Name --}}
                     <div>
-                        <label class="block text-lg font-bold text-emerald-400 mb-3">Meal Name</label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-lg font-bold text-emerald-400">Nama Makanan/Minuman</label>
+                            <span class="text-xs text-emerald-400/70 bg-emerald-500/10 px-2 py-1 rounded-lg">Wajib
+                                diisi</span>
+                        </div>
+                        <p class="text-emerald-400/60 text-sm mb-3">Nama lengkap menu makanan atau minuman yang dikonsumsi
+                        </p>
                         <input type="text" name="meal_name" value="{{ old('meal_name', $nutrition->meal_name) }}"
                             class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                            placeholder="e.g., Grilled Chicken with Brown Rice" required>
+                            placeholder="Contoh: Ayam Bakar dengan Nasi Merah, Smoothie Pisang, dll." required>
                     </div>
 
                     {{-- Nutrition Information --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {{-- Calories --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Calories (kcal)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Kalori (kcal)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Energi total</span>
+                            </label>
                             <input type="number" step="1" name="calories"
                                 value="{{ old('calories', $nutrition->calories) }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
                                 required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Jumlah energi yang terkandung dalam makanan</p>
                         </div>
 
                         {{-- Protein --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Protein (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Protein (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Membangun otot</span>
+                            </label>
                             <input type="number" step="0.1" name="protein" value="{{ old('protein', $nutrition->protein) }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
                                 required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Nutrisi penting untuk pertumbuhan dan perbaikan
+                                jaringan</p>
                         </div>
 
                         {{-- Carbs --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Carbs (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Karbohidrat (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Sumber energi</span>
+                            </label>
                             <input type="number" step="0.1" name="carbs" value="{{ old('carbs', $nutrition->carbs) }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
                                 required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Sumber energi utama untuk aktivitas sehari-hari</p>
                         </div>
 
                         {{-- Fat --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Fat (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Lemak (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Cadangan energi</span>
+                            </label>
                             <input type="number" step="0.1" name="fat" value="{{ old('fat', $nutrition->fat) }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
                                 required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Nutrisi esensial untuk penyerapan vitamin dan hormon
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Water & Hydrogen --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Water Intake --}}
+                    {{-- Water Intake --}}
+                    <div class="border-t border-emerald-500/20 pt-6">
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Water Intake (ml)</label>
+                            <label class="block text-sm font-bold text-blue-400 mb-2">
+                                Asupan Air (ml)
+                                <span class="text-blue-400/60 text-xs font-normal ml-2">Hidrasi tubuh</span>
+                            </label>
                             <input type="number" step="50" name="water_intake"
                                 value="{{ old('water_intake', $nutrition->water_intake) }}"
-                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300">
-                            <p class="text-emerald-400/70 text-xs mt-1">Optional - track water consumption</p>
-                        </div>
-
-                        {{-- Hydrogen Level --}}
-                        <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Hydrogen Level (pH)</label>
-                            <input type="number" step="0.1" min="0" max="14" name="hydrogen_level"
-                                value="{{ old('hydrogen_level', $nutrition->hydrogen_level) }}"
-                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300">
-                            <p class="text-emerald-400/70 text-xs mt-1">Optional - water pH level</p>
+                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder-blue-400/50 transition-all duration-300">
+                            <p class="text-blue-400/60 text-xs mt-1">Volume air yang diminum dalam mililiter (opsional)</p>
                         </div>
                     </div>
 
                     {{-- Day and Type --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         {{-- Day of Week --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Day of Week</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Hari
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Kapan dikonsumsi</span>
+                            </label>
                             <select name="day_of_week"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white transition-all duration-300"
                                 required>
@@ -146,37 +166,56 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-emerald-400/60 text-xs mt-1">Hari ketika makanan/minuman ini dikonsumsi</p>
                         </div>
 
                         {{-- Meal Type --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Meal Type</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Jenis Makanan
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Kategori</span>
+                            </label>
                             <select name="type"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white transition-all duration-300">
-                                <option value="">Select Type</option>
+                                <option value="">Pilih Jenis</option>
                                 <option value="breakfast"
-                                    {{ old('type', $nutrition->type) == 'breakfast' ? 'selected' : '' }}>Breakfast</option>
-                                <option value="lunch" {{ old('type', $nutrition->type) == 'lunch' ? 'selected' : '' }}>Lunch
+                                    {{ old('type', $nutrition->type) == 'breakfast' ? 'selected' : '' }}>Sarapan (Pagi)
+                                </option>
+                                <option value="lunch" {{ old('type', $nutrition->type) == 'lunch' ? 'selected' : '' }}>Makan
+                                    Siang
                                 </option>
                                 <option value="dinner" {{ old('type', $nutrition->type) == 'dinner' ? 'selected' : '' }}>
-                                    Dinner</option>
-                                <option value="snack" {{ old('type', $nutrition->type) == 'snack' ? 'selected' : '' }}>Snack
+                                    Makan Malam
+                                </option>
+                                <option value="snack" {{ old('type', $nutrition->type) == 'snack' ? 'selected' : '' }}>
+                                    Cemilan
                                 </option>
                             </select>
+                            <p class="text-emerald-400/60 text-xs mt-1">Kategori waktu makan (opsional)</p>
                         </div>
                     </div>
 
                     {{-- Buttons --}}
-                    <div class="flex justify-between items-center pt-6">
+                    <div class="flex justify-between items-center pt-8 border-t border-emerald-500/20">
                         <a href="{{ route('user.nutrition.index') }}"
-                            class="px-6 py-3 rounded-xl text-sm font-bold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-emerald-500/30 hover:border-emerald-500/50">
-                            ← Back to Nutrition
+                            class="group flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-emerald-500/30 hover:border-emerald-500/50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali ke Nutrisi
                         </a>
 
-                        <button type="submit"
-                            class="px-8 py-3 rounded-xl text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
-                            Update Meal
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="submit"
+                                class="group flex items-center gap-2 px-8 py-3 rounded-xl text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Update Menu
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -189,20 +228,61 @@
                         <span class="text-xl">🗑️</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-white">Delete This Meal</h3>
-                        <p class="text-red-400/80">This action cannot be undone</p>
+                        <h3 class="text-lg font-bold text-white">Hapus Menu Ini</h3>
+                        <p class="text-red-400/80">Tindakan ini tidak dapat dibatalkan</p>
                     </div>
                 </div>
 
                 <form action="{{ route('user.nutrition.destroy', $nutrition->id) }}" method="POST"
-                    onsubmit="return confirm('Are you sure you want to delete this meal? This action cannot be undone.');">
+                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu ini? Tindakan ini tidak dapat dibatalkan.');">
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                        class="w-full px-6 py-3 rounded-xl text-sm font-bold text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all duration-300">
-                        Delete Meal Permanently
+                        class="w-full px-6 py-3 rounded-xl text-sm font-bold text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all duration-300 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Hapus Menu Permanen
                     </button>
                 </form>
+            </div>
+
+            {{-- Current Nutrition Info --}}
+            <div class="glass rounded-2xl p-6 mt-8 border border-blue-500/20 bg-blue-500/10">
+                <div class="flex items-center gap-4 mb-4">
+                    <div
+                        class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
+                        <span class="text-xl">📊</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-blue-400">Informasi Nutrisi Saat Ini</h3>
+                        <p class="text-blue-400/80">Ringkasan data menu yang akan diedit:</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
+                        <p class="text-white font-bold text-lg">{{ $nutrition->calories }}<span
+                                class="text-xs text-blue-400 ml-1">kcal</span></p>
+                        <p class="text-blue-400/70 text-xs">Kalori</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
+                        <p class="text-white font-bold text-lg">{{ $nutrition->protein }}<span
+                                class="text-xs text-blue-400 ml-1">g</span></p>
+                        <p class="text-blue-400/70 text-xs">Protein</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
+                        <p class="text-white font-bold text-lg">{{ $nutrition->carbs }}<span
+                                class="text-xs text-blue-400 ml-1">g</span></p>
+                        <p class="text-blue-400/70 text-xs">Karbohidrat</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-center">
+                        <p class="text-white font-bold text-lg">{{ $nutrition->fat }}<span
+                                class="text-xs text-blue-400 ml-1">g</span></p>
+                        <p class="text-blue-400/70 text-xs">Lemak</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

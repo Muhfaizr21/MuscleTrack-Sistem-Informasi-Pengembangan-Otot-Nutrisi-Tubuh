@@ -13,15 +13,15 @@
                         </div>
                         <div>
                             <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
-                                My <span class="text-gradient">Workout Plans</span>
+                                Program <span class="text-gradient">Latihan Saya</span>
                             </h1>
-                            <p class="text-emerald-400/80 text-sm md:text-lg mt-1 md:mt-2">Personalized training programs tailored for your fitness journey</p>
+                            <p class="text-emerald-400/80 text-sm md:text-lg mt-1 md:mt-2">Program latihan personal sesuai kondisi dan tujuan fitness Anda</p>
                         </div>
                     </div>
                     <a href="{{ route('user.workouts.create') }}"
                         class="group relative w-full lg:w-auto px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-2 md:gap-3 mt-4 lg:mt-0">
                         <span class="text-lg md:text-xl">+</span>
-                        Add New Workout
+                        Buat Jadwal Baru
                         <svg class="w-4 h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            {{-- 🧮 Info BMI & Fitness Profile --}}
+            {{-- 🧮 Info BMI & Profil Fitness --}}
             <div class="glass-dark rounded-2xl md:rounded-3xl p-4 md:p-6 border border-emerald-500/20 shadow-lg md:shadow-xl shadow-emerald-500/10 mb-6 md:mb-8">
                 <div class="flex flex-col sm:flex-row items-start gap-3 md:gap-4">
                     <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
@@ -44,16 +44,30 @@
                         @if(isset($bmi) && $bmi)
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-4 mb-3 md:mb-4">
                                 <p class="text-base md:text-lg font-semibold text-white">
-                                    <span class="font-bold">Your BMI:</span> {{ number_format($bmi, 1) }}
-                                    (<span class="capitalize font-medium text-emerald-400">{{ $bmiCategory }}</span>)
+                                    <span class="font-bold">Indeks Massa Tubuh (IMT):</span> {{ number_format($bmi, 1) }}
+                                    (<span class="capitalize font-medium text-emerald-400">
+                                        @switch($bmiCategory)
+                                            @case('underweight') Kurang berat @break
+                                            @case('normal') Normal @break
+                                            @case('overweight') Kelebihan berat @break
+                                            @case('obese') Obesitas @break
+                                            @default Tidak diketahui
+                                        @endswitch
+                                    </span>)
                                 </p>
                                 <span class="px-2 md:px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 w-fit">
-                                    {{ strtoupper($bmiCategory) }}
+                                    @switch($bmiCategory)
+                                        @case('underweight') KURANG BERAT @break
+                                        @case('normal') NORMAL @break
+                                        @case('overweight') KELEBIHAN @break
+                                        @case('obese') OBESITAS @break
+                                        @default BELUM DIUKUR
+                                    @endswitch
                                 </span>
                             </div>
                         @endif
 
-                        {{-- Fitness Profile Info --}}
+                        {{-- Profil Fitness Info --}}
                         @if($user->fitnessProfile)
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-3 md:mb-4">
                                 <div class="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg md:rounded-xl bg-emerald-500/5 border border-emerald-500/10">
@@ -61,8 +75,15 @@
                                         <span class="text-emerald-400 text-xs md:text-sm">🏃</span>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-white text-xs md:text-sm font-medium truncate">Activity Level</p>
-                                        <p class="text-emerald-400 text-xs md:text-sm font-bold capitalize truncate">{{ $user->fitnessProfile->activity_level }}</p>
+                                        <p class="text-white text-xs md:text-sm font-medium truncate">Level Aktivitas</p>
+                                        <p class="text-emerald-400 text-xs md:text-sm font-bold capitalize truncate">
+                                            @switch($user->fitnessProfile->activity_level)
+                                                @case('light') Ringan @break
+                                                @case('moderate') Sedang @break
+                                                @case('heavy') Berat @break
+                                                @default Belum diatur
+                                            @endswitch
+                                        </p>
                                     </div>
                                 </div>
 
@@ -72,7 +93,7 @@
                                         <span class="text-emerald-400 text-xs md:text-sm">🔥</span>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-white text-xs md:text-sm font-medium truncate">Daily Calories</p>
+                                        <p class="text-white text-xs md:text-sm font-medium truncate">Target Kalori Harian</p>
                                         <p class="text-emerald-400 text-xs md:text-sm font-bold truncate">{{ $user->fitnessProfile->daily_calorie_target }} kcal</p>
                                     </div>
                                 </div>
@@ -84,9 +105,9 @@
                                         <span class="text-emerald-400 text-xs md:text-sm">💪</span>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-white text-xs md:text-sm font-medium truncate">Focus Areas</p>
+                                        <p class="text-white text-xs md:text-sm font-medium truncate">Area Fokus</p>
                                         <p class="text-emerald-400 text-xs md:text-sm font-bold truncate">
-                                            {{ collect(json_decode($user->fitnessProfile->preferred_muscle_groups))->count() }} areas
+                                            {{ collect(json_decode($user->fitnessProfile->preferred_muscle_groups))->count() }} area
                                         </p>
                                     </div>
                                 </div>
@@ -96,21 +117,21 @@
 
                         <p class="text-emerald-400/80 text-xs md:text-sm mb-3 md:mb-4 leading-relaxed">
                             @if($user->fitnessProfile)
-                                Workout recommendations are personalized based on your fitness profile
+                                Rekomendasi latihan disesuaikan dengan profil fitness Anda
                                 @if(isset($bmi) && $bmi)
-                                    and body condition
+                                    dan kondisi tubuh
                                 @endif
                             @elseif(isset($bmi) && $bmi)
-                                Workout recommendations below are customized for your body condition
+                                Rekomendasi latihan di bawah disesuaikan dengan kondisi tubuh Anda
                             @else
-                                Complete your fitness profile for personalized workout recommendations
+                                Lengkapi profil fitness untuk mendapatkan rekomendasi latihan personal
                             @endif
                         </p>
 
-                        {{-- Recommendations based on profile --}}
+                        {{-- Rekomendasi berdasarkan profil --}}
                         <div class="space-y-2 md:space-y-3">
                             @if($user->fitnessProfile)
-                                {{-- Recommendations based on activity level --}}
+                                {{-- Rekomendasi berdasarkan level aktivitas --}}
                                 @switch($user->fitnessProfile->activity_level)
                                     @case('light')
                                         <div class="flex items-start gap-2 md:gap-3 p-2 md:p-3 rounded-lg md:rounded-xl bg-blue-500/5 border border-blue-500/10">
@@ -118,8 +139,8 @@
                                                 <span class="text-blue-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Beginner-friendly workouts</p>
-                                                <p class="text-blue-400/70 text-xs md:text-sm">Focus on proper form and gradual progression</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Latihan untuk Pemula</p>
+                                                <p class="text-blue-400/70 text-xs md:text-sm">Fokus pada form yang benar dan progres bertahap</p>
                                             </div>
                                         </div>
                                         @break
@@ -130,8 +151,8 @@
                                                 <span class="text-amber-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Intermediate intensity programs</p>
-                                                <p class="text-amber-400/70 text-xs md:text-sm">Balanced mix of strength and cardio</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Program Intensitas Menengah</p>
+                                                <p class="text-amber-400/70 text-xs md:text-sm">Kombinasi seimbang antara kekuatan dan kardio</p>
                                             </div>
                                         </div>
                                         @break
@@ -142,14 +163,14 @@
                                                 <span class="text-red-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Advanced training protocols</p>
-                                                <p class="text-red-400/70 text-xs md:text-sm">High-intensity and specialized programs</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Protokol Latihan Lanjutan</p>
+                                                <p class="text-red-400/70 text-xs md:text-sm">Program intensitas tinggi dan khusus</p>
                                             </div>
                                         </div>
                                         @break
                                 @endswitch
 
-                                {{-- Recommendations based on calorie target --}}
+                                {{-- Rekomendasi berdasarkan target kalori --}}
                                 @if($user->fitnessProfile->daily_calorie_target)
                                     @if($user->fitnessProfile->daily_calorie_target > 2500)
                                         <div class="flex items-start gap-2 md:gap-3 p-2 md:p-3 rounded-lg md:rounded-xl bg-purple-500/5 border border-purple-500/10">
@@ -157,8 +178,8 @@
                                                 <span class="text-purple-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Muscle Building Focus</p>
-                                                <p class="text-purple-400/70 text-xs md:text-sm">Strength training with progressive overload</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Fokus Pembentukan Otot</p>
+                                                <p class="text-purple-400/70 text-xs md:text-sm">Latihan kekuatan dengan beban progresif</p>
                                             </div>
                                         </div>
                                     @elseif($user->fitnessProfile->daily_calorie_target < 1800)
@@ -167,8 +188,8 @@
                                                 <span class="text-green-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Fat Loss Focus</p>
-                                                <p class="text-green-400/70 text-xs md:text-sm">HIIT and metabolic conditioning</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Fokus Pembakaran Lemak</p>
+                                                <p class="text-green-400/70 text-xs md:text-sm">HIIT dan latihan metabolik</p>
                                             </div>
                                         </div>
                                     @else
@@ -177,15 +198,15 @@
                                                 <span class="text-emerald-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Maintenance & Toning</p>
-                                                <p class="text-emerald-400/70 text-xs md:text-sm">Balanced workouts for sustained fitness</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Pemeliharaan & Pengencangan</p>
+                                                <p class="text-emerald-400/70 text-xs md:text-sm">Latihan seimbang untuk fitness berkelanjutan</p>
                                             </div>
                                         </div>
                                     @endif
                                 @endif
                             @endif
 
-                            {{-- BMI-based recommendations --}}
+                            {{-- Rekomendasi berdasarkan IMT --}}
                             @if(isset($bmiCategory) && $bmiCategory)
                                 @switch($bmiCategory)
                                     @case('underweight')
@@ -194,8 +215,8 @@
                                                 <span class="text-emerald-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Muscle Mass Building</p>
-                                                <p class="text-emerald-400/70 text-xs md:text-sm">Compound exercises with calorie surplus</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Fokus Pembentukan Massa Otot</p>
+                                                <p class="text-emerald-400/70 text-xs md:text-sm">Latihan compound dengan surplus kalori</p>
                                             </div>
                                         </div>
                                         @break
@@ -206,8 +227,8 @@
                                                 <span class="text-amber-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Fat Burning Focus</p>
-                                                <p class="text-amber-400/70 text-xs md:text-sm">HIIT and full-body workouts</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Fokus Pembakaran Lemak</p>
+                                                <p class="text-amber-400/70 text-xs md:text-sm">HIIT dan latihan seluruh tubuh</p>
                                             </div>
                                         </div>
                                         @break
@@ -218,8 +239,8 @@
                                                 <span class="text-red-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Low-Impact Start</p>
-                                                <p class="text-red-400/70 text-xs md:text-sm">Gradual progression with joint-friendly exercises</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Mulai dengan Dampak Rendah</p>
+                                                <p class="text-red-400/70 text-xs md:text-sm">Progres bertahap dengan latihan ramah sendi</p>
                                             </div>
                                         </div>
                                         @break
@@ -230,8 +251,8 @@
                                                 <span class="text-emerald-400 text-xs md:text-sm">•</span>
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-white font-medium text-sm md:text-base">Performance & Maintenance</p>
-                                                <p class="text-emerald-400/70 text-xs md:text-sm">Balanced training for sustained results</p>
+                                                <p class="text-white font-medium text-sm md:text-base">Kinerja & Pemeliharaan</p>
+                                                <p class="text-emerald-400/70 text-xs md:text-sm">Latihan seimbang untuk hasil berkelanjutan</p>
                                             </div>
                                         </div>
                                         @break
@@ -242,7 +263,7 @@
                 </div>
             </div>
 
-            {{-- Call to Action for Incomplete Profile --}}
+            {{-- Ajakan untuk Profil Tidak Lengkap --}}
             @if(!$user->fitnessProfile)
                 <div class="glass-dark rounded-2xl md:rounded-3xl p-4 md:p-6 border border-amber-500/20 shadow-lg md:shadow-xl shadow-amber-500/10 mb-6 md:mb-8">
                     <div class="flex flex-col sm:flex-row items-start gap-3 md:gap-4">
@@ -250,16 +271,16 @@
                             <span class="text-amber-400 text-lg md:text-xl">💡</span>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="text-base md:text-lg font-bold text-white mb-2">Complete Your Fitness Profile</h3>
+                            <h3 class="text-base md:text-lg font-bold text-white mb-2">Lengkapi Profil Fitness Anda</h3>
                             <p class="text-amber-400/80 text-xs md:text-sm mb-3 md:mb-4 leading-relaxed">
-                                Get personalized workout recommendations by completing your fitness profile. Tell us about your activity level, goals, and preferred focus areas.
+                                Dapatkan rekomendasi latihan personal dengan melengkapi profil fitness. Beritahu kami tentang level aktivitas, tujuan, dan area fokus yang Anda inginkan.
                             </p>
                             <a href="{{ route('user.profile.edit') }}" 
                                class="inline-flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl text-xs md:text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 transition-all duration-300 w-full sm:w-auto">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
-                                Complete Profile
+                                Lengkapi Profil
                             </a>
                         </div>
                     </div>
@@ -280,210 +301,302 @@
                 </div>
             @endif
 
-            {{-- Workout Plans --}}
-            @if($workouts->count() > 0)
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-                    @foreach($workouts as $workout)
-                        @php
-                            $sourceLabel = 'Sistem Otomatis';
-                            $sourceClass = 'text-emerald-400';
-                            $sourceIcon = '🔧';
-                            
-                            if ($workout->recommended_by === 'trainer' && $workout->trainer_id) {
-                                $trainerName = $workout->trainer->name ?? 'Trainer Tidak Dikenal';
-                                $sourceLabel = 'Trainer: ' . $trainerName;
-                                $sourceClass = 'text-blue-400';
-                                $sourceIcon = '👨‍🏫';
-                            } elseif (in_array($workout->recommended_by, ['admin', 'system']) || $workout->recommended_by === null) {
-                                $sourceLabel = 'Admin / Sistem';
-                                $sourceClass = 'text-emerald-400';
-                                $sourceIcon = '🔧';
-                            }
-                            
-                            // Check if this workout matches user's fitness profile
-                            $isPersonalized = false;
-                            if ($user->fitnessProfile) {
-                                $difficultyMap = [
-                                    'light' => 'beginner',
-                                    'moderate' => 'intermediate', 
-                                    'heavy' => 'advanced'
-                                ];
-                                $expectedDifficulty = $difficultyMap[$user->fitnessProfile->activity_level] ?? null;
-                                $isPersonalized = $workout->difficulty_level === $expectedDifficulty;
-                            }
-                            
-                            $userSchedule = $schedules->firstWhere('workout_plan_id', $workout->id);
-                        @endphp
-
-                        <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow relative">
-                            {{-- Personalized Badge --}}
-                            @if($isPersonalized)
-                                <div class="absolute -top-2 -right-2 z-10">
-                                    <span class="bg-gradient-to-r from-purple-500 to-purple-700 text-white text-xs font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full border border-purple-500/30 shadow-lg flex items-center gap-1">
-                                        <span class="text-xs">🎯</span>
-                                        <span class="hidden sm:inline">Personalized</span>
+            {{-- Jadwal Latihan yang Aktif --}}
+            @if($schedules->where('status', 'pending')->count() > 0)
+                <div class="glass-dark rounded-2xl md:rounded-3xl p-4 md:p-6 border border-emerald-500/20 shadow-lg md:shadow-xl shadow-emerald-500/10 mb-6 md:mb-8">
+                    <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-amber-500 to-amber-700 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 text-lg md:text-xl">📅</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold text-white">Jadwal Latihan Aktif</h3>
+                            <p class="text-amber-400/80 text-sm md:text-base">Latihan yang sudah dijadwalkan dan belum selesai</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        @foreach($schedules->where('status', 'pending') as $schedule)
+                            <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border border-amber-500/20 bg-amber-500/10 hover:border-amber-500/40 transition-all duration-300">
+                                <div class="flex flex-col md:flex-row md:items-start gap-3 md:gap-4 mb-4">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-base md:text-lg font-bold text-white mb-2">{{ $schedule->workoutPlan->title ?? 'Workout' }}</h4>
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-xs font-medium px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                                {{ ucfirst($schedule->workoutPlan->difficulty_level ?? 'beginner') }}
+                                            </span>
+                                            <span class="text-xs font-medium px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                                {{ $schedule->workoutPlan->duration_minutes ?? 30 }} menit
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-bold px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 text-amber-400 border border-amber-500/30">
+                                        {{ ucfirst($schedule->status) }}
                                     </span>
                                 </div>
-                            @endif
-
-                            {{-- Judul & Status --}}
-                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 md:mb-4">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg md:text-xl font-black text-white group-hover:text-emerald-100 transition-colors truncate">{{ $workout->title }}</h3>
-                                    <div class="flex flex-wrap items-center gap-2 mt-1 md:mt-2">
-                                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                            {{ ucfirst($workout->difficulty_level ?? 'beginner') }}
+                                
+                                <div class="space-y-3 md:space-y-4">
+                                    <div class="flex items-center gap-2 text-sm text-amber-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span class="font-bold text-white">
+                                            {{ \Carbon\Carbon::parse($schedule->scheduled_date)->translatedFormat('l, d F Y') }}
                                         </span>
-                                        <span class="flex items-center gap-1 text-xs text-emerald-400/80">
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 text-xs md:text-sm text-amber-400/80">
+                                        <div class="flex items-center gap-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                                             </svg>
-                                            {{ $workout->duration_minutes ?? 30 }} menit
-                                        </span>
+                                            {{ \Carbon\Carbon::parse($schedule->scheduled_time)->format('H:i') }}
+                                        </div>
+                                        <span>•</span>
+                                        @if($schedule->notes)
+                                            <div class="flex items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                                                    <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                                                </svg>
+                                                {{ Str::limit($schedule->notes, 30) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    <div class="flex flex-wrap gap-2 pt-2">
+                                        <form action="{{ route('user.workouts.update', $schedule->id) }}" method="POST" class="flex-1 min-w-[120px]">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="w-full text-green-400 text-xs md:text-sm font-bold hover:text-green-300 transition-colors flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/30">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                                                Selesai
+                                            </button>
+                                        </form>
+
+                                        <a href="{{ route('user.workouts.edit', $schedule->id) }}"
+                                           class="flex-1 min-w-[100px] text-emerald-400 text-xs md:text-sm font-bold hover:text-white transition-colors flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                            Edit
+                                        </a>
                                     </div>
                                 </div>
-                                <span class="bg-gradient-to-r from-emerald-600/20 to-emerald-600/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded-full border border-emerald-500/20 w-fit sm:w-auto">
-                                    {{ ucfirst($workout->status ?? 'active') }}
-                                </span>
                             </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
-                            {{-- Deskripsi --}}
-                            <p class="text-emerald-400/80 text-xs md:text-sm leading-relaxed mb-3 md:mb-4 line-clamp-2">
-                                {{ $workout->description ?? 'Personal training guide from system or trainer.' }}
-                            </p>
+            {{-- Workout Plans --}}
+            @if($workouts->count() > 0)
+                <div class="mb-6 md:mb-8">
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">Rekomendasi Program Latihan</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                        @foreach($workouts as $workout)
+                            @php
+                                $sourceLabel = 'Sistem Otomatis';
+                                $sourceClass = 'text-emerald-400';
+                                $sourceIcon = '🔧';
+                                
+                                if ($workout->recommended_by === 'trainer' && $workout->trainer_id) {
+                                    $trainerName = $workout->trainer->name ?? 'Trainer Tidak Dikenal';
+                                    $sourceLabel = 'Trainer: ' . $trainerName;
+                                    $sourceClass = 'text-blue-400';
+                                    $sourceIcon = '👨‍🏫';
+                                } elseif (in_array($workout->recommended_by, ['admin', 'system']) || $workout->recommended_by === null) {
+                                    $sourceLabel = 'Admin / Sistem';
+                                    $sourceClass = 'text-emerald-400';
+                                    $sourceIcon = '🔧';
+                                }
+                                
+                                // Check if this workout matches user's fitness profile
+                                $isPersonalized = false;
+                                if ($user->fitnessProfile) {
+                                    $difficultyMap = [
+                                        'light' => 'beginner',
+                                        'moderate' => 'intermediate', 
+                                        'heavy' => 'advanced'
+                                    ];
+                                    $expectedDifficulty = $difficultyMap[$user->fitnessProfile->activity_level] ?? null;
+                                    $isPersonalized = $workout->difficulty_level === $expectedDifficulty;
+                                }
+                                
+                                $userSchedule = $schedules->firstWhere('workout_plan_id', $workout->id);
+                            @endphp
 
-                            {{-- Info Pembuat --}}
-                            <div class="flex items-center gap-2 text-xs mb-4 md:mb-5">
-                                <div class="bg-emerald-500/10 p-1.5 rounded-lg flex-shrink-0">
-                                    <span class="{{ $sourceClass }} text-sm">{{ $sourceIcon }}</span>
-                                </div>
-                                <span class="{{ $sourceClass }} truncate">Created by <span class="font-semibold">{{ $sourceLabel }}</span></span>
-                            </div>
-
-                            {{-- Match Indicators --}}
-                            @if($user->fitnessProfile)
-                                <div class="flex flex-wrap gap-1 md:gap-2 mb-3 md:mb-4">
-                                    @if($isPersonalized)
-                                        <span class="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full border border-purple-500/20">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                            </svg>
-                                            <span class="hidden xs:inline">Matches your activity level</span>
-                                            <span class="xs:hidden">Matches level</span>
+                            <div class="glass rounded-xl md:rounded-2xl p-4 md:p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group hover-glow relative">
+                                {{-- Badge Personalisasi --}}
+                                @if($isPersonalized)
+                                    <div class="absolute -top-2 -right-2 z-10">
+                                        <span class="bg-gradient-to-r from-purple-500 to-purple-700 text-white text-xs font-bold px-2 py-1 md:px-3 md:py-1.5 rounded-full border border-purple-500/30 shadow-lg flex items-center gap-1">
+                                            <span class="text-xs">🎯</span>
+                                            <span class="hidden sm:inline">Personal</span>
                                         </span>
-                                    @endif
-                                    
-                                    @if($user->fitnessProfile->preferred_muscle_groups)
-                                        @php
-                                            $userMuscleGroups = json_decode($user->fitnessProfile->preferred_muscle_groups);
-                                            $matchingGroups = collect($userMuscleGroups)->filter(function($group) use ($workout) {
-                                                return stripos($workout->focus_area ?? '', $group) !== false || 
-                                                       stripos($workout->target_fitness ?? '', $group) !== false;
-                                            });
-                                        @endphp
-                                        @if($matchingGroups->count() > 0)
-                                            <span class="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">
+                                    </div>
+                                @endif
+
+                                {{-- Judul & Status --}}
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3 md:mb-4">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-lg md:text-xl font-black text-white group-hover:text-emerald-100 transition-colors truncate">{{ $workout->title }}</h3>
+                                        <div class="flex flex-wrap items-center gap-2 mt-1 md:mt-2">
+                                            <span class="text-xs font-medium px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                {{ ucfirst($workout->difficulty_level ?? 'beginner') }}
+                                            </span>
+                                            <span class="flex items-center gap-1 text-xs text-emerald-400/80">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                                </svg>
+                                                {{ $workout->duration_minutes ?? 30 }} menit
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-gradient-to-r from-emerald-600/20 to-emerald-600/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded-full border border-emerald-500/20 w-fit sm:w-auto">
+                                        {{ ucfirst($workout->status ?? 'active') }}
+                                    </span>
+                                </div>
+
+                                {{-- Deskripsi --}}
+                                <p class="text-emerald-400/80 text-xs md:text-sm leading-relaxed mb-3 md:mb-4 line-clamp-2">
+                                    {{ $workout->description ?? 'Panduan latihan personal dari sistem atau trainer.' }}
+                                </p>
+
+                                {{-- Info Pembuat --}}
+                                <div class="flex items-center gap-2 text-xs mb-4 md:mb-5">
+                                    <div class="bg-emerald-500/10 p-1.5 rounded-lg flex-shrink-0">
+                                        <span class="{{ $sourceClass }} text-sm">{{ $sourceIcon }}</span>
+                                    </div>
+                                    <span class="{{ $sourceClass }} truncate">Dibuat oleh <span class="font-semibold">{{ $sourceLabel }}</span></span>
+                                </div>
+
+                                {{-- Indikator Kecocokan --}}
+                                @if($user->fitnessProfile)
+                                    <div class="flex flex-wrap gap-1 md:gap-2 mb-3 md:mb-4">
+                                        @if($isPersonalized)
+                                            <span class="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full border border-purple-500/20">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                                 </svg>
-                                                Focus: {{ $matchingGroups->first() }}
+                                                <span class="hidden xs:inline">Sesuai level aktivitas Anda</span>
+                                                <span class="xs:hidden">Sesuai level</span>
                                             </span>
                                         @endif
-                                    @endif
-                                </div>
-                            @endif
-
-                            {{-- Jadwal Workout User --}}
-                            <div class="glass-dark rounded-lg md:rounded-xl p-3 md:p-4 border border-emerald-500/20 mb-3 md:mb-4">
-                                @if($userSchedule)
-                                    <div class="flex flex-col gap-3 md:gap-4">
-                                        <div class="space-y-2">
-                                            <div class="flex items-center gap-2 text-xs md:text-sm text-emerald-400">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="font-bold text-white text-sm md:text-base">
-                                                    {{ \Carbon\Carbon::parse($userSchedule->scheduled_date)->translatedFormat('l, d F Y') }}
-                                                </span>
-                                            </div>
-                                            <div class="flex flex-wrap items-center gap-2 text-xs text-emerald-400/80">
-                                                <div class="flex items-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-3.5 md:w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                                                    </svg>
-                                                    {{ \Carbon\Carbon::parse($userSchedule->scheduled_time)->format('H:i') }}
-                                                </div>
-                                                <span>•</span>
-                                                <span>Status: 
-                                                    <span class="font-bold text-emerald-400">
-                                                        {{ ucfirst($userSchedule->status ?? 'pending') }}
-                                                    </span>
-                                                </span>
-                                            </div>
-                                        </div>
                                         
-                                        <div class="flex flex-wrap gap-2">
-                                            @if($userSchedule->status === 'pending')
-                                                <form action="{{ route('user.workouts.update', $userSchedule->id) }}" method="POST" class="flex-1 min-w-[120px]">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" 
-                                                            class="w-full text-green-400 text-xs md:text-sm font-bold hover:text-green-300 transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/30">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                                        </svg>
-                                                        Complete
-                                                    </button>
-                                                </form>
-                                            @endif
-
-                                            <a href="{{ route('user.workouts.edit', $userSchedule->id) }}"
-                                               class="flex-1 min-w-[100px] text-emerald-400 text-xs md:text-sm font-bold hover:text-white transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                </svg>
-                                                Edit
-                                            </a>
-
-                                            <form action="{{ route('user.workouts.destroy', $userSchedule->id) }}" method="POST"
-                                                  onsubmit="return confirm('Delete this workout schedule?')" class="flex-1 min-w-[100px]">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="w-full text-red-400 text-xs md:text-sm font-bold hover:text-red-300 transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/30">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        @if($user->fitnessProfile->preferred_muscle_groups)
+                                            @php
+                                                $userMuscleGroups = json_decode($user->fitnessProfile->preferred_muscle_groups);
+                                                $matchingGroups = collect($userMuscleGroups)->filter(function($group) use ($workout) {
+                                                    return stripos($workout->focus_area ?? '', $group) !== false || 
+                                                           stripos($workout->target_fitness ?? '', $group) !== false;
+                                                });
+                                            @endphp
+                                            @if($matchingGroups->count() > 0)
+                                                <span class="flex items-center gap-1 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                                     </svg>
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
-                                        <div class="text-xs md:text-sm text-emerald-400/80 italic">No workout schedule yet.</div>
-                                        <a href="{{ route('user.workouts.create', ['workout_id' => $workout->id]) }}"
-                                           class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-bold hover:from-emerald-600 hover:to-emerald-800 transition-all shadow-md shadow-emerald-500/30 w-full sm:w-auto">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                                            </svg>
-                                            Set Schedule
-                                        </a>
+                                                    Fokus: {{ $matchingGroups->first() }}
+                                                </span>
+                                            @endif
+                                        @endif
                                     </div>
                                 @endif
-                            </div>
 
-                            {{-- Tombol Lihat Detail --}}
-                            <div class="flex justify-end">
-                                <a href="{{ route('user.workouts.show', $workout->id) }}"
-                                   class="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-emerald-400 hover:text-white transition-colors group">
-                                    View Details
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
+                                {{-- Jadwal Workout User --}}
+                                <div class="glass-dark rounded-lg md:rounded-xl p-3 md:p-4 border border-emerald-500/20 mb-3 md:mb-4">
+                                    @if($userSchedule)
+                                        <div class="flex flex-col gap-3 md:gap-4">
+                                            <div class="space-y-2">
+                                                <div class="flex items-center gap-2 text-xs md:text-sm text-emerald-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="font-bold text-white text-sm md:text-base">
+                                                        {{ \Carbon\Carbon::parse($userSchedule->scheduled_date)->translatedFormat('l, d F Y') }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex flex-wrap items-center gap-2 text-xs text-emerald-400/80">
+                                                    <div class="flex items-center gap-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-3.5 md:w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        {{ \Carbon\Carbon::parse($userSchedule->scheduled_time)->format('H:i') }}
+                                                    </div>
+                                                    <span>•</span>
+                                                    <span>Status: 
+                                                        <span class="font-bold text-emerald-400">
+                                                            {{ ucfirst($userSchedule->status ?? 'pending') }}
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex flex-wrap gap-2">
+                                                @if($userSchedule->status === 'pending')
+                                                    <form action="{{ route('user.workouts.update', $userSchedule->id) }}" method="POST" class="flex-1 min-w-[120px]">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" 
+                                                                class="w-full text-green-400 text-xs md:text-sm font-bold hover:text-green-300 transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/30">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                            Selesai
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                <a href="{{ route('user.workouts.edit', $userSchedule->id) }}"
+                                                   class="flex-1 min-w-[100px] text-emerald-400 text-xs md:text-sm font-bold hover:text-white transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                    </svg>
+                                                    Edit
+                                                </a>
+
+                                                <form action="{{ route('user.workouts.destroy', $userSchedule->id) }}" method="POST"
+                                                      onsubmit="return confirm('Hapus jadwal latihan ini?')" class="flex-1 min-w-[100px]">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="w-full text-red-400 text-xs md:text-sm font-bold hover:text-red-300 transition-colors flex items-center justify-center gap-1 px-2 md:px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/30">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
+                                            <div class="text-xs md:text-sm text-emerald-400/80 italic">Belum ada jadwal latihan.</div>
+                                            <a href="{{ route('user.workouts.create', ['workout_id' => $workout->id]) }}"
+                                               class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-bold hover:from-emerald-600 hover:to-emerald-800 transition-all shadow-md shadow-emerald-500/30 w-full sm:w-auto">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                Buat Jadwal
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Tombol Lihat Detail --}}
+                                <div class="flex justify-end">
+                                    <a href="{{ route('user.workouts.show', $workout->id) }}"
+                                       class="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-emerald-400 hover:text-white transition-colors group">
+                                        Lihat Detail
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             @else
                 <div class="text-center py-12 md:py-16">
@@ -491,16 +604,72 @@
                         class="w-16 h-16 md:w-24 md:h-24 bg-emerald-500/10 rounded-2xl md:rounded-3xl flex items-center justify-center mx-auto mb-3 md:mb-4 border border-emerald-500/20">
                         <span class="text-2xl md:text-4xl">💪</span>
                     </div>
-                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">No Workout Plans Yet</h3>
-                    <p class="text-emerald-400/80 text-sm md:text-base mb-4 md:mb-6">Trainer or system will add workouts according to your condition</p>
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">Belum Ada Program Latihan</h3>
+                    <p class="text-emerald-400/80 text-sm md:text-base mb-4 md:mb-6">Trainer atau sistem akan menambahkan latihan sesuai kondisi Anda</p>
                     <a href="{{ route('user.workouts.create') }}"
                         class="inline-flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl text-xs md:text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 w-full sm:w-auto">
-                        <span>Create Your First Workout</span>
+                        <span>Buat Jadwal Pertama</span>
                         <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                     </a>
+                </div>
+            @endif
+
+            {{-- Latihan yang Selesai --}}
+            @if($schedules->where('status', 'completed')->count() > 0)
+                <div class="glass-dark rounded-2xl md:rounded-3xl p-4 md:p-6 border border-emerald-500/20 shadow-lg md:shadow-xl shadow-emerald-500/10">
+                    <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+                            <span class="text-emerald-400 text-lg md:text-xl">🏆</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold text-white">Latihan yang Telah Selesai</h3>
+                            <p class="text-emerald-400/80 text-sm md:text-base">Riwayat latihan yang telah Anda selesaikan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-emerald-500/20">
+                                    <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-emerald-400 uppercase tracking-wider">Latihan</th>
+                                    <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-emerald-400 uppercase tracking-wider">Tanggal</th>
+                                    <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-emerald-400 uppercase tracking-wider">Durasi</th>
+                                    <th class="px-4 md:px-6 py-3 text-left text-xs font-bold text-emerald-400 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-emerald-500/10">
+                                @foreach($schedules->where('status', 'completed')->take(5) as $completed)
+                                    <tr class="hover:bg-emerald-500/5 transition-all duration-300">
+                                        <td class="px-4 md:px-6 py-3">
+                                            <div class="flex items-center gap-2 md:gap-3">
+                                                <div class="w-8 h-8 md:w-10 md:h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <span class="text-emerald-400 text-sm">✅</span>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-white text-xs md:text-sm font-bold truncate">{{ $completed->workoutPlan->title ?? 'Workout' }}</p>
+                                                    <p class="text-emerald-400/70 text-xs truncate">{{ $completed->workoutPlan->difficulty_level ?? 'Beginner' }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 md:px-6 py-3 text-xs md:text-sm text-emerald-400">
+                                            {{ \Carbon\Carbon::parse($completed->completed_at ?? $completed->scheduled_date)->translatedFormat('d M Y') }}
+                                        </td>
+                                        <td class="px-4 md:px-6 py-3 text-xs md:text-sm text-emerald-400">
+                                            {{ $completed->workoutPlan->duration_minutes ?? 30 }} menit
+                                        </td>
+                                        <td class="px-4 md:px-6 py-3">
+                                            <span class="text-xs font-bold px-2 py-1 rounded-full bg-gradient-to-r from-emerald-600/30 to-emerald-700/30 text-emerald-400 border border-emerald-500/30">
+                                                Selesai
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             @endif
         </div>

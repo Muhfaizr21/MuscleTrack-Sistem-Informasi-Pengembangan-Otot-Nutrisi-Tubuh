@@ -13,9 +13,9 @@
                     </div>
                     <div>
                         <h1 class="text-3xl font-black text-white">
-                            Add New <span class="text-gradient">Nutrition Menu</span>
+                            Tambah <span class="text-gradient">Menu Nutrisi Baru</span>
                         </h1>
-                        <p class="text-emerald-400/80 text-lg mt-2">Create your personalized meal plan</p>
+                        <p class="text-emerald-400/80 text-lg mt-2">Catat makanan dan minuman harian Anda</p>
                     </div>
                 </div>
             </div>
@@ -44,10 +44,16 @@
 
                     {{-- Meal Name --}}
                     <div>
-                        <label class="block text-lg font-bold text-emerald-400 mb-3">Meal Name</label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-lg font-bold text-emerald-400">Nama Makanan/Minuman</label>
+                            <span class="text-xs text-emerald-400/70 bg-emerald-500/10 px-2 py-1 rounded-lg">Wajib
+                                diisi</span>
+                        </div>
+                        <p class="text-emerald-400/60 text-sm mb-3">Nama lengkap menu makanan atau minuman yang dikonsumsi
+                        </p>
                         <input type="text" name="meal_name" value="{{ old('meal_name') }}"
                             class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                            placeholder="e.g., Grilled Chicken with Brown Rice" required>
+                            placeholder="Contoh: Ayam Bakar dengan Nasi Merah, Smoothie Pisang, dll." required>
                         @error('meal_name')
                             <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                         @enderror
@@ -57,10 +63,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {{-- Calories --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Calories (kcal)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Kalori (kcal)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Energi total</span>
+                            </label>
                             <input type="number" step="1" name="calories" value="{{ old('calories') }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 450" required>
+                                placeholder="Contoh: 450" required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Jumlah energi yang terkandung dalam makanan</p>
                             @error('calories')
                                 <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                             @enderror
@@ -68,10 +78,15 @@
 
                         {{-- Protein --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Protein (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Protein (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Membangun otot</span>
+                            </label>
                             <input type="number" step="0.1" name="protein" value="{{ old('protein') }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 35" required>
+                                placeholder="Contoh: 35" required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Nutrisi penting untuk pertumbuhan dan perbaikan
+                                jaringan</p>
                             @error('protein')
                                 <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                             @enderror
@@ -79,10 +94,14 @@
 
                         {{-- Carbs --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Carbs (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Karbohidrat (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Sumber energi</span>
+                            </label>
                             <input type="number" step="0.1" name="carbs" value="{{ old('carbs') }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 50" required>
+                                placeholder="Contoh: 50" required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Sumber energi utama untuk aktivitas sehari-hari</p>
                             @error('carbs')
                                 <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                             @enderror
@@ -90,53 +109,54 @@
 
                         {{-- Fat --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Fat (g)</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Lemak (gram)
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Cadangan energi</span>
+                            </label>
                             <input type="number" step="0.1" name="fat" value="{{ old('fat') }}"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 15" required>
+                                placeholder="Contoh: 15" required>
+                            <p class="text-emerald-400/60 text-xs mt-1">Nutrisi esensial untuk penyerapan vitamin dan hormon
+                            </p>
                             @error('fat')
                                 <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    {{-- Water & Hydrogen --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Water Intake --}}
+                    {{-- Water Intake --}}
+                    <div class="border-t border-emerald-500/20 pt-6">
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Water Intake (ml)</label>
+                            <label class="block text-sm font-bold text-blue-400 mb-2">
+                                Asupan Air (ml)
+                                <span class="text-blue-400/60 text-xs font-normal ml-2">Hidrasi tubuh</span>
+                            </label>
                             <input type="number" step="50" name="water_intake" value="{{ old('water_intake', 0) }}"
-                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 500">
-                            <p class="text-emerald-400/70 text-xs mt-1">Optional - track water consumption</p>
-                        </div>
-
-                        {{-- Hydrogen Level --}}
-                        <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Hydrogen Level (pH)</label>
-                            <input type="number" step="0.1" min="0" max="14" name="hydrogen_level"
-                                value="{{ old('hydrogen_level', 7.0) }}"
-                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white placeholder-emerald-400/50 transition-all duration-300"
-                                placeholder="e.g., 7.0">
-                            <p class="text-emerald-400/70 text-xs mt-1">Optional - water pH level</p>
+                                class="w-full px-4 py-3 rounded-xl bg-black/50 border border-blue-500/30 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white placeholder-blue-400/50 transition-all duration-300"
+                                placeholder="Contoh: 500 (setara 2 gelas)">
+                            <p class="text-blue-400/60 text-xs mt-1">Volume air yang diminum dalam mililiter (opsional)</p>
                         </div>
                     </div>
 
                     {{-- Day and Type --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         {{-- Day of Week --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Day of Week</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Hari
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Kapan dikonsumsi</span>
+                            </label>
                             <select name="day_of_week"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white transition-all duration-300"
                                 required>
-                                <option value="">Select Day</option>
+                                <option value="">Pilih Hari</option>
                                 @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $day)
                                     <option value="{{ $day }}" {{ old('day_of_week') == $day ? 'selected' : '' }}>
                                         {{ $day }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-emerald-400/60 text-xs mt-1">Hari ketika makanan/minuman ini dikonsumsi</p>
                             @error('day_of_week')
                                 <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                             @enderror
@@ -144,32 +164,109 @@
 
                         {{-- Meal Type --}}
                         <div>
-                            <label class="block text-sm font-bold text-emerald-400 mb-2">Meal Type</label>
+                            <label class="block text-sm font-bold text-emerald-400 mb-2">
+                                Jenis Makanan
+                                <span class="text-emerald-400/60 text-xs font-normal ml-2">Kategori</span>
+                            </label>
                             <select name="type"
                                 class="w-full px-4 py-3 rounded-xl bg-black/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white transition-all duration-300">
-                                <option value="">Select Type</option>
-                                <option value="breakfast" {{ old('type') == 'breakfast' ? 'selected' : '' }}>Breakfast
+                                <option value="">Pilih Jenis</option>
+                                <option value="breakfast" {{ old('type') == 'breakfast' ? 'selected' : '' }}>
+                                    Sarapan (Pagi)
                                 </option>
-                                <option value="lunch" {{ old('type') == 'lunch' ? 'selected' : '' }}>Lunch</option>
-                                <option value="dinner" {{ old('type') == 'dinner' ? 'selected' : '' }}>Dinner</option>
-                                <option value="snack" {{ old('type') == 'snack' ? 'selected' : '' }}>Snack</option>
+                                <option value="lunch" {{ old('type') == 'lunch' ? 'selected' : '' }}>
+                                    Makan Siang
+                                </option>
+                                <option value="dinner" {{ old('type') == 'dinner' ? 'selected' : '' }}>
+                                    Makan Malam
+                                </option>
+                                <option value="snack" {{ old('type') == 'snack' ? 'selected' : '' }}>
+                                    Cemilan
+                                </option>
                             </select>
+                            <p class="text-emerald-400/60 text-xs mt-1">Kategori waktu makan (opsional)</p>
                         </div>
                     </div>
 
                     {{-- Buttons --}}
-                    <div class="flex justify-between items-center pt-6">
+                    <div class="flex justify-between items-center pt-8 border-t border-emerald-500/20">
                         <a href="{{ route('user.nutrition.index') }}"
-                            class="px-6 py-3 rounded-xl text-sm font-bold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-emerald-500/30 hover:border-emerald-500/50">
-                            ← Back to Nutrition
+                            class="group flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all duration-300 border border-emerald-500/30 hover:border-emerald-500/50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali ke Nutrisi
                         </a>
 
                         <button type="submit"
-                            class="px-8 py-3 rounded-xl text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
-                            Save Meal
+                            class="group flex items-center gap-2 px-8 py-3 rounded-xl text-base font-black text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Simpan Menu
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {{-- Nutrition Info Card --}}
+            <div class="glass rounded-2xl p-6 mt-8 border border-amber-500/20 bg-amber-500/10">
+                <div class="flex items-center gap-4 mb-4">
+                    <div
+                        class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
+                        <span class="text-xl">💡</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-amber-400">Tips Menghitung Nutrisi</h3>
+                        <p class="text-amber-400/80">Gunakan panduan sederhana ini:</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                            <span class="text-amber-400 text-sm">📱</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">Aplikasi & Website</p>
+                            <p class="text-amber-400/70 text-sm">MyFitnessPal, FatSecret, atau Google untuk informasi
+                                nutrisi makanan</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                            <span class="text-amber-400 text-sm">🏷️</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">Label Kemasan</p>
+                            <p class="text-amber-400/70 text-sm">Cek informasi gizi di kemasan makanan/minuman</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                            <span class="text-amber-400 text-sm">⚖️</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">Estimasi</p>
+                            <p class="text-amber-400/70 text-sm">Perkirakan berdasarkan ukuran porsi (piring, gelas, sendok)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <div class="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center mt-0.5">
+                            <span class="text-amber-400 text-sm">📝</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">Konsistensi</p>
+                            <p class="text-amber-400/70 text-sm">Lengkapi data seakurat mungkin untuk hasil terbaik</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

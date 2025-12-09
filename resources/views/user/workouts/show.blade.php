@@ -369,20 +369,72 @@
                                         </div>
                                     </div>
 
-                                    {{-- Media Section --}}
-                                    <div class="space-y-4">
+                                    {{-- Video Tutorial Section --}}
+                                    <div>
+                                        {{-- Video Tutorial --}}
                                         @if($exercise->video_url)
                                             <div>
-                                                <h4 class="text-sm font-bold text-white mb-2">Video Tutorial</h4>
-                                                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
-                                                    <iframe src="{{ $exercise->video_url }}"
-                                                            frameborder="0"
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                            allowfullscreen
-                                                            class="w-full h-48 rounded-lg"></iframe>
+                                                <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
+                                                    </svg>
+                                                    Video Tutorial
+                                                </h4>
+                                                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-800/50 border border-emerald-500/20">
+                                                    @php
+                                                        // Parse YouTube URL untuk mendapatkan video ID
+                                                        $videoUrl = $exercise->video_url;
+                                                        $videoId = null;
+                                                        
+                                                        if (str_contains($videoUrl, 'youtube.com/watch?v=')) {
+                                                            parse_str(parse_url($videoUrl, PHP_URL_QUERY), $params);
+                                                            $videoId = $params['v'] ?? null;
+                                                        } elseif (str_contains($videoUrl, 'youtu.be/')) {
+                                                            $videoId = substr(parse_url($videoUrl, PHP_URL_PATH), 1);
+                                                        } elseif (str_contains($videoUrl, 'youtube.com/embed/')) {
+                                                            $path = parse_url($videoUrl, PHP_URL_PATH);
+                                                            $videoId = str_replace('/embed/', '', $path);
+                                                        }
+                                                    @endphp
+                                                    
+                                                    @if($videoId)
+                                                        <iframe src="https://www.youtube.com/embed/{{ $videoId }}?rel=0&showinfo=0&modestbranding=1"
+                                                                frameborder="0"
+                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                allowfullscreen
+                                                                class="w-full h-48 rounded-lg"
+                                                                loading="lazy"
+                                                                referrerpolicy="no-referrer-when-downgrade"
+                                                                title="Video tutorial: {{ $exercise->name }}">
+                                                        </iframe>
+                                                    @else
+                                                        {{-- Fallback: Tampilkan link --}}
+                                                        <div class="w-full h-48 flex items-center justify-center">
+                                                            <div class="text-center p-4">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-400/50 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <p class="text-emerald-400/80 text-sm mb-2">Video tutorial tersedia</p>
+                                                                <a href="{{ $videoUrl }}" 
+                                                                   target="_blank" 
+                                                                   rel="noopener noreferrer"
+                                                                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                    </svg>
+                                                                    Buka di YouTube
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
+                                                @if($videoId)
+                                                    <p class="text-emerald-400/60 text-xs mt-1 text-center">Tonton video tutorial untuk form yang benar</p>
+                                                @endif
                                             </div>
                                         @else
+                                            {{-- No Video Available --}}
                                             <div class="glass rounded-xl p-4 border border-emerald-500/10">
                                                 <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
@@ -391,26 +443,69 @@
                                                     Movement Tutorial
                                                 </h4>
                                                 <div class="aspect-w-16 aspect-h-9 bg-gray-800/50 rounded-lg flex items-center justify-center border border-emerald-500/20">
-                                                    <div class="text-center">
+                                                    <div class="text-center p-4">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-400/50 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="text-emerald-400/60 text-sm">Video tutorial coming soon</p>
-                                                        <p class="text-emerald-400/40 text-xs mt-1">Consult exercise library for detailed instructions</p>
+                                                        <p class="text-emerald-400/80 text-sm">Video tutorial belum tersedia</p>
+                                                        <p class="text-emerald-400/60 text-xs mt-1">Konsultasi dengan trainer untuk demonstrasi form yang benar</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         @endif
-
-                                        @if($exercise->image_url)
-                                            <div>
-                                                <h4 class="text-sm font-bold text-white mb-2">Exercise Image</h4>
-                                                <img src="{{ $exercise->image_url }}"
-                                                     alt="{{ $exercise->name }}"
-                                                     class="w-full h-48 object-cover rounded-lg">
-                                            </div>
-                                        @endif
+                                        
+                                        {{-- Additional Tips --}}
+                                        <div class="mt-4 glass rounded-xl p-4 border border-emerald-500/10">
+                                            <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                </svg>
+                                                Tips & Safety
+                                            </h4>
+                                            <ul class="text-emerald-400/80 text-sm space-y-2">
+                                                @if($exercise->type === 'strength')
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Warm up properly before starting</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Use appropriate weight for your level</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Maintain proper form throughout each rep</span>
+                                                    </li>
+                                                @elseif($exercise->type === 'cardio')
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Start at moderate intensity and build up</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Stay hydrated throughout the session</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Listen to your body and rest when needed</span>
+                                                    </li>
+                                                @else
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Focus on controlled movements</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Breathe consistently throughout</span>
+                                                    </li>
+                                                    <li class="flex items-start gap-2">
+                                                        <span class="text-emerald-400">•</span>
+                                                        <span>Stop if you feel any sharp pain</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
