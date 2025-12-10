@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkoutPlan extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'workout_plans';
 
     protected $fillable = [
         'title',
+        'slug',
         'level',
         'description',
         'target_fitness',
@@ -28,6 +30,7 @@ class WorkoutPlan extends Model
         'detailed_description',
         'notes',
         'is_premium',
+        'cover_image',
         'user_id',
         'trainer_id',
         'recommended_by',
@@ -55,8 +58,17 @@ class WorkoutPlan extends Model
         static::creating(function ($plan) {
             if (Auth::check()) {
                 $plan->created_by = Auth::id();
-                $plan->user_id = Auth::id();
-                $plan->recommended_by = Auth::user()->role ?? 'system';
+                if (!isset($plan->user_id)) {
+                    $plan->user_id = Auth::id();
+                }
+                if (!isset($plan->recommended_by)) {
+                    $plan->recommended_by = Auth::user()->role ?? 'system';
+                }
+            }
+
+            // Generate slug jika belum ada
+            if (empty($plan->slug)) {
+                $plan->slug = \Str::slug($plan->title) . '-' . \Str::random(6);
             }
         });
 
@@ -65,55 +77,45 @@ class WorkoutPlan extends Model
                 $plan->updated_by = Auth::id();
             }
         });
+
+        static::deleting(function ($plan) {
+            // Soft delete related exercises
+            $plan->workoutExercises()->delete();
+        });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | RELATIONSHIPS - PERBAIKAN
+    | RELATIONSHIPS
     |--------------------------------------------------------------------------
     */
 
-    // ✅ Relasi utama ke workout_exercises
     public function workoutExercises()
     {
         return $this->hasMany(WorkoutExercise::class, 'workout_plan_id')
-                    ->orderBy('order', 'asc');
+            ->orderBy('order', 'asc');
     }
 
-    // ✅ Alias untuk compatibility (jika controller masih pakai exercises())
     public function exercises()
     {
         return $this->workoutExercises();
     }
 
-    // ✅ Relasi ke exercise_workout_plan (jika ingin menggunakan tabel exercises nanti)
-    public function pivotExercises()
-    {
-        return $this->belongsToMany(Exercise::class, 'exercise_workout_plan', 'workout_plan_id', 'exercise_id')
-            ->withPivot(['sets', 'reps', 'duration', 'order', 'rest_interval'])
-            ->withTimestamps()
-            ->orderBy('pivot_order', 'asc');
-    }
-
-    // ✅ User yang ditugaskan
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // ✅ Trainer yang ditugaskan
     public function trainer()
     {
         return $this->belongsTo(User::class, 'trainer_id');
     }
 
-    // ✅ Pembuat plan
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    // ✅ Workout Sessions
     public function workoutSessions()
     {
         return $this->hasMany(WorkoutSchedule::class, 'workout_plan_id');
@@ -121,69 +123,10 @@ class WorkoutPlan extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | METHODS
-    |--------------------------------------------------------------------------
-    */
-
-    // ✅ Method untuk menambahkan exercise ke workout_exercises
-    public function addWorkoutExercise(array $data)
-    {
-        // Hitung order otomatis jika tidak disediakan
-        if (!isset($data['order'])) {
-            $data['order'] = $this->workoutExercises()->count() + 1;
-        }
-
-        return $this->workoutExercises()->create([
-            'name' => $data['name'],
-            'type' => $data['type'] ?? 'strength',
-            'description' => $data['description'] ?? null,
-            'sets' => $data['sets'] ?? 3,
-            'reps' => $data['reps'] ?? '10-12',
-            'duration_minutes' => $data['duration_minutes'] ?? null,
-            'rest_seconds' => $data['rest_seconds'] ?? 60,
-            'video_url' => $data['video_url'] ?? null,
-            'instructions' => $data['instructions'] ?? null,
-            'muscle_group' => $data['muscle_group'] ?? null,
-            'equipment' => $data['equipment'] ?? null,
-            'notes' => $data['notes'] ?? null,
-            'order' => $data['order'],
-        ]);
-    }
-
-    // ✅ Method untuk menghapus exercise
-    public function removeWorkoutExercise($exerciseId)
-    {
-        $exercise = $this->workoutExercises()->find($exerciseId);
-
-        if ($exercise) {
-            // Update order untuk exercise lain
-            $this->workoutExercises()
-                ->where('order', '>', $exercise->order)
-                ->decrement('order');
-
-            return $exercise->delete();
-        }
-
-        return false;
-    }
-
-    // ✅ Update order exercises
-    public function updateExerciseOrder(array $orderList)
-    {
-        foreach ($orderList as $order => $exerciseId) {
-            $this->workoutExercises()
-                ->where('id', $exerciseId)
-                ->update(['order' => $order + 1]);
-        }
-
-        return true;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | SCOPES
     |--------------------------------------------------------------------------
     */
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
@@ -207,6 +150,15 @@ class WorkoutPlan extends Model
     public function scopeStandard($query)
     {
         return $query->where('is_premium', false);
+    }
+
+    public function scopeSearch($query, string $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%")
+                ->orWhere('detailed_description', 'like', "%{$search}%");
+        });
     }
 
     /*
@@ -256,6 +208,14 @@ class WorkoutPlan extends Model
         return '-';
     }
 
+    public function getCoverImageUrlAttribute()
+    {
+        if ($this->cover_image) {
+            return asset('storage/' . $this->cover_image);
+        }
+        return asset('images/default-workout-cover.jpg');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | METHODS
@@ -276,6 +236,7 @@ class WorkoutPlan extends Model
     {
         $newPlan = $this->replicate();
         $newPlan->title = $newTitle ?? $this->title . ' (Copy)';
+        $newPlan->slug = \Str::slug($newPlan->title) . '-' . \Str::random(6);
         $newPlan->status = 'inactive';
         $newPlan->created_by = Auth::id();
         $newPlan->created_at = now();
@@ -298,7 +259,6 @@ class WorkoutPlan extends Model
     {
         $this->status = $this->status === 'active' ? 'inactive' : 'active';
         $this->updated_by = Auth::id();
-        $this->updated_at = now();
         return $this->save();
     }
 
@@ -306,34 +266,60 @@ class WorkoutPlan extends Model
     {
         $this->is_premium = !$this->is_premium;
         $this->updated_by = Auth::id();
-        $this->updated_at = now();
         return $this->save();
     }
 
-    // ✅ Check if plan is assigned to specific trainer
-    public function isAssignedToTrainer(int $trainerId): bool
-    {
-        return $this->trainer_id === $trainerId;
-    }
-
-    // ✅ Get all completed sessions
-    public function getCompletedSessions()
-    {
-        return $this->workoutSessions()
-                    ->where('status', 'completed')
-                    ->count();
-    }
-
-    // ✅ Get completion percentage
     public function getCompletionPercentage()
     {
         $totalSessions = $this->workoutSessions()->count();
-        $completedSessions = $this->getCompletedSessions();
+        $completedSessions = $this->workoutSessions()->where('status', 'completed')->count();
 
         if ($totalSessions === 0) {
             return 0;
         }
 
         return round(($completedSessions / $totalSessions) * 100, 2);
+    }
+
+    public function addExercise(array $data)
+    {
+        $order = $this->workoutExercises()->max('order') ?? 0;
+
+        return $this->workoutExercises()->create([
+            'name' => $data['name'],
+            'type' => $data['type'] ?? 'strength',
+            'description' => $data['description'] ?? null,
+            'sets' => $data['sets'] ?? 3,
+            'reps' => $data['reps'] ?? '10-12',
+            'duration_minutes' => $data['duration_minutes'] ?? null,
+            'rest_seconds' => $data['rest_seconds'] ?? 60,
+            'video_url' => $data['video_url'] ?? null,
+            'instructions' => $data['instructions'] ?? null,
+            'muscle_group' => $data['muscle_group'] ?? null,
+            'equipment' => $data['equipment'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'order' => $order + 1,
+        ]);
+    }
+
+    public function removeExercise($exerciseId)
+    {
+        $exercise = $this->workoutExercises()->find($exerciseId);
+
+        if ($exercise) {
+            $exercise->delete();
+            $this->reorderExercises();
+            return true;
+        }
+
+        return false;
+    }
+
+    private function reorderExercises()
+    {
+        $exercises = $this->workoutExercises()->orderBy('order')->get();
+        foreach ($exercises as $index => $exercise) {
+            $exercise->update(['order' => $index + 1]);
+        }
     }
 }

@@ -158,17 +158,61 @@ Route::middleware(['auth', 'role:admin'])
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD Resources
+        // CRUD Resources - DIPERBAIKI: Hapus workout-plans dari sini dan buat rute terpisah
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
             'exercises' => ExerciseController::class,
             'nutrition-programs' => NutritionProgramController::class,
             'goals' => GoalController::class,
-            'workout-plans' => WorkoutPlanController::class,
             'body-metrics' => BodyMetricController::class,
         ]);
 
+        // Workout Plans Routes
+        Route::prefix('workout-plans')->name('workout-plans.')->group(function () {
+            // Main CRUD
+            Route::get('/', [WorkoutPlanController::class, 'index'])->name('index');
+            Route::get('/create', [WorkoutPlanController::class, 'create'])->name('create');
+            Route::post('/', [WorkoutPlanController::class, 'store'])->name('store');
+            Route::get('/{workoutPlan}', [WorkoutPlanController::class, 'show'])->name('show');
+            Route::get('/{workoutPlan}/edit', [WorkoutPlanController::class, 'edit'])->name('edit');
+            Route::put('/{workoutPlan}', [WorkoutPlanController::class, 'update'])->name('update');
+            Route::delete('/{workoutPlan}', [WorkoutPlanController::class, 'destroy'])->name('destroy');
+            
+            // Additional Actions
+            Route::post('/{workoutPlan}/toggle-status', [WorkoutPlanController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{workoutPlan}/toggle-premium', [WorkoutPlanController::class, 'togglePremium'])->name('toggle-premium');
+            Route::post('/{workoutPlan}/duplicate', [WorkoutPlanController::class, 'duplicate'])->name('duplicate');
+            Route::get('/{workoutPlan}/preview', [WorkoutPlanController::class, 'preview'])->name('preview');
+            
+            // Exercises Management
+            Route::prefix('{workoutPlan}/exercises')->name('exercises.')->group(function () {
+                Route::get('/create', [WorkoutPlanController::class, 'createExercise'])->name('create');
+                Route::post('/', [WorkoutPlanController::class, 'storeExercise'])->name('store');
+                Route::get('/{exercise}/edit', [WorkoutPlanController::class, 'editExercise'])->name('edit');
+                Route::put('/{exercise}', [WorkoutPlanController::class, 'updateExercise'])->name('update');
+                Route::delete('/{exercise}', [WorkoutPlanController::class, 'destroyExercise'])->name('destroy');
+                Route::post('/order', [WorkoutPlanController::class, 'updateExerciseOrder'])->name('order.update');
+            });
+            
+            // Export/Import
+            Route::get('/export', [WorkoutPlanController::class, 'export'])->name('export');
+            Route::post('/import', [WorkoutPlanController::class, 'import'])->name('import');
+            Route::get('/template', [WorkoutPlanController::class, 'downloadTemplate'])->name('template');
+            
+            // Bulk Actions
+            Route::post('/bulk-delete', [WorkoutPlanController::class, 'bulkDelete'])->name('bulk-delete');
+            
+            // Archived/Trash
+            Route::get('/archived', [WorkoutPlanController::class, 'archived'])->name('archived');
+            Route::post('/{id}/restore', [WorkoutPlanController::class, 'restore'])->name('restore');
+            Route::delete('/{id}/force', [WorkoutPlanController::class, 'forceDelete'])->name('force-delete');
+            
+            // AJAX Endpoints
+            Route::get('/ajax/list', [WorkoutPlanController::class, 'getWorkoutPlans'])->name('ajax.list');
+        });
+        
+    
 
         // Trainer Memberships
         Route::resource('trainer-memberships', TrainerMemberController::class)

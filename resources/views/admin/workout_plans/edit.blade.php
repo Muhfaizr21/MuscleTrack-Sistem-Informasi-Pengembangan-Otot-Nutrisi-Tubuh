@@ -390,7 +390,7 @@ function extractYouTubeId($url) {
                     </div>
 
                     <div id="exercises-list">
-                        @forelse($workoutPlan->workoutExercises as $index => $exercise)
+                        @forelse($workoutPlan->exercises as $index => $exercise)
                             <div class="exercise-item bg-slate-800/40 p-5 rounded-xl mb-4 border force-border-slate-700 hover:border-green-500/30 transition-colors duration-300">
                                 <div class="flex justify-between items-center mb-4">
                                     <h5 class="text-lg font-semibold force-white">
