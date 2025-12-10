@@ -169,6 +169,7 @@ Route::middleware(['auth', 'role:admin'])
             'body-metrics' => BodyMetricController::class,
         ]);
 
+
         // Trainer Memberships
         Route::resource('trainer-memberships', TrainerMemberController::class)
             ->except(['show', 'edit', 'update']);

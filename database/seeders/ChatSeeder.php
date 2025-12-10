@@ -38,23 +38,30 @@ class ChatSeeder extends Seeder
             ]);
         }
 
-        // Masukkan pesan chat simulasi
+        // Masukkan pesan chat simulasi dengan created_at dan updated_at
         TrainerChat::insert([
             [
                 'user_id' => $user->id,
                 'trainer_id' => $trainer->id,
                 'message' => 'Hai Budi! Bagaimana latihan minggu ini?',
+                'sender_type' => 'trainer',
                 'read_status' => 0,
                 'timestamp' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'user_id' => $user->id,
-                // 👇 kalau tabel belum nullable, tetap isi trainer_id biar gak error
                 'trainer_id' => $trainer->id,
                 'message' => 'Baik Coach! Saya latihan 3x minggu ini.',
+                'sender_type' => 'user',
                 'read_status' => 1,
                 'timestamp' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
+
+        $this->command->info('💬 ChatSeeder selesai! 2 pesan chat telah dibuat.');
     }
 }

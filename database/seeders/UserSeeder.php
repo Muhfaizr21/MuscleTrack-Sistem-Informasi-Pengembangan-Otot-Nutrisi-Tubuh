@@ -482,13 +482,14 @@ class UserSeeder extends Seeder
                     'method' => 'transfer',
                     'status' => 'paid',
                     'transaction_id' => 'TRX-' . strtoupper(uniqid()),
-                    'order_id' => 'ORDER-' . strtoupper(uniqid()), // tambahkan ini
+                    'order_id' => 'ORDER-' . strtoupper(uniqid()),
                     'created_at' => now()->subDays(30),
                     'updated_at' => now()->subDays(30),
                 ]);
 
-
-                // Trainer Chats
+                // =============================
+                // 💬 TRAINER CHATS - PERBAIKAN DISINI
+                // =============================
                 DB::table('trainer_chats')->insert([
                     'trainer_id' => $userIds[$index] == $userIds[2] ? $trainerPendingIds[0] : $trainerApprovedIds[$index],
                     'user_id' => $userId,
@@ -496,6 +497,8 @@ class UserSeeder extends Seeder
                     'sender_type' => 'trainer',
                     'timestamp' => now()->subDays(30),
                     'read_status' => true,
+                    'created_at' => now()->subDays(30), // ← TAMBAHKAN INI
+                    'updated_at' => now()->subDays(30), // ← TAMBAHKAN INI
                 ]);
 
                 DB::table('trainer_chats')->insert([
@@ -505,6 +508,8 @@ class UserSeeder extends Seeder
                     'sender_type' => 'user',
                     'timestamp' => now()->subDays(29),
                     'read_status' => true,
+                    'created_at' => now()->subDays(29), // ← TAMBAHKAN INI
+                    'updated_at' => now()->subDays(29), // ← TAMBAHKAN INI
                 ]);
             }
         }

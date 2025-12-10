@@ -45,10 +45,13 @@ class UserWorkoutController extends Controller
                     $focus = match ($bmiCategory) {
                         'underweight' => 'bulking',
                         'normal' => 'maintain',
-                        default => 'cutting',
+                        'overweight' => 'cutting',
+                        'obese' => 'cutting',
+                        default => 'general_fitness',
                     };
                     $q->where('bmi_category', $bmiCategory)
-                        ->orWhere('focus_area', $focus);
+                        ->orWhere('focus_area', 'like', "%{$focus}%")
+                        ->orWhere('target_fitness', $focus);
                 })
                 ->orderBy('difficulty_level')
                 ->get();
@@ -105,6 +108,7 @@ class UserWorkoutController extends Controller
                     'scheduled_date' => now()->addDay()->toDateString(),
                     'scheduled_time' => '08:00:00',
                     'status' => 'pending',
+                    'notes' => 'Auto-assigned by system based on your profile',
                 ]);
 
                 Notification::create([
@@ -122,6 +126,7 @@ class UserWorkoutController extends Controller
         $schedules = WorkoutSchedule::with('workoutPlan')
             ->where('user_id', $user->id)
             ->orderBy('scheduled_date')
+            ->orderBy('scheduled_time')
             ->get();
 
         return view('user.workouts.index', compact('workouts', 'schedules', 'bmi', 'bmiCategory', 'user'));
@@ -149,32 +154,39 @@ class UserWorkoutController extends Controller
 
         // Filter berdasarkan preferred muscle groups
         if ($fitnessProfile->preferred_muscle_groups) {
-            $muscleGroups = json_decode($fitnessProfile->preferred_muscle_groups);
+            try {
+                $muscleGroups = json_decode($fitnessProfile->preferred_muscle_groups, true);
 
-            $focusAreaMap = [
-                'chest' => 'upper_body',
-                'back' => 'upper_body',
-                'arms' => 'upper_body',
-                'shoulders' => 'upper_body',
-                'legs' => 'lower_body',
-                'core' => 'core',
-                'glutes' => 'lower_body',
-                'full_body' => 'full_body'
-            ];
+                if (is_array($muscleGroups) && !empty($muscleGroups)) {
+                    $focusAreaMap = [
+                        'chest' => 'upper',
+                        'back' => 'upper',
+                        'arms' => 'upper',
+                        'shoulders' => 'upper',
+                        'legs' => 'lower',
+                        'core' => 'core',
+                        'abs' => 'core',
+                        'glutes' => 'lower',
+                        'full_body' => 'full_body'
+                    ];
 
-            $focusAreas = collect($muscleGroups)
-                ->map(fn($group) => $focusAreaMap[$group] ?? null)
-                ->filter()
-                ->unique()
-                ->toArray();
+                    $focusAreas = collect($muscleGroups)
+                        ->map(fn($group) => $focusAreaMap[$group] ?? null)
+                        ->filter()
+                        ->unique()
+                        ->toArray();
 
-            if (!empty($focusAreas)) {
-                $query->where(function ($q) use ($focusAreas) {
-                    foreach ($focusAreas as $area) {
-                        $q->orWhere('focus_area', 'like', "%{$area}%")
-                            ->orWhere('target_fitness', 'like', "%{$area}%");
+                    if (!empty($focusAreas)) {
+                        $query->where(function ($q) use ($focusAreas) {
+                            foreach ($focusAreas as $area) {
+                                $q->orWhere('focus_area', 'like', "%{$area}%")
+                                  ->orWhere('target_fitness', 'like', "%{$area}%");
+                            }
+                        });
                     }
-                });
+                }
+            } catch (\Exception $e) {
+                // Skip if JSON decode fails
             }
         }
 
@@ -188,7 +200,7 @@ class UserWorkoutController extends Controller
                 $query->whereIn('target_fitness', ['fat_loss', 'cutting', 'endurance']);
             } else {
                 // Moderate calorie target - maintenance
-                $query->whereIn('target_fitness', ['maintain', 'endurance', 'toning']);
+                $query->whereIn('target_fitness', ['maintain', 'endurance']);
             }
         }
 
@@ -241,34 +253,50 @@ class UserWorkoutController extends Controller
     {
         $request->validate([
             'workout_id' => 'required|exists:workout_plans,id',
-            'scheduled_date' => 'required|date',
+            'scheduled_date' => 'required|date|after_or_equal:today',
             'scheduled_time' => 'required',
         ]);
 
         $user = Auth::user();
 
-        $schedule = WorkoutSchedule::updateOrCreate(
-            [
+        // Cek apakah sudah ada schedule di tanggal yang sama
+        $existingSchedule = WorkoutSchedule::where('user_id', $user->id)
+            ->where('workout_plan_id', $request->workout_id)
+            ->where('scheduled_date', $request->scheduled_date)
+            ->first();
+
+        if ($existingSchedule) {
+            $existingSchedule->update([
+                'scheduled_time' => $request->scheduled_time,
+                'status' => 'pending',
+                'notes' => $request->notes ?? $existingSchedule->notes,
+            ]);
+
+            $schedule = $existingSchedule;
+        } else {
+            $schedule = WorkoutSchedule::create([
                 'user_id' => $user->id,
                 'workout_plan_id' => $request->workout_id,
                 'scheduled_date' => $request->scheduled_date,
-            ],
-            [
                 'scheduled_time' => $request->scheduled_time,
                 'status' => 'pending',
                 'notes' => $request->notes ?? null,
-            ]
-        );
+            ]);
+        }
+
+        // Get workout plan for notification
+        $workoutPlan = WorkoutPlan::find($request->workout_id);
 
         Notification::create([
             'user_id' => $user->id,
             'title' => 'Workout Reminder 🏋️',
-            'message' => "Jangan lupa latihan '{$schedule->workoutPlan->title}' pada tanggal {$schedule->scheduled_date} jam {$schedule->scheduled_time}! 🔥",
+            'message' => "Jangan lupa latihan '{$workoutPlan->title}' pada tanggal {$schedule->scheduled_date} jam {$schedule->scheduled_time}! 🔥",
             'type' => 'reminder',
             'read_status' => false,
         ]);
 
-        return redirect()->route('user.workouts.index')->with('success', 'Jadwal workout berhasil disimpan!');
+        return redirect()->route('user.workouts.index')
+            ->with('success', 'Jadwal workout berhasil disimpan!');
     }
 
     /**
@@ -282,6 +310,7 @@ class UserWorkoutController extends Controller
         $schedule->update([
             'status' => 'completed',
             'completed_at' => Carbon::now(),
+            'notes' => $request->notes ?? $schedule->notes,
         ]);
 
         Notification::create([
@@ -293,7 +322,8 @@ class UserWorkoutController extends Controller
             'read_status' => false,
         ]);
 
-        return redirect()->route('user.workouts.index')->with('success', 'Workout berhasil diselesaikan! 💪');
+        return redirect()->route('user.workouts.index')
+            ->with('success', 'Workout berhasil diselesaikan! 💪');
     }
 
     /**
@@ -301,9 +331,42 @@ class UserWorkoutController extends Controller
      */
     public function edit($id)
     {
-        $schedule = WorkoutSchedule::with('workoutPlan')->findOrFail($id);
+        $user = Auth::user();
+        $schedule = WorkoutSchedule::with('workoutPlan')
+            ->where('user_id', $user->id)
+            ->findOrFail($id);
 
-        return view('user.workouts.edit', compact('schedule'));
+        // Get all available workouts for dropdown
+        $workouts = WorkoutPlan::where('status', 'active')
+            ->orderBy('difficulty_level')
+            ->get();
+
+        return view('user.workouts.edit', compact('schedule', 'workouts'));
+    }
+
+    /**
+     * 🔄 Update workout schedule
+     */
+    public function updateSchedule(Request $request, $id)
+    {
+        $user = Auth::user();
+        $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($id);
+
+        $request->validate([
+            'workout_id' => 'required|exists:workout_plans,id',
+            'scheduled_date' => 'required|date',
+            'scheduled_time' => 'required',
+        ]);
+
+        $schedule->update([
+            'workout_plan_id' => $request->workout_id,
+            'scheduled_date' => $request->scheduled_date,
+            'scheduled_time' => $request->scheduled_time,
+            'notes' => $request->notes ?? $schedule->notes,
+        ]);
+
+        return redirect()->route('user.workouts.index')
+            ->with('success', 'Jadwal workout berhasil diperbarui!');
     }
 
     /**
@@ -313,9 +376,12 @@ class UserWorkoutController extends Controller
     {
         $user = Auth::user();
         $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($id);
+
+        $workoutTitle = $schedule->workoutPlan->title ?? 'Workout';
         $schedule->delete();
 
-        return redirect()->route('user.workouts.index')->with('success', 'Jadwal workout berhasil dihapus!');
+        return redirect()->route('user.workouts.index')
+            ->with('success', "Jadwal '{$workoutTitle}' berhasil dihapus!");
     }
 
     /**
@@ -325,27 +391,33 @@ class UserWorkoutController extends Controller
     {
         $user = Auth::user();
         $workout = WorkoutPlan::with([
-            'exercises' => function ($query) {
-                $query->withPivot('sets', 'reps', 'duration', 'order', 'rest_interval');
+            'workoutExercises' => function($query) {
+                $query->orderBy('order')->orderBy('id');
             },
-            'trainer:id,name',
-            'workoutExercises'
+            'trainer:id,name,avatar',
+            'creator:id,name'
         ])->findOrFail($id);
 
-        $trainerName = $workout->trainer?->name ?? 'Admin / Sistem';
-        $exerciseCount = $workout->exercises->count() + $workout->workoutExercises->count();
+        $trainerName = $workout->trainer?->name ?? ($workout->creator?->name ?? 'Admin / Sistem');
+        $trainerAvatar = $workout->trainer?->avatar ?? $workout->creator?->avatar;
+        $exerciseCount = $workout->workoutExercises->count();
 
-        // Hitung total estimasi durasi dan kalori
+        // Hitung total estimasi durasi
         $totalDuration = $workout->duration_minutes ?? 0;
-        $totalCalories = 0;
 
-        // Hitung kalori dari exercises
-        foreach ($workout->exercises as $exercise) {
-            $exerciseDuration = $exercise->pivot->duration ?? $exercise->duration ?? 0;
-            if ($exercise->calories_burned && $exerciseDuration) {
-                $totalCalories += $exercise->calories_burned * ($exerciseDuration / 60);
-            }
+        // Jika workout plan tidak ada duration, hitung dari exercises
+        if ($totalDuration === 0) {
+            $totalDuration = $workout->workoutExercises->sum('duration_minutes') ?? 0;
         }
+
+        // Hitung total sets dan reps
+        $totalSets = $workout->workoutExercises->sum('sets');
+        $totalReps = $workout->workoutExercises->reduce(function ($carry, $exercise) {
+            if (preg_match('/(\d+)/', $exercise->reps ?? '', $matches)) {
+                return $carry + ($exercise->sets * $matches[1]);
+            }
+            return $carry;
+        }, 0);
 
         // Hitung BMI untuk rekomendasi
         $bmi = null;
@@ -362,15 +434,188 @@ class UserWorkoutController extends Controller
             };
         }
 
+        // Cek apakah user sudah punya schedule untuk workout ini
+        $hasSchedule = WorkoutSchedule::where('user_id', $user->id)
+            ->where('workout_plan_id', $id)
+            ->where('status', 'pending')
+            ->exists();
+
+        // Get user's upcoming schedules
+        $upcomingSchedules = WorkoutSchedule::where('user_id', $user->id)
+            ->where('workout_plan_id', $id)
+            ->where('scheduled_date', '>=', now()->toDateString())
+            ->orderBy('scheduled_date')
+            ->orderBy('scheduled_time')
+            ->get();
+
         return view('user.workouts.show', compact(
             'workout',
             'trainerName',
+            'trainerAvatar',
             'exerciseCount',
             'totalDuration',
-            'totalCalories',
+            'totalSets',
+            'totalReps',
             'bmi',
             'bmiCategory',
-            'user'
+            'user',
+            'hasSchedule',
+            'upcomingSchedules'
         ));
+    }
+
+    /**
+     * 📅 Buat schedule langsung dari detail workout
+     */
+    public function scheduleFromDetail(Request $request, $id)
+    {
+        $user = Auth::user();
+        $workout = WorkoutPlan::findOrFail($id);
+
+        $request->validate([
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'scheduled_time' => 'required',
+        ]);
+
+        WorkoutSchedule::create([
+            'user_id' => $user->id,
+            'workout_plan_id' => $id,
+            'scheduled_date' => $request->scheduled_date,
+            'scheduled_time' => $request->scheduled_time,
+            'status' => 'pending',
+            'notes' => $request->notes ?? null,
+        ]);
+
+        Notification::create([
+            'user_id' => $user->id,
+            'title' => 'Workout Scheduled ✅',
+            'message' => "Kamu telah menjadwalkan '{$workout->title}' pada {$request->scheduled_date} jam {$request->scheduled_time}",
+            'type' => 'reminder',
+            'read_status' => false,
+        ]);
+
+        return redirect()->route('user.workouts.show', $id)
+            ->with('success', 'Workout berhasil dijadwalkan!');
+    }
+
+    /**
+     * 🔄 Toggle status workout schedule
+     */
+    public function toggleStatus($id)
+    {
+        $user = Auth::user();
+        $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($id);
+
+        $newStatus = $schedule->status === 'completed' ? 'pending' : 'completed';
+        $schedule->update([
+            'status' => $newStatus,
+            'completed_at' => $newStatus === 'completed' ? Carbon::now() : null,
+        ]);
+
+        $statusText = $newStatus === 'completed' ? 'diselesaikan' : 'ditandai belum selesai';
+
+        return redirect()->route('user.workouts.index')
+            ->with('success', "Workout berhasil {$statusText}!");
+    }
+
+    /**
+     * 📊 Dashboard statistik workout user
+     */
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        $stats = [
+            'total_workouts' => WorkoutSchedule::where('user_id', $user->id)->count(),
+            'completed_workouts' => WorkoutSchedule::where('user_id', $user->id)
+                ->where('status', 'completed')
+                ->count(),
+            'pending_workouts' => WorkoutSchedule::where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->count(),
+            'streak_days' => $this->calculateWorkoutStreak($user->id),
+            'favorite_workout' => $this->getFavoriteWorkout($user->id),
+        ];
+
+        $recentWorkouts = WorkoutSchedule::with('workoutPlan')
+            ->where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->orderBy('completed_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $upcomingWorkouts = WorkoutSchedule::with('workoutPlan')
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('scheduled_date', '>=', now()->toDateString())
+            ->orderBy('scheduled_date')
+            ->orderBy('scheduled_time')
+            ->limit(5)
+            ->get();
+
+        return view('user.workouts.dashboard', compact('stats', 'recentWorkouts', 'upcomingWorkouts', 'user'));
+    }
+
+    /**
+     * 📈 Hitung workout streak user
+     */
+    private function calculateWorkoutStreak($userId)
+    {
+        $completedWorkouts = WorkoutSchedule::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->whereNotNull('completed_at')
+            ->orderBy('completed_at', 'desc')
+            ->get()
+            ->pluck('completed_at')
+            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values();
+
+        $streak = 0;
+        $today = Carbon::today()->format('Y-m-d');
+
+        foreach ($completedWorkouts as $index => $date) {
+            if ($date === $today ||
+                $date === Carbon::today()->subDays($index)->format('Y-m-d')) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    /**
+     * 🏆 Dapatkan workout favorit user
+     */
+    private function getFavoriteWorkout($userId)
+    {
+        return WorkoutSchedule::select('workout_plan_id')
+            ->selectRaw('COUNT(*) as count')
+            ->where('user_id', $userId)
+            ->where('status', 'completed')
+            ->groupBy('workout_plan_id')
+            ->orderByDesc('count')
+            ->with('workoutPlan')
+            ->first();
+    }
+
+    /**
+     * 🎯 Quick start workout - langsung mulai workout yang sudah dijadwalkan
+     */
+    public function quickStart($scheduleId)
+    {
+        $user = Auth::user();
+        $schedule = WorkoutSchedule::where('user_id', $user->id)->findOrFail($scheduleId);
+
+        // Update schedule menjadi in_progress
+        $schedule->update([
+            'status' => 'in_progress',
+            'started_at' => Carbon::now(),
+        ]);
+
+        return redirect()->route('user.workouts.show', $schedule->workout_plan_id)
+            ->with('info', 'Workout dimulai! Selamat berlatih! 🏋️‍♂️');
     }
 }
