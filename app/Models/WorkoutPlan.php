@@ -93,6 +93,18 @@ class WorkoutPlan extends Model
     public function workoutExercises()
     {
         return $this->hasMany(WorkoutExercise::class, 'workout_plan_id')
+            ->orderByRaw("
+                CASE day 
+                    WHEN 'day_1' THEN 1
+                    WHEN 'day_2' THEN 2
+                    WHEN 'day_3' THEN 3
+                    WHEN 'day_4' THEN 4
+                    WHEN 'day_5' THEN 5
+                    WHEN 'day_6' THEN 6
+                    WHEN 'day_7' THEN 7
+                    ELSE 8
+                END
+            ")
             ->orderBy('order', 'asc');
     }
 
@@ -114,6 +126,11 @@ class WorkoutPlan extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function workoutSessions()
@@ -159,6 +176,13 @@ class WorkoutPlan extends Model
                 ->orWhere('description', 'like', "%{$search}%")
                 ->orWhere('detailed_description', 'like', "%{$search}%");
         });
+    }
+
+    public function scopeWithExercises($query)
+    {
+        return $query->with(['workoutExercises' => function ($q) {
+            $q->ordered();
+        }]);
     }
 
     /*
@@ -216,6 +240,50 @@ class WorkoutPlan extends Model
         return asset('images/default-workout-cover.jpg');
     }
 
+    public function getExercisesByDayAttribute()
+    {
+        return $this->workoutExercises()
+            ->get()
+            ->groupBy('day');
+    }
+
+    public function getMuscleGroupsAttribute()
+    {
+        return $this->workoutExercises()
+            ->select('muscle_group')
+            ->distinct()
+            ->pluck('muscle_group')
+            ->filter()
+            ->values();
+    }
+
+    public function getEquipmentListAttribute()
+    {
+        $equipmentFromPlan = $this->equipment_needed ? explode(',', $this->equipment_needed) : [];
+        $equipmentFromExercises = $this->workoutExercises()
+            ->select('equipment')
+            ->distinct()
+            ->pluck('equipment')
+            ->filter()
+            ->values()
+            ->toArray();
+
+        return array_unique(array_merge($equipmentFromPlan, $equipmentFromExercises));
+    }
+
+    public function getTotalSetsAttribute()
+    {
+        return $this->workoutExercises()->sum('sets');
+    }
+
+    public function getEstimatedTotalTimeAttribute()
+    {
+        $exerciseTime = $this->duration_minutes * 60; // Convert to seconds
+        $totalRestTime = $this->workoutExercises()->sum('rest_seconds') * $this->sessions_per_week;
+
+        return ceil(($exerciseTime + $totalRestTime) / 60); // Return in minutes
+    }
+
     /*
     |--------------------------------------------------------------------------
     | METHODS
@@ -232,6 +300,16 @@ class WorkoutPlan extends Model
         return $this->created_by === $userId;
     }
 
+    public function isTrainerPlan(): bool
+    {
+        return !is_null($this->trainer_id);
+    }
+
+    public function isSystemPlan(): bool
+    {
+        return $this->recommended_by === 'system';
+    }
+
     public function duplicate(string $newTitle = null)
     {
         $newPlan = $this->replicate();
@@ -243,7 +321,7 @@ class WorkoutPlan extends Model
         $newPlan->updated_at = now();
         $newPlan->save();
 
-        // Duplicate workout exercises
+        // Duplicate workout exercises dengan field yang sesuai
         foreach ($this->workoutExercises as $exercise) {
             $newExercise = $exercise->replicate();
             $newExercise->workout_plan_id = $newPlan->id;
@@ -283,23 +361,40 @@ class WorkoutPlan extends Model
 
     public function addExercise(array $data)
     {
-        $order = $this->workoutExercises()->max('order') ?? 0;
+        $order = $this->workoutExercises()
+            ->where('day', $data['day'] ?? 'day_1')
+            ->max('order') ?? 0;
 
         return $this->workoutExercises()->create([
             'name' => $data['name'],
-            'type' => $data['type'] ?? 'strength',
             'description' => $data['description'] ?? null,
-            'sets' => $data['sets'] ?? 3,
-            'reps' => $data['reps'] ?? '10-12',
-            'duration_minutes' => $data['duration_minutes'] ?? null,
-            'rest_seconds' => $data['rest_seconds'] ?? 60,
-            'video_url' => $data['video_url'] ?? null,
-            'instructions' => $data['instructions'] ?? null,
             'muscle_group' => $data['muscle_group'] ?? null,
             'equipment' => $data['equipment'] ?? null,
-            'notes' => $data['notes'] ?? null,
+            'difficulty' => $data['difficulty'] ?? 'beginner',
+            'sets' => $data['sets'] ?? 3,
+            'reps_min' => $data['reps_min'] ?? null,
+            'reps_max' => $data['reps_max'] ?? null,
+            'rest_seconds' => $data['rest_seconds'] ?? 60,
+            'weight_suggestion' => $data['weight_suggestion'] ?? null,
+            'video_url' => $data['video_url'] ?? null,
+            'image_url' => $data['image_url'] ?? null,
+            'instructions' => $data['instructions'] ?? null,
+            'tips' => $data['tips'] ?? null,
+            'common_mistakes' => $data['common_mistakes'] ?? null,
+            'day' => $data['day'] ?? 'day_1',
             'order' => $order + 1,
         ]);
+    }
+
+    public function updateExercise($exerciseId, array $data)
+    {
+        $exercise = $this->workoutExercises()->find($exerciseId);
+
+        if ($exercise) {
+            return $exercise->update($data);
+        }
+
+        return false;
     }
 
     public function removeExercise($exerciseId)
@@ -308,18 +403,70 @@ class WorkoutPlan extends Model
 
         if ($exercise) {
             $exercise->delete();
-            $this->reorderExercises();
+            $this->reorderExercises($exercise->day);
             return true;
         }
 
         return false;
     }
 
-    private function reorderExercises()
+    private function reorderExercises($day = null)
     {
-        $exercises = $this->workoutExercises()->orderBy('order')->get();
+        $query = $this->workoutExercises();
+
+        if ($day) {
+            $query->where('day', $day);
+        }
+
+        $exercises = $query->orderBy('order')->get();
+
         foreach ($exercises as $index => $exercise) {
             $exercise->update(['order' => $index + 1]);
         }
+    }
+
+    public function reorderExercisesByDay($day, array $exerciseIds)
+    {
+        foreach ($exerciseIds as $index => $exerciseId) {
+            $exercise = $this->workoutExercises()
+                ->where('id', $exerciseId)
+                ->where('day', $day)
+                ->first();
+
+            if ($exercise) {
+                $exercise->update(['order' => $index + 1]);
+            }
+        }
+    }
+
+    public function getExercisesForDay($day)
+    {
+        return $this->workoutExercises()
+            ->where('day', $day)
+            ->orderBy('order')
+            ->get();
+    }
+
+    public function getExerciseStats()
+    {
+        return [
+            'total_exercises' => $this->total_exercises,
+            'total_sets' => $this->total_sets,
+            'muscle_groups' => $this->muscle_groups,
+            'equipment_list' => $this->equipment_list,
+            'estimated_time' => $this->estimated_total_time,
+        ];
+    }
+
+    public function canUserAccess($userId)
+    {
+        // Premium plans require premium access
+        if ($this->is_premium) {
+            $user = User::find($userId);
+            return $user && $user->hasPremiumAccess();
+        }
+
+        // Standard plans are accessible to all
+        return true;
     }
 }
