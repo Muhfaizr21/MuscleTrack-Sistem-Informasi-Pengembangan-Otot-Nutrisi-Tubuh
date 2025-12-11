@@ -1,18 +1,39 @@
 <nav
+    x-data="{
+        isSidebarOpen: window.innerWidth >= 768,
+
+        init() {
+            // Listen untuk resize
+            window.addEventListener('resize', () => {
+                this.isSidebarOpen = window.innerWidth >= 768;
+            });
+        },
+
+        closeMobileSidebar() {
+            if (window.innerWidth < 768) {
+                this.isSidebarOpen = false;
+            }
+        },
+
+        toggleSidebar() {
+            this.isSidebarOpen = !this.isSidebarOpen;
+        }
+    }"
     class="bg-slate-900/80 backdrop-blur-lg border-r border-slate-700/50 w-64 min-h-screen py-8 px-4 fixed top-0 left-0 z-30
-           transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out
+           transform transition-transform duration-300 ease-in-out
            flex flex-col"
-    :class="{ 'translate-x-0': isSidebarOpen }"
-    @keydown.escape="isSidebarOpen = false"
-    id="sidebar">
+    :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    @keydown.escape.window="isSidebarOpen = false">
 
     <!-- Mobile Toggle Button -->
     <button
-        @click="isSidebarOpen = !isSidebarOpen"
+        @click="toggleSidebar"
         class="md:hidden absolute -right-10 top-8 w-10 h-10 bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-r-lg flex items-center justify-center z-40">
         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  :d="isSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"/>
+                  x-show="!isSidebarOpen" x-cloak d="M4 6h16M4 12h16M4 18h16"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  x-show="isSidebarOpen" x-cloak d="M6 18L18 6M6 6l12 12"/>
         </svg>
     </button>
 
@@ -141,21 +162,6 @@
                 </li>
 
                 <!-- Program Nutrisi -->
-                <li>
-                    <a href="{{ route('admin.nutrition-programs.index') }}"
-                       @click="closeMobileSidebar()"
-                       class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
-                              {{ request()->routeIs('admin.nutrition-programs.*')
-                                 ? 'text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 transform scale-105'
-                                 : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105' }}">
-                        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-600/20 flex items-center justify-center group-hover:from-emerald-500/30 group-hover:to-teal-600/30 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/>
-                            </svg>
-                        </div>
-                        <span class="font-semibold">Program Nutrisi</span>
-                    </a>
-                </li>
 
                 <!-- Community Management -->
                 <li>
@@ -264,16 +270,17 @@
 </nav>
 
 <!-- Overlay untuk mobile -->
-<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300"
-     :class="{ 'opacity-0 pointer-events-none': !isSidebarOpen, 'opacity-100': isSidebarOpen }"
-     @click="isSidebarOpen = false"
-     x-show="isSidebarOpen"
+<div x-show="$store.sidebar.isOpen && window.innerWidth < 768"
+     @click="$store.sidebar.isOpen = false"
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 transition-opacity duration-300"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
      x-transition:leave="transition ease-in duration-200"
      x-transition:leave-start="opacity-100"
-     x-transition:leave-end="opacity-0"></div>
+     x-transition:leave-end="opacity-0"
+     style="display: none;"
+     x-cloak></div>
 
 <style>
 .scrollbar-thin::-webkit-scrollbar { width: 4px; }
@@ -281,45 +288,42 @@
 .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(71,85,105,0.8); border-radius: 10px; }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.8); }
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: rgba(71,85,105,0.8) rgba(30,41,59,0.5); }
+[x-cloak] { display: none !important; }
 </style>
 
 <script>
-// Alpine.js component untuk sidebar
+// Initialize Alpine store
 document.addEventListener('alpine:init', () => {
-    Alpine.data('sidebar', () => ({
-        isSidebarOpen: false,
+    // Store untuk state sidebar global
+    Alpine.store('sidebar', {
+        isOpen: window.innerWidth >= 768,
 
         init() {
-            // Cek screen size untuk initial state
-            this.checkScreenSize();
-
-            // Listen untuk resize
+            // Update state berdasarkan screen size
             window.addEventListener('resize', () => {
-                this.checkScreenSize();
-            });
-
-            // Listen untuk escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && this.isSidebarOpen) {
-                    this.isSidebarOpen = false;
-                }
+                this.isOpen = window.innerWidth >= 768;
             });
         },
 
-        checkScreenSize() {
-            if (window.innerWidth >= 768) {
-                this.isSidebarOpen = true;
-            } else {
-                this.isSidebarOpen = false;
-            }
+        toggle() {
+            this.isOpen = !this.isOpen;
         },
 
-        closeMobileSidebar() {
+        closeMobile() {
             if (window.innerWidth < 768) {
-                this.isSidebarOpen = false;
+                this.isOpen = false;
             }
         }
-    }));
+    });
+
+    // Store untuk user info
+    Alpine.store('user', {
+        name: '{{ Auth::user()->name ?? "Admin" }}',
+        role: '{{ Auth::user()->role ?? "admin" }}',
+        initials: function() {
+            return this.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+    });
 });
 
 // Fungsi untuk logout confirmation
@@ -328,4 +332,22 @@ function confirmLogout() {
         document.getElementById('logout-form').submit();
     }
 }
+
+// Close sidebar when clicking links on mobile
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth < 768) {
+                Alpine.store('sidebar').isOpen = false;
+            }
+        });
+    });
+
+    // Escape key to close sidebar
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && window.innerWidth < 768) {
+            Alpine.store('sidebar').isOpen = false;
+        }
+    });
+});
 </script>

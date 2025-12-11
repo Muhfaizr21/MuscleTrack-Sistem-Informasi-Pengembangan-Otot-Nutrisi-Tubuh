@@ -24,7 +24,6 @@ use App\Http\Controllers\Admin\{
     AdminController,
     UserManagementController,
     ArticleController,
-    NutritionProgramController,
     TrainerMemberController,
     WorkoutPlanController,
     GoalController,
@@ -163,7 +162,6 @@ Route::middleware(['auth', 'role:admin'])
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
             'exercises' => ExerciseController::class,
-            'nutrition-programs' => NutritionProgramController::class,
             'goals' => GoalController::class,
             'body-metrics' => BodyMetricController::class,
         ]);
