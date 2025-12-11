@@ -88,7 +88,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Public Articles - GUNAKAN SATU SET SAJA untuk menghindari duplikasi
+// Public Articles
 Route::get('/articles', [PublicArticleController::class, 'index'])->name('public.articles.index');
 Route::get('/articles/{slug}', [PublicArticleController::class, 'show'])->name('public.articles.show');
 
@@ -158,7 +158,7 @@ Route::middleware(['auth', 'role:admin'])
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-        // CRUD Resources - DIPERBAIKI: Hapus workout-plans dari sini dan buat rute terpisah
+        // CRUD Resources
         Route::resources([
             'users' => UserManagementController::class,
             'articles' => ArticleController::class,
@@ -168,7 +168,9 @@ Route::middleware(['auth', 'role:admin'])
             'body-metrics' => BodyMetricController::class,
         ]);
 
-        // Workout Plans Routes
+        // ==========================
+        // 🏋️ WORKOUT PLANS ROUTES (DIPERBAIKI)
+        // ==========================
         Route::prefix('workout-plans')->name('workout-plans.')->group(function () {
             // Main CRUD
             Route::get('/', [WorkoutPlanController::class, 'index'])->name('index');
@@ -178,41 +180,41 @@ Route::middleware(['auth', 'role:admin'])
             Route::get('/{workoutPlan}/edit', [WorkoutPlanController::class, 'edit'])->name('edit');
             Route::put('/{workoutPlan}', [WorkoutPlanController::class, 'update'])->name('update');
             Route::delete('/{workoutPlan}', [WorkoutPlanController::class, 'destroy'])->name('destroy');
-            
+
             // Additional Actions
             Route::post('/{workoutPlan}/toggle-status', [WorkoutPlanController::class, 'toggleStatus'])->name('toggle-status');
             Route::post('/{workoutPlan}/toggle-premium', [WorkoutPlanController::class, 'togglePremium'])->name('toggle-premium');
             Route::post('/{workoutPlan}/duplicate', [WorkoutPlanController::class, 'duplicate'])->name('duplicate');
             Route::get('/{workoutPlan}/preview', [WorkoutPlanController::class, 'preview'])->name('preview');
-            
+
+            // Bulk Actions
+            Route::post('/bulk-actions', [WorkoutPlanController::class, 'bulkActions'])->name('bulk-actions');
+            Route::post('/bulk-delete', [WorkoutPlanController::class, 'bulkDelete'])->name('bulk-delete');
+
             // Exercises Management
             Route::prefix('{workoutPlan}/exercises')->name('exercises.')->group(function () {
-                Route::get('/create', [WorkoutPlanController::class, 'createExercise'])->name('create');
                 Route::post('/', [WorkoutPlanController::class, 'storeExercise'])->name('store');
-                Route::get('/{exercise}/edit', [WorkoutPlanController::class, 'editExercise'])->name('edit');
+                Route::get('/{exercise}', [WorkoutPlanController::class, 'getExercise'])->name('get');
                 Route::put('/{exercise}', [WorkoutPlanController::class, 'updateExercise'])->name('update');
                 Route::delete('/{exercise}', [WorkoutPlanController::class, 'destroyExercise'])->name('destroy');
                 Route::post('/order', [WorkoutPlanController::class, 'updateExerciseOrder'])->name('order.update');
             });
-            
+
             // Export/Import
             Route::get('/export', [WorkoutPlanController::class, 'export'])->name('export');
             Route::post('/import', [WorkoutPlanController::class, 'import'])->name('import');
             Route::get('/template', [WorkoutPlanController::class, 'downloadTemplate'])->name('template');
-            
-            // Bulk Actions
-            Route::post('/bulk-delete', [WorkoutPlanController::class, 'bulkDelete'])->name('bulk-delete');
-            
+
             // Archived/Trash
             Route::get('/archived', [WorkoutPlanController::class, 'archived'])->name('archived');
-            Route::post('/{id}/restore', [WorkoutPlanController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force', [WorkoutPlanController::class, 'forceDelete'])->name('force-delete');
-            
+            Route::post('/trash/{id}/restore', [WorkoutPlanController::class, 'restore'])->name('restore');
+            Route::delete('/trash/{id}/force', [WorkoutPlanController::class, 'forceDelete'])->name('force-delete');
+
             // AJAX Endpoints
             Route::get('/ajax/list', [WorkoutPlanController::class, 'getWorkoutPlans'])->name('ajax.list');
+            Route::get('/{workoutPlan}/exercises/day/{day}', [WorkoutPlanController::class, 'getExercisesByDay'])->name('exercises.by-day');
+            Route::post('/{workoutPlan}/exercises/update-days', [WorkoutPlanController::class, 'updateExerciseDays'])->name('exercises.update-days');
         });
-        
-    
 
         // Trainer Memberships
         Route::resource('trainer-memberships', TrainerMemberController::class)
@@ -271,6 +273,7 @@ Route::middleware(['auth', 'role:trainer'])
 
         // Dashboard
         Route::get('/dashboard', [TrainerDashboardController::class, 'index'])->name('dashboard');
+
         // Members Management
         Route::prefix('members')->name('members.')->group(function () {
             Route::get('/', [MemberController::class, 'index'])->name('index');
@@ -291,16 +294,14 @@ Route::middleware(['auth', 'role:trainer'])
             Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
         });
 
-        // Communication - PERBAIKAN: Hapus duplikat 'chat' dalam prefix
+        // Communication
         Route::prefix('communication')->name('communication.')->group(function () {
-            // Chat Routes - Fixed: menggunakan TrainerChatController dengan benar
+            // Chat Routes
             Route::prefix('chat')->name('chat.')->group(function () {
                 Route::get('/', [TrainerChatController::class, 'index'])->name('index');
                 Route::post('/', [TrainerChatController::class, 'store'])->name('store');
                 Route::delete('/{id}', [TrainerChatController::class, 'destroy'])->name('destroy');
                 Route::post('/mark-read', [TrainerChatController::class, 'markAllRead'])->name('markAllRead');
-
-                // Debug routes (optional)
                 Route::get('/debug', [TrainerChatController::class, 'debugReadStatus'])->name('debug');
                 Route::get('/unread-count', [TrainerChatController::class, 'getUnreadCount'])->name('unreadCount');
             });
@@ -374,10 +375,7 @@ Route::middleware(['auth', 'role:trainer'])
             Route::get('/ratings', [QualityController::class, 'showRatings'])->name('ratings');
         });
 
-
-        // ==========================
-        // 🧑‍🏫 TRAINER COMMUNITY ROUTES
-        // ==========================
+        // Trainer Community Routes
         Route::prefix('communities')->name('communities.')->group(function () {
             // Main Community Routes
             Route::get('/', [TrainerCommunityController::class, 'index'])->name('index');
@@ -392,12 +390,12 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/{community:slug}/join', [TrainerCommunityController::class, 'join'])->name('join');
             Route::post('/{community:slug}/leave', [TrainerCommunityController::class, 'leave'])->name('leave');
 
-            // Members Management - GET untuk menampilkan halaman
+            // Members Management
             Route::get('/{community:slug}/members', [TrainerCommunityController::class, 'members'])->name('members');
             Route::get('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'editRole'])->name('members.role');
             Route::post('/{community:slug}/members/{user}/role', [TrainerCommunityController::class, 'updateRole'])->name('members.role.update');
 
-            // Members Management Actions - POST untuk aksi
+            // Members Management Actions
             Route::post('/{community:slug}/members/{user}/approve', [TrainerCommunityController::class, 'approveMember'])->name('members.approve');
             Route::post('/{community:slug}/members/{user}/reject', [TrainerCommunityController::class, 'rejectMember'])->name('members.reject');
             Route::post('/{community:slug}/members/{user}/promote', [TrainerCommunityController::class, 'promoteMember'])->name('members.promote');
@@ -524,9 +522,7 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/push-preferences', [UserNotificationController::class, 'savePushPreferences'])->name('push-preferences');
         });
 
-        // ==========================
-        // 🧍 USER COMMUNITY ROUTES
-        // ==========================
+        // User Community Routes
         Route::prefix('communities')->name('communities.')->group(function () {
             Route::get('/', [UserCommunityController::class, 'index'])->name('index');
             Route::get('/create', [UserCommunityController::class, 'create'])->name('create');
@@ -562,7 +558,7 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/{community:slug}/members/{user}/demote', [UserCommunityController::class, 'demoteToMember'])->name('members.demote');
             Route::delete('/{community:slug}/members/{user}', [UserCommunityController::class, 'removeMember'])->name('members.remove');
 
-            // Membership Approval Routes (for private communities)
+            // Membership Approval Routes
             Route::post('/{community:slug}/members/{user}/approve', [UserCommunityController::class, 'approveMember'])->name('members.approve');
             Route::post('/{community:slug}/members/{user}/reject', [UserCommunityController::class, 'rejectMember'])->name('members.reject');
 
@@ -570,8 +566,6 @@ Route::middleware(['auth', 'role:user'])
             Route::post('/{community:slug}/transfer-ownership/{user}', [UserCommunityController::class, 'transferOwnership'])->name('transfer-ownership');
         });
     });
-
-
 
 // 404 Fallback
 Route::fallback(function () {

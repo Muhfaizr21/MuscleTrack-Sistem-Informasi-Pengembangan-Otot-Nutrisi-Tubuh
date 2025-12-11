@@ -96,7 +96,7 @@
 
             // Modal functions
             function showAddExerciseModal() {
-                const url = `{{ route('admin.workout-plans.exercises.create', $workoutPlan) }}`;
+                const url = `{{ route('admin.workout-plans.create', $workoutPlan) }}`;
 
                 fetch(url)
                     .then(response => {
@@ -117,7 +117,7 @@
 
             function showEditExerciseModal(exerciseId) {
                 // Gunakan URL yang benar dengan exercise ID
-                const url = `{{ route('admin.workout-plans.exercises.edit', [$workoutPlan, 'exercise_id']) }}`
+                const url = `{{ route('admin.workout-plans.edit', [$workoutPlan, 'exercise_id']) }}`
                     .replace('exercise_id', exerciseId);
 
                 fetch(url)

@@ -3,7 +3,18 @@
            transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out
            flex flex-col"
     :class="{ 'translate-x-0': isSidebarOpen }"
-    @keydown.escape="isSidebarOpen = false">
+    @keydown.escape="isSidebarOpen = false"
+    id="sidebar">
+
+    <!-- Mobile Toggle Button -->
+    <button
+        @click="isSidebarOpen = !isSidebarOpen"
+        class="md:hidden absolute -right-10 top-8 w-10 h-10 bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 rounded-r-lg flex items-center justify-center z-40">
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  :d="isSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"/>
+        </svg>
+    </button>
 
     <!-- Header -->
     <div class="px-4 mb-8 flex-shrink-0">
@@ -30,7 +41,7 @@
                 <!-- Dashboard -->
                 <li>
                     <a href="{{ route('admin.dashboard') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.dashboard')
                                  ? 'text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg shadow-green-500/20 transform scale-105'
@@ -47,7 +58,7 @@
                 <!-- Manajemen User -->
                 <li>
                     <a href="{{ route('admin.users.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.users.*')
                                  ? 'text-white bg-gradient-to-r from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/20 transform scale-105'
@@ -64,7 +75,7 @@
                 <!-- Member Premium -->
                 <li>
                     <a href="{{ route('admin.trainer-memberships.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.trainer-memberships.*')
                                  ? 'text-white bg-gradient-to-r from-amber-500 to-yellow-600 shadow-lg shadow-amber-500/20 transform scale-105'
@@ -81,7 +92,7 @@
                 <!-- Manajemen Trainer -->
                 <li>
                     <a href="{{ route('admin.trainers.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.trainers.*')
                                  ? 'text-white bg-gradient-to-r from-orange-500 to-amber-600 shadow-lg shadow-orange-500/20 transform scale-105'
@@ -95,42 +106,27 @@
                     </a>
                 </li>
 
-                <!-- 🏋️ Exercise Library -->
+                <!-- Kelola Artikel -->
                 <li>
-                    <a href="{{ route('admin.exercises.index') }}"
-                       @click="isSidebarOpen = false"
+                    <a href="{{ route('admin.articles.index') }}"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
-                              {{ request()->routeIs('admin.exercises.*')
-                                 ? 'text-white bg-gradient-to-r from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/20 transform scale-105'
+                              {{ request()->routeIs('admin.articles.*')
+                                 ? 'text-white bg-gradient-to-r from-fuchsia-500 to-pink-600 shadow-lg shadow-fuchsia-500/20 transform scale-105'
                                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105' }}">
-                        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-emerald-500/20 to-green-600/20 flex items-center justify-center group-hover:from-emerald-500/30 group-hover:to-green-600/30 transition-all">
+                        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-fuchsia-500/20 to-pink-600/20 flex items-center justify-center group-hover:from-fuchsia-500/30 group-hover:to-pink-600/30 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2h6v2a2 2 0 002 2h1a1 1 0 001-1v-6a9 9 0 10-18 0v6a1 1 0 001 1h1a2 2 0 002-2zM9 10h6"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                             </svg>
                         </div>
-                        <span class="font-semibold">Exercise Library</span>
+                        <span class="font-semibold">Kelola Artikel</span>
                     </a>
                 </li>
-                <li>
-    <a href="{{ route('admin.articles.index') }}"
-       @click="isSidebarOpen = false"
-       class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
-              {{ request()->routeIs('admin.articles.*')
-                 ? 'text-white bg-gradient-to-r from-fuchsia-500 to-pink-600 shadow-lg shadow-fuchsia-500/20 transform scale-105'
-                 : 'text-slate-400 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:scale-105' }}">
-        <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-fuchsia-500/20 to-pink-600/20 flex items-center justify-center group-hover:from-fuchsia-500/30 group-hover:to-pink-600/30 transition-all">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-            </svg>
-        </div>
-        <span class="font-semibold">Kelola Artikel</span>
-    </a>
-</li>
 
                 <!-- Program Latihan -->
                 <li>
                     <a href="{{ route('admin.workout-plans.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.workout-plans.*')
                                  ? 'text-white bg-gradient-to-r from-orange-500 to-red-600 shadow-lg shadow-orange-500/20 transform scale-105'
@@ -147,7 +143,7 @@
                 <!-- Program Nutrisi -->
                 <li>
                     <a href="{{ route('admin.nutrition-programs.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.nutrition-programs.*')
                                  ? 'text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 transform scale-105'
@@ -161,10 +157,10 @@
                     </a>
                 </li>
 
-                <!-- 👥 Community Management -->
+                <!-- Community Management -->
                 <li>
                     <a href="{{ route('admin.communities.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.communities.*')
                                  ? 'text-white bg-gradient-to-r from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20 transform scale-105'
@@ -178,10 +174,10 @@
                     </a>
                 </li>
 
-                <!-- Goals -->
+                <!-- Manajemen Goals -->
                 <li>
                     <a href="{{ route('admin.goals.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.goals.*')
                                  ? 'text-white bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg shadow-violet-500/20 transform scale-105'
@@ -195,10 +191,10 @@
                     </a>
                 </li>
 
-                <!-- Broadcast -->
+                <!-- Broadcast Notifikasi -->
                 <li>
                     <a href="{{ route('admin.broadcast.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.broadcast.*')
                                  ? 'text-white bg-gradient-to-r from-pink-500 to-rose-600 shadow-lg shadow-pink-500/20 transform scale-105'
@@ -215,7 +211,7 @@
                 <!-- Pesan Kontak -->
                 <li>
                     <a href="{{ route('admin.contact.index') }}"
-                       @click="isSidebarOpen = false"
+                       @click="closeMobileSidebar()"
                        class="group flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-300
                               {{ request()->routeIs('admin.contact.*')
                                  ? 'text-white bg-gradient-to-r from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/20 transform scale-105'
@@ -239,14 +235,45 @@
         </nav>
     </div>
 
+    <!-- Logout Button -->
+    <div class="px-4 mt-4 flex-shrink-0">
+        <form method="POST" action="{{ route('logout') }}" id="logout-form">
+            @csrf
+            <button type="button"
+                    onclick="confirmLogout()"
+                    class="group w-full flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
+                           text-red-400 hover:text-white hover:bg-gradient-to-r from-red-500/20 to-rose-600/20
+                           hover:border hover:border-red-500/30 hover:shadow-lg hover:scale-105">
+                <div class="w-8 h-8 mr-3 rounded-lg bg-gradient-to-br from-red-500/20 to-rose-600/20 flex items-center justify-center group-hover:from-red-500/30 group-hover:to-rose-600/30 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                </div>
+                <span class="font-semibold">Logout</span>
+            </button>
+        </form>
+    </div>
+
     <!-- Footer -->
-    <div class="px-4 mt-8 pt-4 border-t border-slate-700/50 flex-shrink-0">
+    <div class="px-4 mt-4 pt-4 border-t border-slate-700/50 flex-shrink-0">
         <div class="text-xs text-slate-500 text-center">
             <div class="font-semibold text-slate-400 mb-1">MuscleXpert v2.0</div>
             <div>Admin Panel</div>
         </div>
     </div>
 </nav>
+
+<!-- Overlay untuk mobile -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300"
+     :class="{ 'opacity-0 pointer-events-none': !isSidebarOpen, 'opacity-100': isSidebarOpen }"
+     @click="isSidebarOpen = false"
+     x-show="isSidebarOpen"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"></div>
 
 <style>
 .scrollbar-thin::-webkit-scrollbar { width: 4px; }
@@ -255,3 +282,50 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.8); }
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: rgba(71,85,105,0.8) rgba(30,41,59,0.5); }
 </style>
+
+<script>
+// Alpine.js component untuk sidebar
+document.addEventListener('alpine:init', () => {
+    Alpine.data('sidebar', () => ({
+        isSidebarOpen: false,
+
+        init() {
+            // Cek screen size untuk initial state
+            this.checkScreenSize();
+
+            // Listen untuk resize
+            window.addEventListener('resize', () => {
+                this.checkScreenSize();
+            });
+
+            // Listen untuk escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isSidebarOpen) {
+                    this.isSidebarOpen = false;
+                }
+            });
+        },
+
+        checkScreenSize() {
+            if (window.innerWidth >= 768) {
+                this.isSidebarOpen = true;
+            } else {
+                this.isSidebarOpen = false;
+            }
+        },
+
+        closeMobileSidebar() {
+            if (window.innerWidth < 768) {
+                this.isSidebarOpen = false;
+            }
+        }
+    }));
+});
+
+// Fungsi untuk logout confirmation
+function confirmLogout() {
+    if (confirm('Apakah Anda yakin ingin logout?')) {
+        document.getElementById('logout-form').submit();
+    }
+}
+</script>

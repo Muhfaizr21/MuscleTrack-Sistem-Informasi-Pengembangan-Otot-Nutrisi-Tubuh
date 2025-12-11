@@ -24,8 +24,7 @@ class WorkoutPlanController extends Controller
     public function index(Request $request)
     {
         $query = WorkoutPlan::withCount('workoutExercises')
-            ->with(['creator', 'trainer'])
-            ->withTrashed(); // Include soft deleted for admin view
+            ->with(['creator', 'trainer']);
 
         // Filter berdasarkan status
         if ($request->has('status') && in_array($request->status, ['active', 'inactive'])) {
@@ -37,12 +36,12 @@ class WorkoutPlanController extends Controller
             $query->where('difficulty_level', $request->difficulty);
         }
 
-        // Filter berdasarkan target fitness (sesuaikan dengan enum di model)
+        // Filter berdasarkan target fitness
         if ($request->has('target_fitness') && $request->target_fitness) {
             $query->where('target_fitness', $request->target_fitness);
         }
 
-        // Filter berdasarkan focus area (sesuaikan dengan enum di model)
+        // Filter berdasarkan focus area
         if ($request->has('focus_area') && $request->focus_area) {
             $query->where('focus_area', $request->focus_area);
         }
@@ -107,12 +106,10 @@ class WorkoutPlanController extends Controller
      */
     public function create()
     {
-        // Get approved trainers for dropdown
         $trainers = User::where('role', 'trainer')
             ->where('verification_status', 'approved')
             ->get(['id', 'name']);
 
-        // Get target fitness options from model (sesuaikan dengan model)
         $targetFitnessOptions = [
             'fat_loss' => 'Fat Loss',
             'muscle_gain' => 'Muscle Gain',
@@ -206,12 +203,11 @@ class WorkoutPlanController extends Controller
             // Create workout plan
             $workoutPlan = WorkoutPlan::create($validated);
 
-            // Create exercises if provided (sesuaikan dengan struktur baru)
+            // Create exercises if provided
             if ($request->has('exercises')) {
                 $order = 1;
                 foreach ($request->exercises as $exerciseData) {
                     if (!empty($exerciseData['name'])) {
-                        // Parse reps untuk mendapatkan reps_min dan reps_max
                         $repsMin = null;
                         $repsMax = null;
 
@@ -257,7 +253,6 @@ class WorkoutPlanController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating workout plan: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
 
             return redirect()->back()
                 ->withInput()
@@ -272,9 +267,7 @@ class WorkoutPlanController extends Controller
     {
         $workoutPlan->load([
             'workoutExercises' => function ($query) {
-                $query->orderBy('day')
-                    ->orderBy('order')
-                    ->orderBy('id');
+                $query->orderBy('day')->orderBy('order');
             },
             'creator',
             'user',
@@ -282,38 +275,29 @@ class WorkoutPlanController extends Controller
             'updater'
         ]);
 
-        // Hitung stats secara manual tanpa mengakses kolom yang tidak ada
         $totalExercises = $workoutPlan->workoutExercises->count();
-        
-        // Group exercises by day
         $exercisesByDay = $workoutPlan->workoutExercises->groupBy('day')->map->count();
-        
-        // Get unique muscle groups
+
         $muscleGroups = $workoutPlan->workoutExercises->pluck('muscle_group')
             ->filter()
             ->unique()
             ->values()
             ->toArray();
-            
-        // Get equipment list
+
         $equipmentList = $workoutPlan->workoutExercises->pluck('equipment')
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        // Hitung completion rate sederhana (misal: berdasarkan session yang ada)
         $totalSessions = $workoutPlan->workoutSessions()->count();
-        $completionRate = 0; // Default value
+        $completionRate = 0;
 
-        // Jika ada sessions, hitung completion rate dengan cara yang aman
         if ($totalSessions > 0) {
             try {
-                // Coba hitung dengan cara yang aman, tanpa mengasumsikan kolom 'completed'
-                $completionRate = $totalSessions > 0 ? 75 : 0; // Placeholder value
+                $completionRate = $totalSessions > 0 ? 75 : 0;
             } catch (\Exception $e) {
                 Log::warning('Error calculating completion rate: ' . $e->getMessage());
-                $completionRate = 0;
             }
         }
 
@@ -336,7 +320,6 @@ class WorkoutPlanController extends Controller
     {
         $workoutPlan->load('workoutExercises');
 
-        // Get trainers for dropdown
         $trainers = User::where('role', 'trainer')
             ->where('verification_status', 'approved')
             ->get(['id', 'name']);
@@ -403,7 +386,6 @@ class WorkoutPlanController extends Controller
 
         // Upload cover image baru
         if ($request->hasFile('cover_image')) {
-            // Hapus gambar lama jika ada
             if ($workoutPlan->cover_image && Storage::disk('public')->exists($workoutPlan->cover_image)) {
                 Storage::disk('public')->delete($workoutPlan->cover_image);
             }
@@ -411,7 +393,6 @@ class WorkoutPlanController extends Controller
             $path = $request->file('cover_image')->store('workout-plans/covers', 'public');
             $validated['cover_image'] = $path;
         } elseif ($request->has('remove_cover_image')) {
-            // Hapus cover image jika diminta
             if ($workoutPlan->cover_image && Storage::disk('public')->exists($workoutPlan->cover_image)) {
                 Storage::disk('public')->delete($workoutPlan->cover_image);
             }
@@ -447,7 +428,7 @@ class WorkoutPlanController extends Controller
             // Soft delete
             $workoutPlan->delete();
 
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Program latihan berhasil dihapus.'
@@ -459,7 +440,7 @@ class WorkoutPlanController extends Controller
         } catch (\Exception $e) {
             Log::error('Error deleting workout plan: ' . $e->getMessage());
 
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal menghapus program latihan.'
@@ -485,13 +466,8 @@ class WorkoutPlanController extends Controller
         try {
             $count = 0;
             foreach ($request->ids as $id) {
-                $workoutPlan = WorkoutPlan::withTrashed()->find($id);
+                $workoutPlan = WorkoutPlan::find($id);
                 if ($workoutPlan) {
-                    // Skip already deleted items
-                    if ($workoutPlan->trashed()) {
-                        continue;
-                    }
-
                     // Hapus cover image jika ada
                     if ($workoutPlan->cover_image && Storage::disk('public')->exists($workoutPlan->cover_image)) {
                         Storage::disk('public')->delete($workoutPlan->cover_image);
@@ -514,213 +490,6 @@ class WorkoutPlanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus program latihan.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Store new exercise (AJAX)
-     */
-    public function storeExercise(Request $request, WorkoutPlan $workoutPlan)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'muscle_group' => 'nullable|string|max:100',
-            'equipment' => 'nullable|string|max:100',
-            'difficulty' => 'nullable|string|in:beginner,intermediate,advanced',
-            'sets' => 'nullable|integer|min:1|max:20',
-            'reps_min' => 'nullable|integer|min:1|max:100',
-            'reps_max' => 'nullable|integer|min:1|max:100',
-            'rest_seconds' => 'nullable|integer|min:0|max:600',
-            'weight_suggestion' => 'nullable|numeric|min:0|max:1000',
-            'video_url' => 'nullable|url|max:500',
-            'image_url' => 'nullable|url|max:500',
-            'instructions' => 'nullable|string',
-            'tips' => 'nullable|string',
-            'common_mistakes' => 'nullable|string',
-            'day' => 'nullable|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
-        ]);
-
-        // Calculate order
-        $order = $workoutPlan->workoutExercises()
-            ->where('day', $validated['day'] ?? 'day_1')
-            ->max('order') ?? 0;
-
-        $exercise = $workoutPlan->workoutExercises()->create([
-            ...$validated,
-            'order' => $order + 1
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Latihan berhasil ditambahkan',
-            'exercise' => $exercise,
-            'html' => view('admin.workout_plans.partials.exercise_item', [
-                'exercise' => $exercise,
-                'loop' => (object) [
-                    'iteration' => $workoutPlan->workoutExercises()
-                        ->where('day', $exercise->day)
-                        ->count()
-                ]
-            ])->render()
-        ]);
-    }
-
-    /**
-     * Get exercise for editing (AJAX)
-     */
-    public function getExercise(WorkoutPlan $workoutPlan, $exerciseId)
-    {
-        $exercise = WorkoutExercise::where('workout_plan_id', $workoutPlan->id)
-            ->find($exerciseId);
-
-        if (!$exercise) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Latihan tidak ditemukan'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'exercise' => $exercise
-        ]);
-    }
-
-    /**
-     * Update exercise (AJAX)
-     */
-    public function updateExercise(Request $request, WorkoutPlan $workoutPlan, WorkoutExercise $exercise)
-    {
-        if ($exercise->workout_plan_id !== $workoutPlan->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Latihan tidak ditemukan'
-            ], 404);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'muscle_group' => 'nullable|string|max:100',
-            'equipment' => 'nullable|string|max:100',
-            'difficulty' => 'nullable|string|in:beginner,intermediate,advanced',
-            'sets' => 'nullable|integer|min:1|max:20',
-            'reps_min' => 'nullable|integer|min:1|max:100',
-            'reps_max' => 'nullable|integer|min:1|max:100',
-            'rest_seconds' => 'nullable|integer|min:0|max:600',
-            'weight_suggestion' => 'nullable|numeric|min:0|max:1000',
-            'video_url' => 'nullable|url|max:500',
-            'image_url' => 'nullable|url|max:500',
-            'instructions' => 'nullable|string',
-            'tips' => 'nullable|string',
-            'common_mistakes' => 'nullable|string',
-            'day' => 'nullable|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
-        ]);
-
-        // Jika day berubah, perlu reorder
-        $oldDay = $exercise->day;
-        $newDay = $validated['day'] ?? 'day_1';
-
-        if ($oldDay !== $newDay) {
-            // Reorder exercises di hari lama
-            $exercise->delete();
-
-            // Hitung order baru di hari baru
-            $newOrder = $workoutPlan->workoutExercises()
-                ->where('day', $newDay)
-                ->max('order') ?? 0;
-
-            $validated['order'] = $newOrder + 1;
-
-            // Recreate exercise di hari baru
-            $exercise = $workoutPlan->workoutExercises()->create($validated);
-
-            // Reorder exercises di hari lama
-            $this->reorderExercises($workoutPlan, $oldDay);
-        } else {
-            $exercise->update($validated);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Latihan berhasil diperbarui',
-            'exercise' => $exercise,
-            'html' => view('admin.workout_plans.partials.exercise_item', [
-                'exercise' => $exercise,
-                'loop' => (object) [
-                    'iteration' => $workoutPlan->workoutExercises()
-                        ->where('day', $exercise->day)
-                        ->where('order', '<=', $exercise->order)
-                        ->count()
-                ]
-            ])->render()
-        ]);
-    }
-
-    /**
-     * Delete exercise (AJAX)
-     */
-    public function destroyExercise(Request $request, WorkoutPlan $workoutPlan, WorkoutExercise $exercise)
-    {
-        if ($exercise->workout_plan_id !== $workoutPlan->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Latihan tidak ditemukan'
-            ], 404);
-        }
-
-        $deletedDay = $exercise->day;
-        $deletedOrder = $exercise->order;
-        $exercise->delete();
-
-        // Update order for remaining exercises in the same day
-        $workoutPlan->workoutExercises()
-            ->where('day', $deletedDay)
-            ->where('order', '>', $deletedOrder)
-            ->decrement('order');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Latihan berhasil dihapus'
-        ]);
-    }
-
-    /**
-     * Update exercise order (AJAX)
-     */
-    public function updateExerciseOrder(Request $request, WorkoutPlan $workoutPlan)
-    {
-        $request->validate([
-            'day' => 'required|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
-            'order' => 'required|array',
-            'order.*' => 'integer|exists:workout_exercises,id'
-        ]);
-
-        DB::beginTransaction();
-        try {
-            foreach ($request->order as $index => $exerciseId) {
-                WorkoutExercise::where('id', $exerciseId)
-                    ->where('workout_plan_id', $workoutPlan->id)
-                    ->update([
-                        'order' => $index + 1,
-                        'day' => $request->day // Pastikan day sesuai
-                    ]);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Urutan latihan berhasil diperbarui'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating exercise order: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui urutan latihan'
             ], 500);
         }
     }
@@ -824,6 +593,251 @@ class WorkoutPlanController extends Controller
     }
 
     /**
+     * Bulk actions (activate, deactivate, toggle premium, delete)
+     */
+    public function bulkActions(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:activate,deactivate,toggle_premium,delete',
+            'ids' => 'required|array',
+            'ids.*' => 'exists:workout_plans,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $count = 0;
+            foreach ($request->ids as $id) {
+                $workoutPlan = WorkoutPlan::find($id);
+                if ($workoutPlan) {
+                    switch ($request->action) {
+                        case 'activate':
+                            $workoutPlan->update(['status' => 'active']);
+                            break;
+                        case 'deactivate':
+                            $workoutPlan->update(['status' => 'inactive']);
+                            break;
+                        case 'toggle_premium':
+                            $workoutPlan->update(['is_premium' => !$workoutPlan->is_premium]);
+                            break;
+                        case 'delete':
+                            // Hapus cover image jika ada
+                            if ($workoutPlan->cover_image && Storage::disk('public')->exists($workoutPlan->cover_image)) {
+                                Storage::disk('public')->delete($workoutPlan->cover_image);
+                            }
+                            $workoutPlan->delete();
+                            break;
+                    }
+                    $count++;
+                }
+            }
+
+            DB::commit();
+
+            $message = match ($request->action) {
+                'activate' => $count . ' program latihan berhasil diaktifkan',
+                'deactivate' => $count . ' program latihan berhasil dinonaktifkan',
+                'toggle_premium' => $count . ' program latihan berhasil diubah status premiumnya',
+                'delete' => $count . ' program latihan berhasil dihapus',
+            };
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error performing bulk action: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan aksi bulk'
+            ], 500);
+        }
+    }
+
+    /**
+     * Store new exercise (AJAX)
+     */
+    public function storeExercise(Request $request, WorkoutPlan $workoutPlan)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'muscle_group' => 'nullable|string|max:100',
+            'equipment' => 'nullable|string|max:100',
+            'difficulty' => 'nullable|string|in:beginner,intermediate,advanced',
+            'sets' => 'nullable|integer|min:1|max:20',
+            'reps_min' => 'nullable|integer|min:1|max:100',
+            'reps_max' => 'nullable|integer|min:1|max:100',
+            'rest_seconds' => 'nullable|integer|min:0|max:600',
+            'weight_suggestion' => 'nullable|numeric|min:0|max:1000',
+            'video_url' => 'nullable|url|max:500',
+            'image_url' => 'nullable|url|max:500',
+            'instructions' => 'nullable|string',
+            'tips' => 'nullable|string',
+            'common_mistakes' => 'nullable|string',
+            'day' => 'nullable|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
+        ]);
+
+        $order = $workoutPlan->workoutExercises()
+            ->where('day', $validated['day'] ?? 'day_1')
+            ->max('order') ?? 0;
+
+        $exercise = $workoutPlan->workoutExercises()->create([
+            ...$validated,
+            'order' => $order + 1
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Latihan berhasil ditambahkan',
+            'exercise' => $exercise
+        ]);
+    }
+
+    /**
+     * Get exercise for editing (AJAX)
+     */
+    public function getExercise(WorkoutPlan $workoutPlan, $exerciseId)
+    {
+        $exercise = WorkoutExercise::where('workout_plan_id', $workoutPlan->id)
+            ->find($exerciseId);
+
+        if (!$exercise) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Latihan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'exercise' => $exercise
+        ]);
+    }
+
+    /**
+     * Update exercise (AJAX)
+     */
+    public function updateExercise(Request $request, WorkoutPlan $workoutPlan, WorkoutExercise $exercise)
+    {
+        if ($exercise->workout_plan_id !== $workoutPlan->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Latihan tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'muscle_group' => 'nullable|string|max:100',
+            'equipment' => 'nullable|string|max:100',
+            'difficulty' => 'nullable|string|in:beginner,intermediate,advanced',
+            'sets' => 'nullable|integer|min:1|max:20',
+            'reps_min' => 'nullable|integer|min:1|max:100',
+            'reps_max' => 'nullable|integer|min:1|max:100',
+            'rest_seconds' => 'nullable|integer|min:0|max:600',
+            'weight_suggestion' => 'nullable|numeric|min:0|max:1000',
+            'video_url' => 'nullable|url|max:500',
+            'image_url' => 'nullable|url|max:500',
+            'instructions' => 'nullable|string',
+            'tips' => 'nullable|string',
+            'common_mistakes' => 'nullable|string',
+            'day' => 'nullable|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
+        ]);
+
+        $oldDay = $exercise->day;
+        $newDay = $validated['day'] ?? 'day_1';
+
+        if ($oldDay !== $newDay) {
+            $exercise->delete();
+
+            $newOrder = $workoutPlan->workoutExercises()
+                ->where('day', $newDay)
+                ->max('order') ?? 0;
+
+            $validated['order'] = $newOrder + 1;
+
+            $exercise = $workoutPlan->workoutExercises()->create($validated);
+
+            $this->reorderExercises($workoutPlan, $oldDay);
+        } else {
+            $exercise->update($validated);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Latihan berhasil diperbarui',
+            'exercise' => $exercise
+        ]);
+    }
+
+    /**
+     * Delete exercise (AJAX)
+     */
+    public function destroyExercise(Request $request, WorkoutPlan $workoutPlan, WorkoutExercise $exercise)
+    {
+        if ($exercise->workout_plan_id !== $workoutPlan->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Latihan tidak ditemukan'
+            ], 404);
+        }
+
+        $deletedDay = $exercise->day;
+        $deletedOrder = $exercise->order;
+        $exercise->delete();
+
+        $workoutPlan->workoutExercises()
+            ->where('day', $deletedDay)
+            ->where('order', '>', $deletedOrder)
+            ->decrement('order');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Latihan berhasil dihapus'
+        ]);
+    }
+
+    /**
+     * Update exercise order (AJAX)
+     */
+    public function updateExerciseOrder(Request $request, WorkoutPlan $workoutPlan)
+    {
+        $request->validate([
+            'day' => 'required|string|in:day_1,day_2,day_3,day_4,day_5,day_6,day_7',
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:workout_exercises,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            foreach ($request->order as $index => $exerciseId) {
+                WorkoutExercise::where('id', $exerciseId)
+                    ->where('workout_plan_id', $workoutPlan->id)
+                    ->update([
+                        'order' => $index + 1,
+                        'day' => $request->day
+                    ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Urutan latihan berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating exercise order: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui urutan latihan'
+            ], 500);
+        }
+    }
+
+    /**
      * Export workout plans
      */
     public function export()
@@ -860,7 +874,6 @@ class WorkoutPlanController extends Controller
         $path = resource_path('templates/workout-plans-template.xlsx');
 
         if (!file_exists($path)) {
-            // Create template if doesn't exist
             Excel::store(new WorkoutPlansExport(true), 'templates/workout-plans-template.xlsx', 'local');
         }
 
@@ -916,15 +929,12 @@ class WorkoutPlanController extends Controller
         try {
             $workoutPlan = WorkoutPlan::onlyTrashed()->findOrFail($id);
 
-            // Hapus cover image
             if ($workoutPlan->cover_image && Storage::disk('public')->exists($workoutPlan->cover_image)) {
                 Storage::disk('public')->delete($workoutPlan->cover_image);
             }
 
-            // Hapus exercises permanen
             WorkoutExercise::where('workout_plan_id', $id)->forceDelete();
 
-            // Force delete plan
             $workoutPlan->forceDelete();
 
             DB::commit();
@@ -945,8 +955,7 @@ class WorkoutPlanController extends Controller
     public function preview(WorkoutPlan $workoutPlan)
     {
         $workoutPlan->load(['workoutExercises' => function ($query) {
-            $query->orderBy('day')
-                ->orderBy('order');
+            $query->orderBy('day')->orderBy('order');
         }]);
 
         return view('admin.workout_plans.preview', compact('workoutPlan'));
@@ -985,64 +994,6 @@ class WorkoutPlanController extends Controller
     }
 
     /**
-     * Bulk actions (activate, deactivate, toggle premium)
-     */
-    public function bulkActions(Request $request)
-    {
-        $request->validate([
-            'action' => 'required|in:activate,deactivate,toggle_premium,delete',
-            'ids' => 'required|array',
-            'ids.*' => 'exists:workout_plans,id'
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $count = 0;
-            foreach ($request->ids as $id) {
-                $workoutPlan = WorkoutPlan::find($id);
-                if ($workoutPlan) {
-                    switch ($request->action) {
-                        case 'activate':
-                            $workoutPlan->update(['status' => 'active']);
-                            break;
-                        case 'deactivate':
-                            $workoutPlan->update(['status' => 'inactive']);
-                            break;
-                        case 'toggle_premium':
-                            $workoutPlan->update(['is_premium' => !$workoutPlan->is_premium]);
-                            break;
-                        case 'delete':
-                            $workoutPlan->delete();
-                            break;
-                    }
-                    $count++;
-                }
-            }
-
-            DB::commit();
-
-            $message = match ($request->action) {
-                'activate' => $count . ' program latihan berhasil diaktifkan',
-                'deactivate' => $count . ' program latihan berhasil dinonaktifkan',
-                'toggle_premium' => $count . ' program latihan berhasil diubah status premiumnya',
-                'delete' => $count . ' program latihan berhasil dihapus',
-            };
-
-            return response()->json([
-                'success' => true,
-                'message' => $message
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error performing bulk action: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal melakukan aksi bulk'
-            ], 500);
-        }
-    }
-
-    /**
      * Get exercises by day (AJAX)
      */
     public function getExercisesByDay(WorkoutPlan $workoutPlan, $day)
@@ -1077,23 +1028,18 @@ class WorkoutPlanController extends Controller
                 $exercise = WorkoutExercise::find($move['exercise_id']);
 
                 if ($exercise && $exercise->workout_plan_id == $workoutPlan->id) {
-                    // Jika pindah hari, reorder di hari lama
                     if ($exercise->day !== $move['to_day']) {
-                        // Kurangi order di hari lama
                         $workoutPlan->workoutExercises()
                             ->where('day', $exercise->day)
                             ->where('order', '>', $exercise->order)
                             ->decrement('order');
 
-                        // Set hari baru
                         $exercise->day = $move['to_day'];
                     }
 
-                    // Set order baru
                     $exercise->order = $move['new_order'];
                     $exercise->save();
 
-                    // Reorder di hari baru
                     $this->reorderExercises($workoutPlan, $move['to_day']);
                 }
             }
