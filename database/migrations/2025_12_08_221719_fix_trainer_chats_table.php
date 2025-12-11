@@ -17,22 +17,29 @@ class FixTrainerChatsTable extends Migration
             });
         }
 
-        // 2. Update data yang ada dengan timestamp
+        // 2. Update data yang ada dengan timestamp saat ini
         DB::table('trainer_chats')->whereNull('created_at')->update([
-            'created_at' => DB::raw('timestamp'),
-            'updated_at' => DB::raw('timestamp')
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
-        // 3. Pastikan kolom timestamp tidak nullable
+        // 3. PERBAIKAN: Tambahkan default value sebelum membuat NOT NULL
         Schema::table('trainer_chats', function (Blueprint $table) {
-            $table->timestamp('created_at')->nullable(false)->change();
-            $table->timestamp('updated_at')->nullable(false)->change();
+            // Gunakan useCurrent() untuk default value
+            $table->timestamp('created_at')
+                ->useCurrent()  // ← INI YANG PERLU DITAMBAHKAN
+                ->nullable(false)
+                ->change();
+
+            $table->timestamp('updated_at')
+                ->useCurrent()  // ← INI YANG PERLU DITAMBAHKAN
+                ->nullable(false)
+                ->change();
         });
     }
 
     public function down()
     {
-        // Tidak perlu rollback yang kompleks
         Schema::table('trainer_chats', function (Blueprint $table) {
             $table->dropColumn(['created_at', 'updated_at']);
         });
