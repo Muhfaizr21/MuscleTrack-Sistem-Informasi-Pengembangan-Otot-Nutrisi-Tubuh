@@ -53,10 +53,49 @@
 
                         {{-- Article Image --}}
                         @if($article->image)
-                            <div class="h-48 w-full overflow-hidden">
-                                <img src="{{ asset('storage/'.$article->image) }}" alt="{{ $article->title }}"
-                                     class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            </div>
+                            @php
+                                $imagePath = null;
+                                // Cari file yang sesuai di storage
+                                $files = Storage::disk('public')->files('articles');
+                                foreach($files as $file) {
+                                    // Coba cocokkan berdasarkan pola
+                                    // Jika ada file dengan ekstensi yang sama
+                                    if (str_ends_with($file, '.jpg') && str_ends_with($article->image, '.jpg')) {
+                                        $imagePath = $file;
+                                        break;
+                                    } elseif (str_ends_with($file, '.png') && str_ends_with($article->image, '.png')) {
+                                        $imagePath = $file;
+                                        break;
+                                    } elseif (str_ends_with($file, '.jpeg') && str_ends_with($article->image, '.jpeg')) {
+                                        $imagePath = $file;
+                                        break;
+                                    }
+                                }
+
+                                // Jika tidak ditemukan, coba ambil file pertama dengan ekstensi gambar
+                                if (!$imagePath && count($files) > 0) {
+                                    foreach($files as $file) {
+                                        if (str_ends_with($file, ['.jpg', '.png', '.jpeg', '.webp'])) {
+                                            $imagePath = $file;
+                                            break;
+                                        }
+                                    }
+                                }
+                            @endphp
+
+                            @if($imagePath && Storage::disk('public')->exists($imagePath))
+                                <div class="h-48 w-full overflow-hidden">
+                                    <img src="{{ asset('storage/'.$imagePath) }}" alt="{{ $article->title }}"
+                                         class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                            @else
+                                <div class="h-48 w-full bg-gradient-to-br from-emerald-500/10 to-emerald-700/10 flex items-center justify-center border-b border-emerald-500/10">
+                                    <div class="text-center">
+                                        <span class="text-4xl text-emerald-400">📖</span>
+                                        <p class="text-emerald-400/60 text-sm mt-2 font-medium">Fitness Article</p>
+                                    </div>
+                                </div>
+                            @endif
                         @else
                             <div class="h-48 w-full bg-gradient-to-br from-emerald-500/10 to-emerald-700/10 flex items-center justify-center border-b border-emerald-500/10">
                                 <div class="text-center">
@@ -80,19 +119,19 @@
 
                             {{-- Title --}}
                             <h3 class="font-serif text-xl font-bold text-white mb-3 group-hover:text-emerald-100 transition-colors duration-300 line-clamp-2">
-    @php
-        $title = $article->title;
-        echo strlen($title) > 70 ? substr($title, 0, 70) . '...' : $title;
-    @endphp
-</h3>
+                                @php
+                                    $title = $article->title;
+                                    echo strlen($title) > 70 ? substr($title, 0, 70) . '...' : $title;
+                                @endphp
+                            </h3>
 
                             {{-- Summary --}}
-                          <p class="text-emerald-400/80 text-sm leading-relaxed mb-4 line-clamp-3">
-    @php
-        $summary = $article->summary ?? '';
-        echo strlen($summary) > 120 ? substr($summary, 0, 120) . '...' : $summary;
-    @endphp
-</p>
+                            <p class="text-emerald-400/80 text-sm leading-relaxed mb-4 line-clamp-3">
+                                @php
+                                    $summary = $article->summary ?? '';
+                                    echo strlen($summary) > 120 ? substr($summary, 0, 120) . '...' : $summary;
+                                @endphp
+                            </p>
 
                             {{-- Read More --}}
                             <div class="flex items-center justify-between pt-4 border-t border-emerald-500/10">

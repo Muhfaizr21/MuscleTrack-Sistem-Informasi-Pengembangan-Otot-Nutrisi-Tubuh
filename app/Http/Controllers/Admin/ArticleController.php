@@ -11,26 +11,17 @@ use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
-    /**
-     * Menampilkan daftar artikel di admin.
-     */
     public function index()
     {
         $articles = NewsArticle::latest()->paginate(10);
         return view('admin.articles.index', compact('articles'));
     }
 
-    /**
-     * Menampilkan form untuk membuat artikel baru.
-     */
     public function create()
     {
         return view('admin.articles.create');
     }
 
-    /**
-     * Menyimpan artikel baru ke database.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -38,22 +29,28 @@ class ArticleController extends Controller
             'category' => 'nullable|string|max:100',
             'summary' => 'nullable|string|max:300',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $path = null;
         if ($request->hasFile('image')) {
-            // Simpan di 'storage/app/public/articles'
-            $path = $request->file('image')->store('articles', 'public');
+            // Simpan dengan nama asli file
+            $file = $request->file('image');
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $filename = Str::slug($originalName) . '-' . time() . '.' . $extension;
+
+            $path = $file->storeAs('articles', $filename, 'public');
+            \Log::info("Store - Image saved: {$path}");
         }
 
-        NewsArticle::create([
-            'title' => $request->input('title'),
-            'slug' => Str::slug($request->input('title')).'-'.uniqid(),
-            'category' => $request->input('category'),
-            'summary' => $request->input('summary'),
-            'content' => $request->input('content'),
-            'image' => $path,
+        $article = NewsArticle::create([
+            'title' => $request->title,
+            'slug' => Str::slug($request->title).'-'.uniqid(),
+            'category' => $request->category,
+            'summary' => $request->summary,
+            'content' => $request->content,
+            'image' => $path, // articles/filename.jpg
             'author' => Auth::user()->name,
         ]);
 
@@ -61,17 +58,11 @@ class ArticleController extends Controller
             ->with('success', 'Artikel baru berhasil dipublikasikan.');
     }
 
-    /**
-     * Menampilkan form untuk mengedit artikel.
-     */
     public function edit(NewsArticle $article)
     {
         return view('admin.articles.edit', compact('article'));
     }
 
-    /**
-     * Update artikel di database.
-     */
     public function update(Request $request, NewsArticle $article)
     {
         $request->validate([
@@ -79,70 +70,64 @@ class ArticleController extends Controller
             'category' => 'nullable|string|max:100',
             'summary' => 'nullable|string|max:300',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Siapkan data untuk update
-        $data = [
-            'title' => $request->input('title'),
-            'slug' => Str::slug($request->input('title')).'-'.$article->id,
-            'category' => $request->input('category'),
-            'summary' => $request->input('summary'),
-            'content' => $request->input('content'),
-        ];
+        // Update text data
+        $article->update([
+            'title' => $request->title,
+            'slug' => Str::slug($request->title).'-'.$article->id,
+            'category' => $request->category,
+            'summary' => $request->summary,
+            'content' => $request->content,
+        ]);
 
-        // Handle gambar
+        // Update image if exists
         if ($request->hasFile('image')) {
-            // 1. Hapus gambar lama (jika ada)
+            // Generate nama file yang baik
+            $file = $request->file('image');
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $filename = Str::slug($originalName) . '-' . time() . '.' . $extension;
+
+            $newPath = $file->storeAs('articles', $filename, 'public');
+
+            // Delete old image if exists
             if ($article->image && Storage::disk('public')->exists($article->image)) {
                 Storage::disk('public')->delete($article->image);
             }
-            // 2. Upload gambar baru
-            $data['image'] = $request->file('image')->store('articles', 'public');
-        } else {
-            // 3. Pertahankan gambar lama jika tidak ada upload baru
-            $data['image'] = $article->image;
-        }
 
-        // Update artikel
-        $article->update($data);
+            // Update database
+            $article->update(['image' => $newPath]);
+        }
 
         return redirect()->route('admin.articles.index')
             ->with('success', 'Artikel berhasil diperbarui.');
     }
 
-    /**
-     * Hapus artikel dari database.
-     */
     public function destroy(NewsArticle $article)
     {
-        // Hapus gambar dari storage
         if ($article->image && Storage::disk('public')->exists($article->image)) {
             Storage::disk('public')->delete($article->image);
         }
 
-        // Hapus data dari database
         $article->delete();
 
         return redirect()->route('admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus.');
     }
 
-    /**
-     * Hapus gambar artikel (tanpa menghapus artikel).
-     */
     public function removeImage(NewsArticle $article)
     {
-        if ($article->image && Storage::disk('public')->exists($article->image)) {
-            Storage::disk('public')->delete($article->image);
-
+        if ($article->image) {
+            if (Storage::disk('public')->exists($article->image)) {
+                Storage::disk('public')->delete($article->image);
+            }
             $article->update(['image' => null]);
 
-            return redirect()->back()
-                ->with('success', 'Gambar artikel berhasil dihapus.');
+            return back()->with('success', 'Gambar dihapus.');
         }
 
-        return redirect()->back()
-            ->with('error', 'Gambar tidak ditemukan.');
+        return back()->with('error', 'Gambar tidak ditemukan.');
     }
 }

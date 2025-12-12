@@ -72,35 +72,68 @@
             @if($articles->count() > 0)
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($articles as $article)
+                        @php
+                            // Cari gambar yang sesuai
+                            $imageUrl = null;
+                            if ($article->image) {
+                                // Cek apakah ini URL eksternal
+                                if (filter_var($article->image, FILTER_VALIDATE_URL)) {
+                                    $imageUrl = $article->image;
+                                } else {
+                                    // Cari di storage lokal
+                                    $possiblePaths = [
+                                        $article->image,
+                                        'articles/' . $article->image,
+                                        'articles/' . basename($article->image)
+                                    ];
+
+                                    foreach ($possiblePaths as $path) {
+                                        if (Storage::disk('public')->exists($path)) {
+                                            $imageUrl = asset('storage/' . $path);
+                                            break;
+                                        }
+                                    }
+
+                                    // Jika tidak ditemukan dengan path langsung, cari file dengan ekstensi yang sama
+                                    if (!$imageUrl) {
+                                        $files = Storage::disk('public')->files('articles');
+                                        $dbExt = pathinfo($article->image, PATHINFO_EXTENSION);
+
+                                        foreach ($files as $file) {
+                                            $fileExt = pathinfo($file, PATHINFO_EXTENSION);
+                                            if (strtolower($dbExt) === strtolower($fileExt)) {
+                                                $imageUrl = asset('storage/' . $file);
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    // Jika masih tidak ditemukan, ambil file gambar pertama
+                                    if (!$imageUrl) {
+                                        $files = Storage::disk('public')->files('articles');
+                                        foreach ($files as $file) {
+                                            $ext = pathinfo($file, PATHINFO_EXTENSION);
+                                            if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                                                $imageUrl = asset('storage/' . $file);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        @endphp
+
                         <div class="group relative rounded-3xl overflow-hidden backdrop-blur-xl bg-slate-800/40 border border-slate-700/30 shadow-2xl shadow-black/30 hover:shadow-green-500/10 transition-all duration-500 transform hover:-translate-y-2">
                             <!-- Article Image -->
                             <a href="/articles/{{ $article->slug }}"
                                class="block relative overflow-hidden fix-clickable-link">
-                                @if($article->image)
-                                    @if(filter_var($article->image, FILTER_VALIDATE_URL))
-                                        <!-- Jika gambar adalah URL eksternal -->
-                                        <img
-                                            src="{{ $article->image }}"
-                                            alt="{{ $article->title }}"
-                                            class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
-                                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'"
-                                        >
-                                    @else
-                                        <!-- Jika gambar disimpan di storage lokal -->
-                                        @php
-                                            $imagePath = $article->image;
-                                            // Hapus 'storage/' dari depan jika ada
-                                            if (strpos($imagePath, 'storage/') === 0) {
-                                                $imagePath = substr($imagePath, 8);
-                                            }
-                                        @endphp
-                                        <img
-                                            src="{{ asset('storage/' . $imagePath) }}"
-                                            alt="{{ $article->title }}"
-                                            class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
-                                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'"
-                                        >
-                                    @endif
+                                @if($imageUrl)
+                                    <img
+                                        src="{{ $imageUrl }}"
+                                        alt="{{ $article->title }}"
+                                        class="w-full aspect-[16/10] object-cover group-hover:scale-110 transition-transform duration-700"
+                                        onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'"
+                                    >
                                 @else
                                     <!-- Fallback jika tidak ada gambar -->
                                     <div class="w-full aspect-[16/10] bg-gradient-to-br from-green-500/20 to-emerald-600/20 flex items-center justify-center">

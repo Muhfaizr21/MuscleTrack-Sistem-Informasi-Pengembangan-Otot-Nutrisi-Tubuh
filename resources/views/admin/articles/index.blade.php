@@ -51,16 +51,62 @@
                 </thead>
                 <tbody class="divide-y divide-slate-700/30">
                     @forelse($articles as $article)
+                    @php
+                        // Cari gambar yang sesuai
+                        $imageUrl = null;
+                        if ($article->image) {
+                            // Coba beberapa kemungkinan path
+                            $possiblePaths = [
+                                $article->image,
+                                'articles/' . $article->image,
+                                'articles/' . basename($article->image)
+                            ];
+
+                            foreach ($possiblePaths as $path) {
+                                if (Storage::disk('public')->exists($path)) {
+                                    $imageUrl = asset('storage/' . $path);
+                                    break;
+                                }
+                            }
+
+                            // Jika tidak ditemukan dengan path langsung, cari file dengan ekstensi yang sama
+                            if (!$imageUrl) {
+                                $files = Storage::disk('public')->files('articles');
+                                $dbExt = pathinfo($article->image, PATHINFO_EXTENSION);
+
+                                foreach ($files as $file) {
+                                    $fileExt = pathinfo($file, PATHINFO_EXTENSION);
+                                    if (strtolower($dbExt) === strtolower($fileExt)) {
+                                        $imageUrl = asset('storage/' . $file);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Jika masih tidak ditemukan, ambil file gambar pertama
+                            if (!$imageUrl) {
+                                $files = Storage::disk('public')->files('articles');
+                                foreach ($files as $file) {
+                                    $ext = pathinfo($file, PATHINFO_EXTENSION);
+                                    if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                                        $imageUrl = asset('storage/' . $file);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    @endphp
+
                     <tr class="hover:bg-slate-700/20 transition-colors duration-300">
                         <!-- Article Column -->
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
                                 <div class="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden">
-                                    @if($article->image)
+                                    @if($imageUrl)
                                         <img class="w-12 h-12 object-cover"
-                                             src="{{ asset('storage/' . $article->image) }}"
+                                             src="{{ $imageUrl }}"
                                              alt="{{ $article->title }}"
-                                             onerror="this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop'">
+                                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop';">
                                     @else
                                         <div class="w-12 h-12 bg-slate-700/50 rounded-xl flex items-center justify-center">
                                             <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -5,6 +5,7 @@
 
     <div class="bg-slate-800/40 backdrop-blur-lg border border-slate-700/30 rounded-2xl shadow-2xl shadow-black/30 overflow-hidden">
 
+        <!-- Form Update -->
         <form id="update-article-form" action="{{ route('admin.articles.update', $article) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -153,7 +154,7 @@
                         <!-- Current Image -->
                         <div class="flex items-center gap-4 mb-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50">
                             <div class="flex-shrink-0">
-                                @if($article->image)
+                                @if($article->image && Storage::disk('public')->exists($article->image))
                                     <img src="{{ asset('storage/' . $article->image) }}" alt="{{ $article->title }}"
                                          class="h-20 w-20 object-cover rounded-lg border-2 border-slate-600/50">
                                 @else
@@ -167,13 +168,22 @@
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-slate-300">Gambar Saat Ini</p>
                                 <p class="text-xs text-slate-500">
-                                    @if($article->image)
+                                    @if($article->image && Storage::disk('public')->exists($article->image))
                                         Gambar yang sedang digunakan
                                     @else
                                         Tidak ada gambar
                                     @endif
                                 </p>
                             </div>
+                            @if($article->image && Storage::disk('public')->exists($article->image))
+                            <div>
+                                <a href="{{ route('admin.articles.remove-image', $article) }}"
+                                   onclick="return confirm('Hapus gambar dari artikel ini?')"
+                                   class="text-red-400 hover:text-red-300 transition-colors duration-300 text-sm">
+                                    Hapus Gambar
+                                </a>
+                            </div>
+                            @endif
                         </div>
 
                         <!-- New Image Upload -->
@@ -188,7 +198,8 @@
                                     </p>
                                     <p class="text-xs text-slate-500 mt-1">PNG, JPG, JPEG (Max. 5MB)</p>
                                 </div>
-                                <input id="image" name="image" type="file" class="hidden" accept="image/*" />
+                                <input id="image" name="image" type="file" class="hidden" accept="image/*"
+                                       onchange="handleImageChange(this)" />
                             </label>
                         </div>
 
@@ -213,15 +224,54 @@
                 </div>
 
             </div>
+
+            <!-- Footer dengan Tombol DALAM FORM -->
+            <div class="bg-slate-800/50 px-8 py-6 border-t border-slate-700/50">
+                <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="flex gap-3">
+                        <!-- Tombol Hapus menggunakan form terpisah (masih di luar tapi dengan JavaScript) -->
+                        <button type="button"
+                                onclick="if(confirm('Anda yakin ingin menghapus artikel \"{{ $article->title }}\"? Tindakan ini tidak dapat dibatalkan.')) document.getElementById('delete-article-form').submit();"
+                                class="px-6 py-3 rounded-xl border border-red-500/50 text-red-400 hover:text-white hover:bg-red-500/10 transition-all duration-300 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Hapus Artikel
+                        </button>
+
+                        <a href="{{ route('admin.articles.index') }}"
+                           class="px-6 py-3 rounded-xl border border-slate-600/50 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Kembali
+                        </a>
+                    </div>
+
+                    <!-- Tombol Simpan Perubahan (DALAM FORM, langsung submit form ini) -->
+                    <button type="submit"
+                            class="px-8 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </div>
         </form>
 
+        <!-- Form Delete (Terpisah dari Form Update) -->
+        <form id="delete-article-form" action="{{ route('admin.articles.destroy', $article) }}" method="POST">
+            @csrf
+            @method('DELETE')
+        </form>
 
     </div>
 
     <script>
         // Image Preview Functionality
-        document.getElementById('image').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        function handleImageChange(input) {
+            const file = input.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -232,7 +282,7 @@
                 }
                 reader.readAsDataURL(file);
             }
-        });
+        }
 
         function removeImagePreview() {
             document.getElementById('image').value = '';
