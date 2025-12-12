@@ -175,15 +175,7 @@
                                     @endif
                                 </p>
                             </div>
-                            @if($article->image && Storage::disk('public')->exists($article->image))
-                            <div>
-                                <a href="{{ route('admin.articles.remove-image', $article) }}"
-                                   onclick="return confirm('Hapus gambar dari artikel ini?')"
-                                   class="text-red-400 hover:text-red-300 transition-colors duration-300 text-sm">
-                                    Hapus Gambar
-                                </a>
-                            </div>
-                            @endif
+                           
                         </div>
 
                         <!-- New Image Upload -->
