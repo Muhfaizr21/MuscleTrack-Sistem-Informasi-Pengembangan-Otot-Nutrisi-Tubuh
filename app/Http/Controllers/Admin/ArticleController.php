@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\NewsArticle; // Gunakan model yang baru kita buat
+use App\Models\NewsArticle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,6 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = NewsArticle::latest()->paginate(10);
-
         return view('admin.articles.index', compact('articles'));
     }
 
@@ -50,12 +49,12 @@ class ArticleController extends Controller
 
         NewsArticle::create([
             'title' => $request->input('title'),
-            'slug' => Str::slug($request->input('title')).'-'.uniqid(), // Slug unik
+            'slug' => Str::slug($request->input('title')).'-'.uniqid(),
             'category' => $request->input('category'),
             'summary' => $request->input('summary'),
             'content' => $request->input('content'),
-            'image' => $path, // Simpan path gambar
-            'author' => Auth::user()->name, // Set author ke admin yang login
+            'image' => $path,
+            'author' => Auth::user()->name,
         ]);
 
         return redirect()->route('admin.articles.index')
@@ -83,18 +82,29 @@ class ArticleController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $data = $request->except('image');
-        $data['slug'] = Str::slug($request->input('title')).'-'.$article->id; // Slug unik
+        // Siapkan data untuk update
+        $data = [
+            'title' => $request->input('title'),
+            'slug' => Str::slug($request->input('title')).'-'.$article->id,
+            'category' => $request->input('category'),
+            'summary' => $request->input('summary'),
+            'content' => $request->input('content'),
+        ];
 
+        // Handle gambar
         if ($request->hasFile('image')) {
             // 1. Hapus gambar lama (jika ada)
-            if ($article->image) {
+            if ($article->image && Storage::disk('public')->exists($article->image)) {
                 Storage::disk('public')->delete($article->image);
             }
             // 2. Upload gambar baru
             $data['image'] = $request->file('image')->store('articles', 'public');
+        } else {
+            // 3. Pertahankan gambar lama jika tidak ada upload baru
+            $data['image'] = $article->image;
         }
 
+        // Update artikel
         $article->update($data);
 
         return redirect()->route('admin.articles.index')
@@ -107,7 +117,7 @@ class ArticleController extends Controller
     public function destroy(NewsArticle $article)
     {
         // Hapus gambar dari storage
-        if ($article->image) {
+        if ($article->image && Storage::disk('public')->exists($article->image)) {
             Storage::disk('public')->delete($article->image);
         }
 
@@ -116,5 +126,23 @@ class ArticleController extends Controller
 
         return redirect()->route('admin.articles.index')
             ->with('success', 'Artikel berhasil dihapus.');
+    }
+
+    /**
+     * Hapus gambar artikel (tanpa menghapus artikel).
+     */
+    public function removeImage(NewsArticle $article)
+    {
+        if ($article->image && Storage::disk('public')->exists($article->image)) {
+            Storage::disk('public')->delete($article->image);
+
+            $article->update(['image' => null]);
+
+            return redirect()->back()
+                ->with('success', 'Gambar artikel berhasil dihapus.');
+        }
+
+        return redirect()->back()
+            ->with('error', 'Gambar tidak ditemukan.');
     }
 }

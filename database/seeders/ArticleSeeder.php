@@ -35,7 +35,7 @@ class ArticleSeeder extends Seeder
                 'summary' => 'Protein, karbohidrat, dan lemak sehat berperan penting dalam pembentukan otot.',
                 'content' => 'Kunci utama pembentukan otot adalah keseimbangan antara latihan dan nutrisi. Pastikan asupan protein cukup untuk regenerasi otot, serta karbohidrat kompleks untuk energi.',
                 'author' => 'Coach Dinda',
-                'image' => 'muscle-nutrition.jpg',
+                'image' => 'nutrition-muscle.jpg',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -78,7 +78,7 @@ class ArticleSeeder extends Seeder
                 'content' => 'LANGKAH-LANGKAH MEAL PREP:
 1. Rencana Menu (Sabtu): Tentukan menu harian dengan komposisi 40% protein, 40% karbo, 20% lemak sehat
 2. Belanja Bahan (Minggu pagi): Beli bahan segar sesuai daftar
-3. Masak Massal (Minggu siang): 
+3. Masak Massal (Minggu siang):
    - Masak nasi merah untuk 3-4 hari
    - Panggang ayam atau daging
    - Kukus sayuran
@@ -267,7 +267,7 @@ Aplikasi MuscleXpert dapat diakses melalui: **https://www.muscleXpert.my.id**
 ### **Step 2: Atur Split Routine**
 Pilih tipe split yang sesuai:
 - **Full Body**: 3x seminggu
-- **Upper/Lower**: 4x seminggu  
+- **Upper/Lower**: 4x seminggu
 - **Push/Pull/Legs**: 6x seminggu
 - **Bro Split**: 5x seminggu (per muscle group)
 
@@ -313,7 +313,7 @@ Untuk setiap hari latihan:
 ### **Program Intermediate (PPL Split)**
 **Push Day:**
 1. Bench Press: 4x8-10
-2. Overhead Press: 3x8-10  
+2. Overhead Press: 3x8-10
 3. Incline DB Press: 3x10-12
 4. Tricep Pushdown: 3x12-15
 5. Lateral Raises: 4x12-15
@@ -381,7 +381,7 @@ Untuk setiap hari latihan:
 ### **Step 2: Atur Makronutrien**
 Rekomendasi default:
 - **Muscle Gain**: 40% Protein, 40% Carb, 20% Fat
-- **Fat Loss**: 45% Protein, 35% Carb, 20% Fat  
+- **Fat Loss**: 45% Protein, 35% Carb, 20% Fat
 - **Maintenance**: 30% Protein, 40% Carb, 30% Fat
 
 **Customize sesuai preferensi:**
@@ -502,9 +502,280 @@ Untuk makanan homemade:
                 'image' => 'nutrition-tracking.jpg',
                 'created_at' => now()->subDays(4),
                 'updated_at' => now()->subDays(4),
-            ]
+            ],
+            // TAMBAHAN ARTIKEL BARU DENGAN GAMBAR BERBEDA
+            [
+                'title' => 'Workout di Rumah: Tanpa Alat, Tetap Efektif',
+                'slug' => Str::slug('Workout di Rumah: Tanpa Alat, Tetap Efektif'),
+                'category' => 'Fitness',
+                'summary' => 'Rutinitas latihan bodyweight yang bisa dilakukan di rumah tanpa alat khusus.',
+                'content' => '## **Program Home Workout 30 Menit**
+
+### **Pemanasan (5 menit):**
+1. Jumping Jacks - 60 detik
+2. High Knees - 60 detik
+3. Arm Circles - 60 detik
+4. Leg Swings - 60 detik
+5. Torso Twists - 60 detik
+
+### **Latihan Inti (20 menit):**
+**Circuit 1 (ulangi 3x):**
+- Push-ups: 10-15 reps
+- Squats: 15-20 reps
+- Plank: 30-60 detik
+- Lunges: 10 reps per kaki
+
+**Circuit 2 (ulangi 3x):**
+- Tricep Dips: 10-15 reps
+- Glute Bridges: 15-20 reps
+- Mountain Climbers: 30-45 detik
+- Russian Twists: 20 reps
+
+### **Pendinginan (5 menit):**
+1. Child Pose - 60 detik
+2. Cobra Stretch - 60 detik
+3. Quad Stretch - 30 detik per sisi
+4. Hamstring Stretch - 30 detik per sisi
+5. Shoulder Stretch - 30 detik per sisi
+
+### **Tips Tambahan:**
+- **Konsistensi**: Lakukan 3-4x seminggu
+- **Progres**: Tambah reps atau waktu setiap minggu
+- **Form**: Prioritaskan teknik yang benar
+- **Istirahat**: 30-60 detik istirahat antar circuit',
+                'author' => 'Coach Rizky',
+                'image' => 'home-workout.jpg',
+                'created_at' => now()->subDays(6),
+                'updated_at' => now()->subDays(6),
+            ],
+            [
+                'title' => 'Protein Shake: Kapan Waktu Terbaik Meminumnya?',
+                'slug' => Str::slug('Protein Shake: Kapan Waktu Terbaik Meminumnya'),
+                'category' => 'Nutrition',
+                'summary' => 'Panduan timing konsumsi protein shake untuk hasil optimal.',
+                'content' => '## **Waktu Terbaik Konsumsi Protein Shake**
+
+### **1. Pagi Hari (Setelah Bangun Tidur)**
+- **Waktu**: 30 menit setelah bangun
+- **Alasan**: Menghentikan katabolisme malam
+- **Rekomendasi**: Whey protein cepat serap
+
+### **2. Pre-Workout (30-60 menit sebelum latihan)**
+- **Waktu**: 30-60 menit sebelum latihan
+- **Alasan**: Menyediakan asam amino selama latihan
+- **Rekomendasi**: Whey protein dengan sedikit carbs
+
+### **3. Post-Workout (Dalam 30 menit setelah latihan)**
+- **Waktu**: Window anabolik 30-45 menit
+- **Alasan**: Recovery otot maksimal
+- **Rekomendasi**: Whey protein + karbohidrat cepat
+
+### **4. Sebelum Tidur**
+- **Waktu**: 30 menit sebelum tidur
+- **Alasan**: Regenerasi otot selama tidur
+- **Rekomendasi**: Casein protein lambat serap
+
+### **5. Di Antara Makanan Utama**
+- **Waktu**: 2-3 jam setelah makan
+- **Alasan**: Mempertahankan level protein darah
+- **Rekomendasi**: Blend protein (whey + casein)
+
+### **Formulasi Protein Shake:**
+
+**Post-Workout Shake:**
+- 30g Whey Protein
+- 1 Pisang
+- 200ml Susu Almond
+- 1 sdm Madu
+- Es batu (opsional)
+
+**Bedtime Shake:**
+- 30g Casein Protein
+- 200ml Susu
+- 1 sdm Selai Kacang
+- 1/2 sdt Kayu Manis
+
+### **Kesalahan Umum:**
+1. **Terlalu Banyak**: Max 40g per serving
+2. **Waktu Salah**: Tidak memperhatikan timing
+3. **Kualitas Rendah**: Pilih protein berkualitas
+4. **Hanya Protein**: Butuh karbohidrat untuk sintesis',
+                'author' => 'Coach Dinda',
+                'image' => 'protein-shake.jpg',
+                'created_at' => now()->subDays(8),
+                'updated_at' => now()->subDays(8),
+            ],
+            [
+                'title' => 'Recovery Day: Mengapa Istirahat Penting dalam Fitness',
+                'slug' => Str::slug('Recovery Day: Mengapa Istirahat Penting dalam Fitness'),
+                'category' => 'Fitness',
+                'summary' => 'Hari istirahat bukan berarti malas, tapi strategi untuk hasil maksimal.',
+                'content' => '## **Mengapa Recovery Day Penting?**
+
+### **Fisiologi Recovery:**
+1. **Perbaikan Otot**: Micro-tears diperbaiki selama istirahat
+2. **Sintesis Protein**: Puncak 24-48 jam setelah latihan
+3. **Restock Glikogen**: Energi otot dikembalikan
+4. **Sistem Saraf**: CNS recovery sangat penting
+
+### **Tanda Anda Butuh Recovery Day:**
+- [ ] Kelelahan ekstrem
+- [ ] Nyeri sendi berlebihan
+- [ ] Performa menurun drastis
+- [ ] Mood tidak stabil
+- [ ] Gangguan tidur
+- [ ] Nafsu makan berubah
+
+### **Jenis Recovery Day:**
+
+**1. Active Recovery:**
+- Jalan santai 30 menit
+- Yoga ringan
+- Stretching
+- Foam rolling
+
+**2. Complete Rest:**
+- Tidak ada aktivitas fisik
+- Fokus pada tidur
+- Hidrasi optimal
+- Nutrisi recovery
+
+**3. Deload Week (setiap 4-6 minggu):**
+- Kurangi volume 40-60%
+- Kurangi intensitas
+- Fokus pada teknik
+- Tidak ada PR attempt
+
+### **Frekuensi Recovery:**
+- **Beginner**: 3-4 hari latihan, 3-4 hari recovery
+- **Intermediate**: 4-5 hari latihan, 2-3 hari recovery
+- **Advanced**: 5-6 hari latihan, 1-2 hari recovery
+
+### **Recoday Activities yang Direkomendasikan:**
+
+**1. Foam Rolling:**
+- Calves: 60 detik per sisi
+- Hamstrings: 60 detik per sisi
+- Quads: 60 detik per sisi
+- Glutes: 60 detik per sisi
+- Upper Back: 60 detik
+
+**2. Stretching Routine:**
+- Downward Dog: 60 detik
+- Pigeon Pose: 45 detik per sisi
+- Butterfly Stretch: 60 detik
+- Quad Stretch: 45 detik per sisi
+- Chest Opener: 60 detik
+
+**3. Nutrisi Recovery:**
+- **Protein**: 1.6-2.2g per kg berat badan
+- **Carbs**: 3-5g per kg untuk refill glikogen
+- **Fat**: 0.8-1g per kg untuk hormon
+- **Air**: 35ml per kg berat badan
+
+### **Tips Recovery Optimal:**
+1. **Tidur**: 7-9 jam kualitas baik
+2. **Hidrasi**: 3-4 liter per hari
+3. **Nutrisi**: Fokus pada whole foods
+4. **Stress Management**: Meditasi, breathing exercises
+5. **Suplementasi**: Magnesium, Zinc, Omega-3
+
+### **Kesalahan Recovery:**
+1. **No Rest**: Tidak ada hari istirahat
+2. **Overtraining**: Latihan berlebihan
+3. **Poor Nutrition**: Tidak cukup protein/carbs
+4. **Dehydration**: Kurang minum air
+5. **Bad Sleep**: Tidur tidak berkualitas
+
+**Ingat: Progress terjadi saat istirahat, bukan saat latihan!**',
+                'author' => 'Coach Arif',
+                'image' => 'recovery-day.jpg',
+                'created_at' => now()->subDays(9),
+                'updated_at' => now()->subDays(9),
+            ],
+            [
+                'title' => 'Membangun Komunitas Fitness yang Supportif',
+                'slug' => Str::slug('Membangun Komunitas Fitness yang Supportif'),
+                'category' => 'Community',
+                'summary' => 'Tips menciptakan lingkungan fitness yang positif dan saling mendukung.',
+                'content' => '## **Pilar Komunitas Fitness yang Sehat**
+
+### **1. Inklusivitas**
+- **Prinsip**: Semua level welcome
+- **Aksi**: Tidak ada body shaming
+- **Fokus**: Progress personal, bukan kompetisi
+
+### **2. Dukungan Emosional**
+- **Celebrate Wins**: Rayakan pencapaian kecil
+- **Empathy**: Pahami perjuangan masing-masing
+- **Accountability**: Saling mengingatkan tujuan
+
+### **3. Edukasi Berbagi**
+- **Knowledge Sharing**: Tips dan pengalaman
+- **Fact-Based**: Informasi berdasarkan sains
+- **Respectful Debate**: Diskusi sehat berbeda pendapat
+
+### **4. Positive Reinforcement**
+- **Constructive Feedback**: Kritik membangun
+- **Encouragement**: Kata-kata penyemangat
+- **Role Models**: Contoh dari yang lebih berpengalaman
+
+### **Tips Membangun Komunitas:**
+
+**1. Online Community:**
+- Grup WhatsApp/Telegram
+- Forum Diskusi
+- Instagram Community
+- Challenge Bersama
+
+**2. Offline Community:**
+- Group Workout Mingguan
+- Fitness Workshop
+- Healthy Potluck
+- Outdoor Activities
+
+**3. Engagement Strategies:**
+- Weekly Challenges
+- Progress Threads
+- Q&A Sessions
+- Guest Expert Sharing
+
+### **Kode Etik Komunitas:**
+1. **No Judgement**: Tidak menghakimi
+2. **Respect Privacy**: Jaga privitas anggota
+3. **Scientific Approach**: Rekomendasi berbasis sains
+4. **No Promotion**: Tidak promosi produk
+5. **Be Kind**: Selapang dada dan baik hati
+
+### **Manfaat Komunitas Fitness:**
+- **Motivation**: 73% lebih konsisten
+- **Knowledge**: 65% lebih banyak belajar
+- **Accountability**: 81% lebih bertanggung jawab
+- **Friendship**: 58% dapat teman fitness
+- **Results**: 89% mencapai tujuan lebih cepat
+
+**Komunitas yang kuat membangun individu yang kuat!**',
+                'author' => 'Coach Dinda',
+                'image' => 'fitness-community.jpg',
+                'created_at' => now()->subDays(11),
+                'updated_at' => now()->subDays(11),
+            ],
         ];
 
         NewsArticle::insert($articles);
+
+        $this->command->info('✅ Seeder artikel berhasil dijalankan!');
+        $this->command->info('📊 Total artikel: ' . count($articles));
+        $this->command->info('📁 Gambar yang digunakan:');
+        $this->command->table(
+            ['No', 'Gambar', 'Artikel'],
+            collect($articles)->map(function ($article, $index) {
+                return [
+                    $index + 1,
+                    $article['image'],
+                    $article['title']
+                ];
+            })->toArray()
+        );
     }
 }
