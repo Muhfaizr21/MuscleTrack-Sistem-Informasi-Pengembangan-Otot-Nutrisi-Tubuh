@@ -20,6 +20,7 @@
             </a>
         </div>
 
+        {{-- PERBAIKI BAGIAN INI: method="POST" bukan method="PUT" --}}
         <form action="{{ route('trainer.profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
@@ -187,25 +188,56 @@
                     {{-- Foto Profil --}}
                     <div>
                         <label for="avatar" class="block text-emerald-300/80 text-sm font-semibold mb-2">Foto Profil</label>
-                        <input type="file"
-                               class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 transition-all duration-300 @error('avatar') border-red-400 @enderror"
-                               id="avatar" name="avatar" accept="image/*">
-                        <p class="text-gray-400 text-sm mt-2">Format: JPG, PNG, GIF. Maksimal: 2MB</p>
+                        <div class="flex items-center space-x-4 mb-3">
+                            @if($user->avatar)
+                                <div class="relative">
+                                    <img src="{{ asset('storage/' . $user->avatar) }}"
+                                         alt="Current Avatar"
+                                         class="rounded-xl w-20 h-20 object-cover border-2 border-emerald-400/30">
+                                    <button type="button"
+                                            onclick="confirmDeleteAvatar()"
+                                            class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-all duration-300">
+                                        <i class="fas fa-times text-white text-xs"></i>
+                                    </button>
+                                </div>
+                            @endif
+                            <div class="flex-1">
+                                <input type="file"
+                                       class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 transition-all duration-300 @error('avatar') border-red-400 @enderror"
+                                       id="avatar" name="avatar" accept="image/*">
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm">Format: JPG, PNG, GIF. Maksimal: 2MB</p>
                         @error('avatar')
                             <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                         @enderror
-
-                        @if($user->avatar)
-                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-emerald-400/10">
-                                <p class="text-emerald-300 text-sm font-semibold mb-2">Foto saat ini:</p>
-                                <img src="{{ $user->avatar }}" alt="Current Avatar" class="rounded-xl w-20 h-20 object-cover border-2 border-emerald-400/30">
-                            </div>
-                        @endif
                     </div>
 
                     {{-- File Sertifikat --}}
                     <div>
                         <label for="certificate_file" class="block text-emerald-300/80 text-sm font-semibold mb-2">File Sertifikat</label>
+                        <div class="flex items-center space-x-4 mb-3">
+                            @if(isset($verification) && $verification->certificate)
+                                <div class="p-3 rounded-xl bg-gray-800/50 border border-emerald-400/10 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-emerald-300 text-sm font-semibold mb-1">File saat ini:</p>
+                                            <p class="text-white text-sm truncate">{{ basename($verification->certificate) }}</p>
+                                        </div>
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                            {{ $verification->status == 'approved' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
+                                               ($verification->status == 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30' :
+                                               'bg-red-500/20 text-red-400 border border-red-400/30') }}">
+                                            {{ ucfirst($verification->status) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="p-3 rounded-xl bg-gray-800/50 border border-yellow-400/10 flex-1">
+                                    <p class="text-yellow-400 text-sm">Belum ada file sertifikat yang diupload.</p>
+                                </div>
+                            @endif
+                        </div>
                         <input type="file"
                                class="w-full bg-gray-800/50 border border-emerald-400/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 transition-all duration-300 @error('certificate_file') border-red-400 @enderror"
                                id="certificate_file" name="certificate_file" accept=".pdf,.doc,.docx">
@@ -213,26 +245,6 @@
                         @error('certificate_file')
                             <p class="text-red-400 text-sm mt-2">{{ $message }}</p>
                         @enderror
-
-                        @if(isset($verification) && $verification->certificate)
-                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-emerald-400/10">
-                                <p class="text-emerald-300 text-sm font-semibold mb-2">File saat ini:</p>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-white">{{ basename($verification->certificate) }}</span>
-                                    <span class="px-2 py-1 rounded-full text-xs font-semibold
-                                        {{ $verification->status == 'approved' ? 'bg-green-500/20 text-green-400 border border-green-400/30' :
-                                           ($verification->status == 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30' :
-                                           'bg-red-500/20 text-red-400 border border-red-400/30') }}">
-                                        {{ $verification->status == 'approved' ? 'Terverifikasi' :
-                                           ($verification->status == 'pending' ? 'Menunggu Verifikasi' : 'Ditolak') }}
-                                    </span>
-                                </div>
-                            </div>
-                        @else
-                            <div class="mt-3 p-3 rounded-xl bg-gray-800/50 border border-yellow-400/10">
-                                <p class="text-yellow-400 text-sm">Belum ada file sertifikat yang diupload.</p>
-                            </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -253,7 +265,26 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    input[type="file"]::file-selector-button {
+        background: linear-gradient(to right, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+        background: linear-gradient(to right, #059669, #047857);
+    }
+</style>
+@endpush
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Preview image sebelum upload
     document.getElementById('avatar').addEventListener('change', function (e) {
@@ -267,6 +298,29 @@
         }
     });
 
+    // Konfirmasi hapus avatar
+    function confirmDeleteAvatar() {
+        Swal.fire({
+            title: 'Hapus Foto Profil?',
+            text: "Foto profil akan dihapus permanen. Anda dapat mengupload foto baru nanti.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            background: '#1f2937',
+            color: '#f9fafb',
+            customClass: {
+                popup: 'rounded-2xl border border-red-400/20 bg-gradient-to-br from-gray-900/80 to-gray-800/70'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('trainer.profile.avatar.delete') }}";
+            }
+        });
+    }
+
     // Validasi form
     document.querySelector('form').addEventListener('submit', function (e) {
         const requiredFields = this.querySelectorAll('[required]');
@@ -276,35 +330,40 @@
             if (!field.value.trim()) {
                 valid = false;
                 field.classList.add('border-red-400');
-            } else {
-                field.classList.remove('border-red-400');
+                field.classList.remove('border-emerald-400');
             }
         });
 
         if (!valid) {
             e.preventDefault();
-            // SweetAlert atau notifikasi custom
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-            })
-
-            Toast.fire({
-                icon: 'error',
-                title: 'Harap isi semua field yang wajib diisi!'
-            })
+            Swal.fire({
+                title: 'Perhatian!',
+                text: 'Harap isi semua field yang wajib diisi.',
+                icon: 'warning',
+                confirmButtonColor: '#10b981',
+                background: '#1f2937',
+                color: '#f9fafb',
+                customClass: {
+                    popup: 'rounded-2xl border border-yellow-400/20 bg-gradient-to-br from-gray-900/80 to-gray-800/70'
+                }
+            });
         }
     });
 
     // Real-time validation
-    document.querySelectorAll('input[required]').forEach(input => {
+    document.querySelectorAll('input[required], textarea[required]').forEach(input => {
         input.addEventListener('blur', function() {
             if (!this.value.trim()) {
                 this.classList.add('border-red-400');
+                this.classList.remove('border-emerald-400');
             } else {
+                this.classList.remove('border-red-400');
+                this.classList.add('border-emerald-400');
+            }
+        });
+
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
                 this.classList.remove('border-red-400');
                 this.classList.add('border-emerald-400');
             }

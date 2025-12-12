@@ -282,15 +282,16 @@ Route::middleware(['auth', 'role:trainer'])
             Route::post('/check-status', [MemberController::class, 'checkAllMembersStatus'])->name('check-status');
         });
 
-        // Profile Management
-        Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/', [TrainerProfileController::class, 'index'])->name('index');
-            Route::get('/edit', [TrainerProfileController::class, 'edit'])->name('edit');
-            Route::post('/update', [TrainerProfileController::class, 'update'])->name('update');
-            Route::post('/password', [TrainerProfileController::class, 'updatePassword'])->name('password.update');
-            Route::post('/settings', [TrainerProfileController::class, 'updateSettings'])->name('settings.update');
-            Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
-        });
+         // Profile Management
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [TrainerProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [TrainerProfileController::class, 'edit'])->name('edit');
+        Route::post('/update', [TrainerProfileController::class, 'update'])->name('update');
+        Route::post('/password', [TrainerProfileController::class, 'updatePassword'])->name('password.update');
+        Route::post('/settings', [TrainerProfileController::class, 'updateSettings'])->name('settings.update');
+        Route::delete('/avatar', [TrainerProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+    });
+
 
         // Communication
         Route::prefix('communication')->name('communication.')->group(function () {

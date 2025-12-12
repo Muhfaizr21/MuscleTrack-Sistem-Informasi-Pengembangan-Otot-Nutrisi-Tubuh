@@ -74,10 +74,17 @@
                 {{-- Profile Image --}}
                 <div class="text-center mb-6">
                     <div class="relative inline-block">
-                        <img src="{{ $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=4f46e5&color=ffffff&size=150' }}"
+                        @php
+                            use Illuminate\Support\Facades\Storage;
+                        @endphp
+                        <img src="{{ $user->avatar ? asset('storage/' . $user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=4f46e5&color=ffffff&size=150' }}"
                             alt="Profile" class="rounded-2xl w-32 h-32 object-cover border-4 border-emerald-400/30 shadow-lg">
                         <span class="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full border-4 border-gray-900 flex items-center justify-center">
-                            <i class="fas fa-{{ $user->verification_status == 'approved' ? 'check' : ($user->verification_status == 'pending' ? 'clock' : 'times') }} text-white text-xs"></i>
+                            @if($verification)
+                                <i class="fas fa-{{ $verification->status == 'approved' ? 'check' : ($verification->status == 'pending' ? 'clock' : 'times') }} text-white text-xs"></i>
+                            @else
+                                <i class="fas fa-times text-white text-xs"></i>
+                            @endif
                         </span>
                     </div>
                 </div>
@@ -86,8 +93,19 @@
                 <div class="text-center mb-6">
                     <h3 class="text-2xl font-bold text-white mb-2">{{ $user->name }}</h3>
                     <p class="text-emerald-300 mb-3">{{ $trainerProfile->specialization ?? 'Trainer' }}</p>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-400/30">
-                        {{ ucfirst($user->verification_status) }}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        @if($verification)
+                            {{ $verification->status == 'approved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/30' :
+                               ($verification->status == 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30' :
+                               'bg-red-500/20 text-red-400 border border-red-400/30') }}
+                        @else
+                            bg-yellow-500/20 text-yellow-400 border border-yellow-400/30
+                        @endif">
+                        @if($verification)
+                            {{ ucfirst($verification->status) }}
+                        @else
+                            Belum Verifikasi
+                        @endif
                     </span>
                 </div>
 
@@ -120,10 +138,15 @@
                         <div>
                             <p class="text-yellow-300/80 text-sm">Rating</p>
                             <div class="flex items-center">
+                                @php
+                                    $rating = $trainerProfile->rating ?? 0;
+                                    $avgRating = $stats['average_rating'] ?? 0;
+                                    $displayRating = $rating > 0 ? $rating : $avgRating;
+                                @endphp
                                 @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star text-{{ $i <= ($trainerProfile->rating ?? 0) ? 'yellow-400' : 'gray-600' }} mr-1"></i>
+                                    <i class="fas fa-star {{ $i <= floor($displayRating) ? 'text-yellow-400' : 'text-gray-600' }} mr-1"></i>
                                 @endfor
-                                <span class="text-white font-semibold ml-2">({{ number_format($trainerProfile->rating ?? 0, 1) }})</span>
+                                <span class="text-white font-semibold ml-2">({{ number_format($displayRating, 1) }})</span>
                             </div>
                         </div>
                     </div>
@@ -256,7 +279,7 @@
                         @foreach($recentMembers as $member)
                             <div class="flex items-center justify-between p-4 rounded-xl bg-gray-800/50 border border-emerald-400/10 hover:border-emerald-400/30 transition-all duration-300">
                                 <div class="flex items-center">
-                                    <img src="{{ $member->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($member->name) . '&background=4f46e5&color=ffffff&size=150' }}"
+                                    <img src="{{ $member->avatar ? asset('storage/' . $member->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($member->name) . '&background=4f46e5&color=ffffff&size=150' }}"
                                         alt="{{ $member->name }}" class="rounded-xl w-12 h-12 object-cover mr-4">
                                     <div>
                                         <h4 class="text-white font-semibold">{{ $member->name }}</h4>
