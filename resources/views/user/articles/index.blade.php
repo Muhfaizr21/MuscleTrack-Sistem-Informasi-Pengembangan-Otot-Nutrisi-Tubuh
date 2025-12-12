@@ -48,54 +48,67 @@
         @if($articles->count())
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 @foreach($articles as $article)
-                    <a href="{{ route('user.articles.show', $article->slug) }}"
-                       class="group glass rounded-2xl border border-emerald-500/10 overflow-hidden transition-all duration-300 hover:border-emerald-500/30 hover-glow">
+                    @php
+                        // Cari gambar yang sesuai
+                        $imageUrl = null;
+                        if ($article->image) {
+                            // Cek apakah ini URL eksternal
+                            if (filter_var($article->image, FILTER_VALIDATE_URL)) {
+                                $imageUrl = $article->image;
+                            } else {
+                                // Cari di storage lokal
+                                $possiblePaths = [
+                                    $article->image,
+                                    'articles/' . $article->image,
+                                    'articles/' . basename($article->image)
+                                ];
 
-                        {{-- Article Image --}}
-                        @if($article->image)
-                            @php
-                                $imagePath = null;
-                                // Cari file yang sesuai di storage
-                                $files = Storage::disk('public')->files('articles');
-                                foreach($files as $file) {
-                                    // Coba cocokkan berdasarkan pola
-                                    // Jika ada file dengan ekstensi yang sama
-                                    if (str_ends_with($file, '.jpg') && str_ends_with($article->image, '.jpg')) {
-                                        $imagePath = $file;
-                                        break;
-                                    } elseif (str_ends_with($file, '.png') && str_ends_with($article->image, '.png')) {
-                                        $imagePath = $file;
-                                        break;
-                                    } elseif (str_ends_with($file, '.jpeg') && str_ends_with($article->image, '.jpeg')) {
-                                        $imagePath = $file;
+                                foreach ($possiblePaths as $path) {
+                                    if (Storage::disk('public')->exists($path)) {
+                                        $imageUrl = asset('storage/' . $path);
                                         break;
                                     }
                                 }
 
-                                // Jika tidak ditemukan, coba ambil file pertama dengan ekstensi gambar
-                                if (!$imagePath && count($files) > 0) {
-                                    foreach($files as $file) {
-                                        if (str_ends_with($file, ['.jpg', '.png', '.jpeg', '.webp'])) {
-                                            $imagePath = $file;
+                                // Jika tidak ditemukan dengan path langsung, cari file dengan ekstensi yang sama
+                                if (!$imageUrl) {
+                                    $files = Storage::disk('public')->files('articles');
+                                    $dbExt = pathinfo($article->image, PATHINFO_EXTENSION);
+
+                                    foreach ($files as $file) {
+                                        $fileExt = pathinfo($file, PATHINFO_EXTENSION);
+                                        if (strtolower($dbExt) === strtolower($fileExt)) {
+                                            $imageUrl = asset('storage/' . $file);
                                             break;
                                         }
                                     }
                                 }
-                            @endphp
 
-                            @if($imagePath && Storage::disk('public')->exists($imagePath))
-                                <div class="h-48 w-full overflow-hidden">
-                                    <img src="{{ asset('storage/'.$imagePath) }}" alt="{{ $article->title }}"
-                                         class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
-                                </div>
-                            @else
-                                <div class="h-48 w-full bg-gradient-to-br from-emerald-500/10 to-emerald-700/10 flex items-center justify-center border-b border-emerald-500/10">
-                                    <div class="text-center">
-                                        <span class="text-4xl text-emerald-400">📖</span>
-                                        <p class="text-emerald-400/60 text-sm mt-2 font-medium">Fitness Article</p>
-                                    </div>
-                                </div>
-                            @endif
+                                // Jika masih tidak ditemukan, ambil file gambar pertama
+                                if (!$imageUrl) {
+                                    $files = Storage::disk('public')->files('articles');
+                                    foreach ($files as $file) {
+                                        $ext = pathinfo($file, PATHINFO_EXTENSION);
+                                        if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                                            $imageUrl = asset('storage/' . $file);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    @endphp
+
+                    <a href="{{ route('user.articles.show', $article->slug) }}"
+                       class="group glass rounded-2xl border border-emerald-500/10 overflow-hidden transition-all duration-300 hover:border-emerald-500/30 hover-glow">
+
+                        {{-- Article Image --}}
+                        @if($imageUrl)
+                            <div class="h-48 w-full overflow-hidden">
+                                <img src="{{ $imageUrl }}" alt="{{ $article->title }}"
+                                     class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop';">
+                            </div>
                         @else
                             <div class="h-48 w-full bg-gradient-to-br from-emerald-500/10 to-emerald-700/10 flex items-center justify-center border-b border-emerald-500/10">
                                 <div class="text-center">
